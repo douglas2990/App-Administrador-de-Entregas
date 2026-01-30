@@ -11,8 +11,9 @@ data class Empresa (
         val dados = mutableMapOf<String, Any>()
 
         if( id.isNotEmpty() ) dados["id"] = id
-        dados["idCategoria"]    = id
+        //dados["idCategoria"]    = id
         dados["nome"]           = nome
+        dados["email"]          = email
         dados["cnpj"]           = cnpj
         dados["telefone"]       = telefone
 

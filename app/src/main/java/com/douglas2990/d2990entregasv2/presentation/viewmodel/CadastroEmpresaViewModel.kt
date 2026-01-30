@@ -8,6 +8,8 @@ import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IEmpresaR
 import com.douglas2990.d2990entregasv2.domain.usecase.ResultadoValidacao
 import com.douglas2990.d2990entregasv2.model.Empresa
 import com.example.core.UIstatus
+import com.example.core.util.ValidadorCnpj
+import com.example.core.util.ValidadorEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,6 +23,9 @@ class CadastroEmpresaViewModel @Inject constructor(
     private val _resultadoValidacao = MutableLiveData<ResultadoValidacao>()
     val resultadoValidacao: LiveData<ResultadoValidacao>
         get() = _resultadoValidacao
+
+    private val _uiStatus = MutableLiveData<UIstatus<String>>()
+    val uiStatus: LiveData<UIstatus<String>> = _uiStatus
 
 
     fun remover(
@@ -56,6 +61,18 @@ class CadastroEmpresaViewModel @Inject constructor(
         empresa: Empresa,
         uiStatus: (UIstatus<String>)->Unit
     ){
+
+/*        // 1. Validação usando Domain Helpers (Puro Kotlin)
+        if (!ValidadorCnpj.isValido(empresa.cnpj)) {
+            _uiStatus.value = UIstatus.Erro("CNPJ inválido")
+            return
+        }
+
+        if (!ValidadorEmail.isValido(empresa.email)) {
+            _uiStatus.value = UIstatus.Erro("E-mail inválido")
+            return
+        }*/
+
         uiStatus.invoke( UIstatus.Carregando )
         viewModelScope.launch {
             if( empresa.id.isEmpty() ){//salvar
@@ -66,7 +83,36 @@ class CadastroEmpresaViewModel @Inject constructor(
         }
     }
 
-    fun isCnpjValido(cnpj: String): Boolean {
+    fun salvarCadastroEmpresaTeste300120261402(
+        empresa: Empresa
+    ) {
+
+        // 1. Validação usando Domain Helpers (Puro Kotlin)
+        if (!ValidadorCnpj.isValido(empresa.cnpj)) {
+            _uiStatus.value = UIstatus.Erro("CNPJ inválido")
+            return
+        }
+
+        if (!ValidadorEmail.isValido(empresa.email)) {
+            _uiStatus.value = UIstatus.Erro("E-mail inválido")
+            return
+        }
+
+        _uiStatus.value = UIstatus.Carregando
+        viewModelScope.launch {
+            if (empresa.id.isEmpty()) {
+                empresaRepository.salvar(empresa) { resultado ->
+                    _uiStatus.value = resultado
+                }
+            } else {
+                empresaRepository.atualizar(empresa) { resultado ->
+                    _uiStatus.value = resultado
+                }
+            }
+        }
+    }
+
+   fun isCnpjValido(cnpj: String): Boolean {
         val numeros = cnpj.replace(Regex("[^\\d]"), "") // Garante que só temos números
         if (numeros.length != 14) return false
 
@@ -95,6 +141,10 @@ class CadastroEmpresaViewModel @Inject constructor(
         } catch (e: Exception) {
             false
         }
+    }
+
+    fun isEmailValido(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
 

@@ -1,6 +1,8 @@
 package com.douglas2990.d2990entregasv2.presentation.ui
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -49,13 +51,87 @@ class CadastrarEmpresaFragment : Fragment() {
     }
 
     private fun inicializar() {
-        inicializarEventosClique()
-        inicializarObservaveis()
+        //inicializarEventosClique()
+        //inicializarObservaveis()
+        inicializarEventosClique3()
+        inicializarObservaveis2()
     }
+
+
 
     private fun inicializarObservaveis() {
+
     }
 
+
+    private fun inicializarObservaveis2() {
+        cadastroEmpresaViewModel.uiStatus.observe(viewLifecycleOwner) { status ->
+            when (status) {
+                is UIstatus.Carregando -> alertaCarregamento.exibir("Processando...")
+                is UIstatus.Sucesso -> {
+                    alertaCarregamento.fechar()
+                    exibirMensagem("Empresa salva!")
+                    // Limpar campos ou fechar tela
+                }
+                is UIstatus.Erro -> {
+                    alertaCarregamento.fechar()
+                    exibirMensagem(status.erro) // Aqui aparecerá "CNPJ inválido"
+                }
+            }
+        }
+    }
+
+    private fun inicializarEventosClique2() {
+        binding.btnCadastrar.setOnClickListener { view ->
+            view.esconderTeclado()
+
+            // Pegando os dados sem a máscara para não sujar o banco
+            val empresa = Empresa(
+                nome = binding.editCadastroEmpresa.text.toString(),
+                email = binding.editCadastroEmailEmpresa.text.toString(),
+                cnpj = binding.editCadastrarCnpjlEmpresa.text.toString().replace(Regex("[^\\d]"), ""),
+                telefone = binding.editCadastroTelefoneEmpresa.unMaskedText ?: ""
+            )
+
+            if (validarCamposEmBranco(empresa)) {
+                cadastroEmpresaViewModel.salvarCadastroEmpresaTeste300120261402(empresa)
+            } else {
+                exibirMensagem("Preencha todos os campos")
+            }
+        }
+    }
+
+
+    private fun inicializarEventosClique3() {
+        with( binding ){
+            btnCadastrar.setOnClickListener { view ->
+
+                view.esconderTeclado()
+
+                //Remover Focus
+                editCadastroEmpresa.clearFocus()
+                editCadastroEmailEmpresa.clearFocus()
+                editCadastrarCnpjlEmpresa.clearFocus()
+                editCadastroTelefoneEmpresa.clearFocus()
+
+
+                val nome = editCadastroEmpresa.text.toString()
+                val email = editCadastroEmailEmpresa.text.toString()
+                val cnpj = editCadastrarCnpjlEmpresa.text.toString().replace(Regex("[^\\d]"), "")
+                val telefone = editCadastroTelefoneEmpresa.text.toString()
+
+                val empresa = Empresa(
+                    nome = nome, email = email, cnpj = cnpj, telefone = telefone
+                )
+                if (validarCamposEmBranco(empresa)) {
+                    cadastroEmpresaViewModel.salvarCadastroEmpresaTeste300120261402(empresa)
+                } else {
+                    exibirMensagem("Preencha todos os campos")
+                }
+
+            }
+        }
+    }
 
     private fun inicializarEventosClique() {
         with( binding ){
@@ -69,18 +145,10 @@ class CadastrarEmpresaFragment : Fragment() {
                 editCadastrarCnpjlEmpresa.clearFocus()
                 editCadastroTelefoneEmpresa.clearFocus()
 
-                // No clique do botão:
-                val cnpjDigitado = binding.editCadastrarCnpjlEmpresa.text.toString()
-
-                if (!cadastroEmpresaViewModel.isCnpjValido(cnpjDigitado)) {
-                    binding.editCadastrarCnpjlEmpresa.error = "CNPJ Inválido ou Mal formatado"
-                    return@setOnClickListener
-                }
-                  // Se passar aqui, chama o viewModel.salvarCadastroEmpresa...
 
                 val nome = editCadastroEmpresa.text.toString()
                 val email = editCadastroEmailEmpresa.text.toString()
-                val cnpj = editCadastrarCnpjlEmpresa.text.toString()
+                val cnpj = editCadastrarCnpjlEmpresa.text.toString().replace(Regex("[^\\d]"), "")
                 val telefone = editCadastroTelefoneEmpresa.text.toString()
 
                 val empresa = Empresa(
@@ -102,17 +170,11 @@ class CadastrarEmpresaFragment : Fragment() {
         }
     }
 
-    private fun validarCampos( empresa: Empresa ) : Boolean {
-
-
-        if( empresa.nome.isEmpty() ) return false
-        if( empresa.email.isEmpty() ) return false
-        if( empresa.cnpj.isEmpty() ) return false
-        if( empresa.telefone.isEmpty() ) return false
-
-
-        return true
-
+    private fun validarCamposEmBranco(empresa: Empresa): Boolean {
+        return empresa.nome.isNotBlank() &&
+                empresa.email.isNotBlank() &&
+                empresa.cnpj.isNotBlank() &&
+                empresa.telefone.isNotBlank()
     }
 
     override fun onDestroyView() {
