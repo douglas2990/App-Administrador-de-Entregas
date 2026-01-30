@@ -50,4 +50,9 @@
         android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarEmpresaFragment"
         android:label="fragment_cadastrar_empresa"
         tools:layout="@layout/fragment_cadastrar_empresa" />
+    <fragment
+        android:id="@+id/empresasCadastradasFragment"
+        android:name="com.douglas2990.d2990entregasv2.EmpresasCadastradasFragment"
+        android:label="fragment_empresas_cadastradas"
+        tools:layout="@layout/fragment_empresas_cadastradas" />
 </navigation>

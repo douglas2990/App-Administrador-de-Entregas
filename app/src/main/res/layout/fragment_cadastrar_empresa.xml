@@ -69,7 +69,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textInputCadastroEmailEmpresa">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.vicmikhailau.maskededittext.MaskedEditText
             android:id="@+id/editCadastrarCnpjlEmpresa"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

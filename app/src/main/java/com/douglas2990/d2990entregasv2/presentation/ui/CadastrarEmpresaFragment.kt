@@ -69,6 +69,15 @@ class CadastrarEmpresaFragment : Fragment() {
                 editCadastrarCnpjlEmpresa.clearFocus()
                 editCadastroTelefoneEmpresa.clearFocus()
 
+                // No clique do botão:
+                val cnpjDigitado = binding.editCadastrarCnpjlEmpresa.text.toString()
+
+                if (!cadastroEmpresaViewModel.isCnpjValido(cnpjDigitado)) {
+                    binding.editCadastrarCnpjlEmpresa.error = "CNPJ Inválido ou Mal formatado"
+                    return@setOnClickListener
+                }
+                  // Se passar aqui, chama o viewModel.salvarCadastroEmpresa...
+
                 val nome = editCadastroEmpresa.text.toString()
                 val email = editCadastroEmailEmpresa.text.toString()
                 val cnpj = editCadastrarCnpjlEmpresa.text.toString()
