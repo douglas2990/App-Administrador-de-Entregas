@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/cadastrarEmpresaFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.douglas2990.d2990entregasv2.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.douglas2990.d2990entregasv2.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/CadastrarMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarMotoristaFragment"
+        android:label="fragment_cadastro_motorista"
+        tools:layout="@layout/fragment_cadastrar_motorista" />
+    <fragment
+        android:id="@+id/motoristasCadastradoFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.MotoristasCadastradoFragment"
+        android:label="fragment_motoristas_cadastrado_list"
+        tools:layout="@layout/fragment_motoristas_cadastrado_list" />
+    <fragment
+        android:id="@+id/cadastrarNotaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarNotaFragment"
+        android:label="fragment_cadastrar_nota"
+        tools:layout="@layout/fragment_cadastrar_nota" />
+    <fragment
+        android:id="@+id/entregasdoDiaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.EntregasdoDiaFragment"
+        android:label="fragment_entregasdo_dia"
+        tools:layout="@layout/fragment_entregas_do_dia" />
+    <fragment
+        android:id="@+id/cadastrarEmpresaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarEmpresaFragment"
+        android:label="fragment_cadastrar_empresa"
+        tools:layout="@layout/fragment_cadastrar_empresa" />
+</navigation>

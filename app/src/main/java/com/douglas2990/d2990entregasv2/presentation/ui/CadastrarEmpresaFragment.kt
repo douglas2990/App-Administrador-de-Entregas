@@ -1,0 +1,113 @@
+package com.douglas2990.d2990entregasv2.presentation.ui
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import com.douglas2990.d2990entregasv2.R
+import com.douglas2990.d2990entregasv2.databinding.FragmentCadastrarEmpresaBinding
+import com.douglas2990.d2990entregasv2.model.Empresa
+import com.douglas2990.d2990entregasv2.presentation.viewmodel.CadastroEmpresaViewModel
+import com.example.core.AlertaCarregamento
+import com.example.core.UIstatus
+import com.example.core.esconderTeclado
+import com.example.core.exibirMensagem
+import dagger.hilt.android.AndroidEntryPoint
+
+
+
+
+
+@AndroidEntryPoint
+class CadastrarEmpresaFragment : Fragment() {
+    private var _binding: FragmentCadastrarEmpresaBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val cadastroEmpresaViewModel: CadastroEmpresaViewModel by viewModels()
+
+    private val alertaCarregamento by lazy {
+        AlertaCarregamento(requireContext())
+    }
+    private val binding get() = _binding !!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        _binding = FragmentCadastrarEmpresaBinding.inflate(inflater, container, false)
+        return binding.root
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        inicializar()
+    }
+
+    private fun inicializar() {
+        inicializarEventosClique()
+        inicializarObservaveis()
+    }
+
+    private fun inicializarObservaveis() {
+    }
+
+
+    private fun inicializarEventosClique() {
+        with( binding ){
+            btnCadastrar.setOnClickListener { view ->
+
+                view.esconderTeclado()
+
+                //Remover Focus
+                editCadastroEmpresa.clearFocus()
+                editCadastroEmailEmpresa.clearFocus()
+                editCadastrarCnpjlEmpresa.clearFocus()
+                editCadastroTelefoneEmpresa.clearFocus()
+
+                val nome = editCadastroEmpresa.text.toString()
+                val email = editCadastroEmailEmpresa.text.toString()
+                val cnpj = editCadastrarCnpjlEmpresa.text.toString()
+                val telefone = editCadastroTelefoneEmpresa.text.toString()
+
+                val empresa = Empresa(
+                    nome = nome, email = email, cnpj = cnpj, telefone = telefone
+                )
+                cadastroEmpresaViewModel.salvarCadastroEmpresa( empresa ){ uiStatus ->
+                    when( uiStatus ){
+                        is UIstatus.Sucesso -> {
+                            exibirMensagem("Empresa Cadastrada com sucesso")
+                        }
+                        is UIstatus.Erro -> {
+                            exibirMensagem( uiStatus.erro )
+                        }
+                        is UIstatus.Carregando -> {}
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun validarCampos( empresa: Empresa ) : Boolean {
+
+
+        if( empresa.nome.isEmpty() ) return false
+        if( empresa.email.isEmpty() ) return false
+        if( empresa.cnpj.isEmpty() ) return false
+        if( empresa.telefone.isEmpty() ) return false
+
+
+        return true
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
