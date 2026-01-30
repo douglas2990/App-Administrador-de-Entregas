@@ -61,18 +61,6 @@ class CadastroEmpresaViewModel @Inject constructor(
         empresa: Empresa,
         uiStatus: (UIstatus<String>)->Unit
     ){
-
-/*        // 1. Validação usando Domain Helpers (Puro Kotlin)
-        if (!ValidadorCnpj.isValido(empresa.cnpj)) {
-            _uiStatus.value = UIstatus.Erro("CNPJ inválido")
-            return
-        }
-
-        if (!ValidadorEmail.isValido(empresa.email)) {
-            _uiStatus.value = UIstatus.Erro("E-mail inválido")
-            return
-        }*/
-
         uiStatus.invoke( UIstatus.Carregando )
         viewModelScope.launch {
             if( empresa.id.isEmpty() ){//salvar
@@ -83,7 +71,7 @@ class CadastroEmpresaViewModel @Inject constructor(
         }
     }
 
-    fun salvarCadastroEmpresaTeste300120261402(
+    fun salvarCadastroEmpresa2(
         empresa: Empresa
     ) {
 
@@ -112,40 +100,7 @@ class CadastroEmpresaViewModel @Inject constructor(
         }
     }
 
-   fun isCnpjValido(cnpj: String): Boolean {
-        val numeros = cnpj.replace(Regex("[^\\d]"), "") // Garante que só temos números
-        if (numeros.length != 14) return false
 
-        // Lista de CNPJs inválidos conhecidos (todos números iguais)
-        val invalidos = listOf("00000000000000", "11111111111111", "22222222222222",
-            "33333333333333", "44444444444444", "55555555555555",
-            "66666666666666", "77777777777777", "88888888888888", "99999999999999")
-        if (invalidos.contains(numeros)) return false
-
-        // Cálculo simplificado dos dígitos verificadores (Regra da Receita Federal)
-        return try {
-            val calcDigit = { str: String, weights: IntArray ->
-                var sum = 0
-                for (i in str.indices) sum += (str[i] - '0') * weights[i]
-                val rem = sum % 11
-                if (rem < 2) '0' else (11 - rem).toString()[0]
-            }
-
-            val w1 = intArrayOf(5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
-            val w2 = intArrayOf(6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
-
-            val d1 = calcDigit(numeros.substring(0, 12), w1)
-            val d2 = calcDigit(numeros.substring(0, 12) + d1, w2)
-
-            numeros.endsWith("$d1$d2")
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    fun isEmailValido(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
 
 
 }

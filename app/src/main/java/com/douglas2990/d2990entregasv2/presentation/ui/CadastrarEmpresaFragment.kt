@@ -1,14 +1,11 @@
 package com.douglas2990.d2990entregasv2.presentation.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.FragmentCadastrarEmpresaBinding
 import com.douglas2990.d2990entregasv2.model.Empresa
 import com.douglas2990.d2990entregasv2.presentation.viewmodel.CadastroEmpresaViewModel
@@ -94,7 +91,7 @@ class CadastrarEmpresaFragment : Fragment() {
             )
 
             if (validarCamposEmBranco(empresa)) {
-                cadastroEmpresaViewModel.salvarCadastroEmpresaTeste300120261402(empresa)
+                cadastroEmpresaViewModel.salvarCadastroEmpresa2(empresa)
             } else {
                 exibirMensagem("Preencha todos os campos")
             }
@@ -124,7 +121,7 @@ class CadastrarEmpresaFragment : Fragment() {
                     nome = nome, email = email, cnpj = cnpj, telefone = telefone
                 )
                 if (validarCamposEmBranco(empresa)) {
-                    cadastroEmpresaViewModel.salvarCadastroEmpresaTeste300120261402(empresa)
+                    cadastroEmpresaViewModel.salvarCadastroEmpresa2(empresa)
                 } else {
                     exibirMensagem("Preencha todos os campos")
                 }
