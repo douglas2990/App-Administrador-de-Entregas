@@ -21,6 +21,16 @@ class EmpresaRepositoryImpl @Inject constructor(
             val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
 
+
+            // --- VERIFICAÇÃO VIA KOTLIN ---
+            val cnpjJaExiste = verificarCnpjExistente(empresa.cnpj)
+
+            if (cnpjJaExiste) {
+                return uiStatus.invoke(UIstatus.Erro("Você já cadastrou uma empresa com este CNPJ"))
+            }
+            // ------------------------------
+
+
             val refEmpresa = firebaseFirestore
                 .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
                 .document( idUser )
@@ -45,12 +55,12 @@ class EmpresaRepositoryImpl @Inject constructor(
     ) {
         try {
 
-            val idLoja = firebaseAuth.currentUser?.uid ?:
+            val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
 
             val refProduto = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_PRODUTOS)
-                .document( idLoja )
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
+                .document( idUser )
                 .collection("itens")
                 .document( empresa.id )
 
@@ -69,12 +79,12 @@ class EmpresaRepositoryImpl @Inject constructor(
     ) {
         try {
 
-            val idLoja = firebaseAuth.currentUser?.uid ?:
+            val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
 
             val refProduto = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_PRODUTOS)
-                .document( idLoja )
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
+                .document( idUser )
                 .collection("itens")
 
             val querySnapshot = refProduto.get().await()
@@ -93,25 +103,25 @@ class EmpresaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun recuperarEmpresaPeloId(
-        idProduto: String,
+        idEmpresa: String,
         uiStatus: (UIstatus<Empresa>) -> Unit
     ) {
         try {
 
-            val idLoja = firebaseAuth.currentUser?.uid ?:
+            val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
 
             val refProduto = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_PRODUTOS)
-                .document( idLoja )
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
+                .document( idUser )
                 .collection("itens")
-                .document( idProduto )
+                .document( idEmpresa )
 
             val documentSnapshot = refProduto.get().await()
             if( documentSnapshot.exists() ){
-                val produto = documentSnapshot.toObject( Empresa::class.java )
-                if(produto != null){
-                    uiStatus.invoke(UIstatus.Sucesso(produto))
+                val empresa = documentSnapshot.toObject( Empresa::class.java )
+                if(empresa != null){
+                    uiStatus.invoke(UIstatus.Sucesso(empresa))
                 }else{
                     uiStatus.invoke(UIstatus.Erro("Erro ao converter dados do produto"))
                 }
@@ -124,26 +134,44 @@ class EmpresaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun remover(
-        idProduto: String,
+        idEmpresa: String,
         uiStatus: (UIstatus<Boolean>) -> Unit
     ) {
         try {
 
-            val idLoja = firebaseAuth.currentUser?.uid ?:
+            val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
 
-            val refProduto = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_PRODUTOS)
-                .document( idLoja )
+            val refEmpresa = firebaseFirestore
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
+                .document( idUser )
                 .collection("itens")
-                .document( idProduto )
+                .document( idEmpresa )
 
-            refProduto.delete().await()
+            refEmpresa.delete().await()
             uiStatus.invoke( UIstatus.Sucesso( true ) )
 
         }catch ( erroAtualizarCampo: Exception ){
             uiStatus.invoke(UIstatus.Erro("Erro ao remover produto"))
         }
 
+    }
+
+    override suspend fun verificarCnpjExistente(cnpj: String): Boolean {
+        return try {
+            val idUser = firebaseAuth.currentUser?.uid ?: return false
+
+            val querySnapshot = firebaseFirestore
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA) // "empresas"
+                .document(idUser)
+                .collection("itens")
+                .whereEqualTo("cnpj", cnpj)
+                .get()
+                .await()
+
+            !querySnapshot.isEmpty
+        } catch (e: Exception) {
+            false
+        }
     }
 }

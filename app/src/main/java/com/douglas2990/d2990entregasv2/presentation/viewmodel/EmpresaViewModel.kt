@@ -33,7 +33,7 @@ class EmpresaViewModel @Inject constructor(
         }
     }
 
-    fun recuperarProdutoPeloId(
+    fun recuperarEmpresaPeloId(
         idProduto: String,
         uiStatus: (UIstatus<Empresa> )->Unit
     ){
@@ -59,6 +59,12 @@ class EmpresaViewModel @Inject constructor(
         uiStatus.invoke( UIstatus.Carregando )
         viewModelScope.launch {
             if( empresa.id.isEmpty() ){//salvar
+                val jaExiste = empresaRepository.verificarCnpjExistente(empresa.cnpj)
+
+                if (jaExiste) {
+                    uiStatus.invoke(UIstatus.Erro("Este CNPJ já está cadastrado."))
+                    return@launch // Mata a execução aqui e não salva
+                }
                 empresaRepository.salvar( empresa, uiStatus )
             }else{//atualizar
                 empresaRepository.atualizar( empresa, uiStatus )
