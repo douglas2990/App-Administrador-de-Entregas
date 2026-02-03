@@ -55,11 +55,21 @@
         <action
             android:id="@+id/action_cadastrarEmpresaFragment_to_empresasCadastradasFragment"
             app:destination="@id/empresasCadastradasFragment" />
+        <argument
+            android:name="empresa"
+            app:argType="com.douglas2990.d2990entregasv2.model.Empresa"
+            app:nullable="true"
+            android:defaultValue="@null"/>
 
     </fragment>
     <fragment
         android:id="@+id/empresasCadastradasFragment"
-        android:name="com.douglas2990.d2990entregasv2.EmpresasCadastradasFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.EmpresasCadastradasFragment"
         android:label="fragment_empresas_cadastradas"
-        tools:layout="@layout/fragment_empresas_cadastradas" />
+        tools:layout="@layout/fragment_empresas_cadastradas">
+
+        <action
+            android:id="@+id/action_empresasCadastradasFragment_to_cadastrarEmpresaFragment"
+            app:destination="@id/cadastrarEmpresaFragment" />
+    </fragment>
 </navigation>

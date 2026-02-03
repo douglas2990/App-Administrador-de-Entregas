@@ -4,6 +4,7 @@ plugins {
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     id("kotlin-parcelize")
+    id("androidx.navigation.safeargs.kotlin")
     id("com.google.dagger.hilt.android")
 }
 
@@ -87,4 +88,8 @@ dependencies {
     implementation(project(":core"))
     //Splashscreen
     implementation(libs.androidx.core.splashscreen)
+}
+
+kapt {
+    correctErrorTypes = true
 }

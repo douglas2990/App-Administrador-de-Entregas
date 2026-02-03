@@ -54,24 +54,24 @@ class EmpresaRepositoryImpl @Inject constructor(
         uiStatus: (UIstatus<String>) -> Unit
     ) {
         try {
-
             val idUser = firebaseAuth.currentUser?.uid ?:
-            return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
+            return uiStatus.invoke(UIstatus.Erro("Usuário não está logado"))
 
-            val refProduto = firebaseFirestore
+            val refEmpresa = firebaseFirestore
                 .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
-                .document( idUser )
+                .document(idUser)
                 .collection("itens")
-                .document( empresa.id )
+                .document(empresa.id)
 
-            refProduto.update( empresa.toMap() ).await()
 
-            uiStatus.invoke( UIstatus.Sucesso( empresa.id ) )
+            refEmpresa.update(empresa.toMap()).await()
 
-        }catch (erroAtualizarCampo: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados da empresa"))
+            uiStatus.invoke(UIstatus.Sucesso(empresa.id))
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            uiStatus.invoke(UIstatus.Erro("Não foi possível atualizar: ${e.localizedMessage}"))
         }
-
     }
 
     override suspend fun listar(

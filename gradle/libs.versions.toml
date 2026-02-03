@@ -15,6 +15,7 @@ legacySupportV4 = "1.0.0"
 recyclerview = "1.3.0"
 activity = "1.8.0"
 recyclerviewVersion = "1.4.0"
+safeArgs = "2.9.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,4 +39,5 @@ recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+safeArgs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "safeArgs" }
 

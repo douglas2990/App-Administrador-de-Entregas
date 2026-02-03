@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.douglas2990.d2990entregasv2.databinding.ItemEmpresaBinding
 import com.douglas2990.d2990entregasv2.model.Empresa
 
-class EmpresaAdapter() : RecyclerView.Adapter<EmpresaAdapter.EmpresaViewHolder>() {
+class EmpresaAdapter(
+    private val clickEditar: (Empresa) -> Unit,
+    private val clickExcluir: (Empresa) -> Unit
+) : RecyclerView.Adapter<EmpresaAdapter.EmpresaViewHolder>() {
 
     private var listaEmpresas = listOf<Empresa>()
 
@@ -24,6 +27,11 @@ class EmpresaAdapter() : RecyclerView.Adapter<EmpresaAdapter.EmpresaViewHolder>(
             binding.textEmailEmpresa.text = empresa.email
             binding.textCnpjEmpresa.text = empresa.cnpj
             binding.textTelefoneEmpresa.text = empresa.telefone
+
+            // Configura os cliques nos ícones
+            binding.btnEdit.setOnClickListener { clickEditar(empresa) }
+            binding.btnDelete.setOnClickListener { clickExcluir(empresa) }
+
         }
     }
 
