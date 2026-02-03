@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textNomeEmpresa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nome da Empresa"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textEmailEmpresa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="email@empresa.com"
+                android:textColor="@color/design_default_color_primary" />
+
+            <TextView
+                android:id="@+id/textCnpjEmpresa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="00.000.000/0001-00" />
+
+            <TextView
+                android:id="@+id/textTelefoneEmpresa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="(00) 00000-0000" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

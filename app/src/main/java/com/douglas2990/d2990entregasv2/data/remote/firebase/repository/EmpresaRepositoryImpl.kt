@@ -37,14 +37,14 @@ class EmpresaRepositoryImpl @Inject constructor(
                 .collection("itens")
                 .document()
 
-            val idProduto = refEmpresa.id
-            empresa.id = idProduto
+            val idEmpresa = refEmpresa.id
+            empresa.id = idEmpresa
             refEmpresa.set( empresa ).await()
 
-            uiStatus.invoke( UIstatus.Sucesso(idProduto) )
+            uiStatus.invoke( UIstatus.Sucesso(idEmpresa) )
 
         }catch (erroAtualizarCampo: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados do produto"))
+            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados da empresa"))
         }
 
     }
@@ -69,7 +69,7 @@ class EmpresaRepositoryImpl @Inject constructor(
             uiStatus.invoke( UIstatus.Sucesso( empresa.id ) )
 
         }catch (erroAtualizarCampo: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados do produto"))
+            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados da empresa"))
         }
 
     }
@@ -90,15 +90,15 @@ class EmpresaRepositoryImpl @Inject constructor(
             val querySnapshot = refProduto.get().await()
 
             if( querySnapshot.documents.isNotEmpty() ){
-                val listaProdutos = querySnapshot.documents.mapNotNull { documentSnapshot ->
+                val listaEmpresa = querySnapshot.documents.mapNotNull { documentSnapshot ->
                     documentSnapshot.toObject( Empresa::class.java )
                 }
-                uiStatus.invoke(UIstatus.Sucesso( listaProdutos ))
+                uiStatus.invoke(UIstatus.Sucesso( listaEmpresa ))
             }else{
                 uiStatus.invoke(UIstatus.Sucesso(emptyList()))
             }
         }catch (erroRecuperarLoja: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao recuperar produtos"))
+            uiStatus.invoke(UIstatus.Erro("Erro ao acessar empresas cadastradas"))
         }
     }
 

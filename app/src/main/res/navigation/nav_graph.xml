@@ -49,7 +49,14 @@
         android:id="@+id/cadastrarEmpresaFragment"
         android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarEmpresaFragment"
         android:label="fragment_cadastrar_empresa"
-        tools:layout="@layout/fragment_cadastrar_empresa" />
+        tools:layout="@layout/fragment_cadastrar_empresa" >
+
+
+        <action
+            android:id="@+id/action_cadastrarEmpresaFragment_to_empresasCadastradasFragment"
+            app:destination="@id/empresasCadastradasFragment" />
+
+    </fragment>
     <fragment
         android:id="@+id/empresasCadastradasFragment"
         android:name="com.douglas2990.d2990entregasv2.EmpresasCadastradasFragment"

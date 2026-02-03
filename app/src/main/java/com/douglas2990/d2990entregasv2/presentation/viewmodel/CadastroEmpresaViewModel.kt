@@ -24,8 +24,8 @@ class CadastroEmpresaViewModel @Inject constructor(
     val resultadoValidacao: LiveData<ResultadoValidacao>
         get() = _resultadoValidacao
 
-    private val _uiStatus = MutableLiveData<UIstatus<String>>()
-    val uiStatus: LiveData<UIstatus<String>> = _uiStatus
+    private val _uiStatus = MutableLiveData<UIstatus<Any>>()
+    val uiStatus: LiveData<UIstatus<Any>> = _uiStatus
 
 
     fun remover(
@@ -38,13 +38,13 @@ class CadastroEmpresaViewModel @Inject constructor(
         }
     }
 
-    fun recuperarProdutoPeloId(
-        idProduto: String,
+    fun recuperarEmpresaPeloId(
+        idEmpresa: String,
         uiStatus: (UIstatus<Empresa> )->Unit
     ){
         uiStatus.invoke( UIstatus.Carregando )
         viewModelScope.launch {
-            empresaRepository.recuperarEmpresaPeloId( idProduto, uiStatus )
+            empresaRepository.recuperarEmpresaPeloId( idEmpresa, uiStatus )
         }
     }
 
@@ -52,6 +52,16 @@ class CadastroEmpresaViewModel @Inject constructor(
         uiStatus.invoke( UIstatus.Carregando )
         viewModelScope.launch {
             empresaRepository.listar( uiStatus )
+        }
+    }
+
+    fun listar2(){
+        _uiStatus.value = UIstatus.Carregando
+        viewModelScope.launch {
+            // O Repository ainda pede o callback, então passamos o resultado para o LiveData
+            empresaRepository.listar { resultado ->
+                _uiStatus.value = resultado
+            }
         }
     }
 

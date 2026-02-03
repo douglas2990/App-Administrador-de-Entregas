@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.FragmentCadastrarEmpresaBinding
 import com.douglas2990.d2990entregasv2.model.Empresa
 import com.douglas2990.d2990entregasv2.presentation.viewmodel.CadastroEmpresaViewModel
@@ -126,6 +128,9 @@ class CadastrarEmpresaFragment : Fragment() {
                     exibirMensagem("Preencha todos os campos")
                 }
 
+            }
+            btnMostrarEmpresa.setOnClickListener {
+                findNavController().navigate(R.id.empresasCadastradasFragment)
             }
         }
     }
