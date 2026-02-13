@@ -23,7 +23,7 @@ class EmpresaRepositoryImpl @Inject constructor(
 
 
             // --- VERIFICAÇÃO VIA KOTLIN ---
-            val cnpjJaExiste = verificarCnpjExistente(empresa.cnpj)
+            val cnpjJaExiste = verificarCnpjExistente(empresa.cnpj, null)
 
             if (cnpjJaExiste) {
                 return uiStatus.invoke(UIstatus.Erro("Você já cadastrou uma empresa com este CNPJ"))
@@ -53,9 +53,19 @@ class EmpresaRepositoryImpl @Inject constructor(
         empresa: Empresa,
         uiStatus: (UIstatus<String>) -> Unit
     ) {
+
+        android.util.Log.d("TESTE_ID", "ID recebido para atualizar: '${empresa.id}'")
+
         try {
             val idUser = firebaseAuth.currentUser?.uid ?:
             return uiStatus.invoke(UIstatus.Erro("Usuário não está logado"))
+
+            // --- NOVA VERIFICAÇÃO NA ATUALIZAÇÃO ---
+            val cnpjJaExisteEmOutra = verificarCnpjExistente(empresa.cnpj, empresa.id)
+            if (cnpjJaExisteEmOutra) {
+                return uiStatus.invoke(UIstatus.Erro("Este CNPJ já está vinculado a outra empresa"))
+            }
+            // ---------------------------------------
 
             val refEmpresa = firebaseFirestore
                 .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
@@ -63,14 +73,11 @@ class EmpresaRepositoryImpl @Inject constructor(
                 .collection("itens")
                 .document(empresa.id)
 
-
             refEmpresa.update(empresa.toMap()).await()
-
             uiStatus.invoke(UIstatus.Sucesso(empresa.id))
 
         } catch (e: Exception) {
-            e.printStackTrace()
-            uiStatus.invoke(UIstatus.Erro("Não foi possível atualizar: ${e.localizedMessage}"))
+            uiStatus.invoke(UIstatus.Erro("Não foi possível atualizar dados"))
         }
     }
 
@@ -157,19 +164,26 @@ class EmpresaRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun verificarCnpjExistente(cnpj: String): Boolean {
+    override suspend fun verificarCnpjExistente(cnpj: String, idEmpresaAtual: String?): Boolean {
         return try {
             val idUser = firebaseAuth.currentUser?.uid ?: return false
 
             val querySnapshot = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_EMPRESA) // "empresas"
+                .collection(ConstantesFirebase.FIRESTORE_EMPRESA)
                 .document(idUser)
                 .collection("itens")
                 .whereEqualTo("cnpj", cnpj)
                 .get()
                 .await()
 
-            !querySnapshot.isEmpty
+            if (querySnapshot.isEmpty) return false
+
+            // Se encontrou algo, verificamos se o documento achado tem um ID diferente do atual
+            val documentoConflitante = querySnapshot.documents.any { doc ->
+                doc.id != idEmpresaAtual
+            }
+
+            return documentoConflitante
         } catch (e: Exception) {
             false
         }

@@ -1,4 +1,4 @@
-package com.douglas2990.d2990entregasv2.presentation.viewmodel
+package com.douglas2990.d2990entregasv2.presentation.viewmodel.user
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -47,7 +47,7 @@ class AutenticacaoViewModel @Inject constructor(
 
     }
 
-    fun logarUsuario( usuario: Usuario, uiStatus: (UIstatus<Boolean>)->Unit ){
+    fun logarUsuario(usuario: Usuario, uiStatus: (UIstatus<Boolean>)->Unit ){
         val retornoValidacao = autenticacaoUseCase.validarLoginUsuario( usuario )
         _resultadoValidacao.value = retornoValidacao
         if( retornoValidacao.sucessoValidacaoLogin ){
@@ -107,7 +107,7 @@ class AutenticacaoViewModel @Inject constructor(
             if( uiStatusUpload is UIstatus.Sucesso ){
 
                 val urlImagem = uiStatusUpload.dados
-                val usuario = Usuario( urlPerfil = urlImagem )
+                val usuario = Usuario(urlPerfil = urlImagem)
                 autenticacaoRepositoryImpl.atualizarUsuario( usuario, uiStatus )
                 uiStatus.invoke( UIstatus.Sucesso("") )
 

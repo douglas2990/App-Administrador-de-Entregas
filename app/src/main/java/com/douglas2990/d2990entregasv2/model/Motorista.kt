@@ -1,11 +1,15 @@
 package com.douglas2990.d2990entregasv2.model
 
-data class Motorista(
-    //val id: String? = "",
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-    val email: String,
-    val senha: String,
+@Parcelize
+data class Motorista(
+    val id: String = "",
     val nome: String = "",
+    val email: String = "",
+    val senha: String = "", // Primeira senha cadastrada pelo gestor
     val telefone: String = "",
-    val empresa: String = ""
-    )
+    val idEmpresa: String = "", // Vinculação técnica
+    val nomeEmpresa: String = "" // Para exibição facilitada
+) : Parcelable

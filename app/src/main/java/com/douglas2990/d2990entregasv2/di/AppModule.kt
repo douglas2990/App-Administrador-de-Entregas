@@ -4,11 +4,14 @@ import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.Autentica
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.EmpresaRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IAutenticacaoMotoristaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IEmpresaRepository
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IMotoristaRepository
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.MotoristaRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.AutenticacaoRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.IAutenticacaoRepository
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoMotoristaUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.CadastroEmpresaUseCase
+import com.douglas2990.d2990entregasv2.domain.usecase.SalvarMotoristaUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -77,6 +80,21 @@ object AppModule {
     @Provides
     fun provideFirebaseFirestores() : FirebaseFirestore {
         return FirebaseFirestore.getInstance()
+    }
+
+    @Provides
+    fun provideSalvarMotoristaUseCase(
+        repository: IMotoristaRepository // O Hilt injetará isso automaticamente
+    ): SalvarMotoristaUseCase {
+        return SalvarMotoristaUseCase(repository)
+    }
+
+    @Provides
+    fun provideMotoristaRepository(
+        firebaseAuth: FirebaseAuth,
+        firebaseFirestore: FirebaseFirestore
+    ): IMotoristaRepository {
+        return MotoristaRepositoryImpl(firebaseAuth, firebaseFirestore)
     }
     
 }

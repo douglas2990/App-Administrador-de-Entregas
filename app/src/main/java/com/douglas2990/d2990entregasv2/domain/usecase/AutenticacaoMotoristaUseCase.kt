@@ -20,8 +20,8 @@ class AutenticacaoMotoristaUseCase {
             .minLength(6)
             .check()
 
-        val valEmpresa = motorista.empresa.validator()
-            .minLength(6)
+        val valEmpresa = motorista.nomeEmpresa.validator()
+            .minLength(4)
             .check()
 
         val valTelefone = motorista.telefone.validator()

@@ -8,7 +8,7 @@ import com.douglas2990.d2990entregasv2.MainActivity
 import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.ActivityCadastroBinding
 import com.douglas2990.d2990entregasv2.model.user.Usuario
-import com.douglas2990.d2990entregasv2.presentation.viewmodel.AutenticacaoViewModel
+import com.douglas2990.d2990entregasv2.presentation.viewmodel.user.AutenticacaoViewModel
 import com.example.core.AlertaCarregamento
 import com.example.core.UIstatus
 import com.example.core.esconderTeclado

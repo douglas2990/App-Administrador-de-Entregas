@@ -29,6 +29,6 @@ interface IEmpresaRepository {
         uiStatus: (UIstatus<Boolean>) -> Unit
     )
 
-    suspend fun verificarCnpjExistente(cnpj: String): Boolean
+    suspend fun verificarCnpjExistente(cnpj: String, idEmpresaAtual: String? = null): Boolean
 
 }
