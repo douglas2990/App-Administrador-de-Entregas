@@ -13,21 +13,27 @@ class MotoristaRepositoryImpl @Inject constructor(
     private val firebaseFirestore: FirebaseFirestore
 ) : IMotoristaRepository {
 
+    // Referência centralizada para a coleção raiz
+    private val colecaoMotoristas = firebaseFirestore
+        .collection(ConstantesFirebase.FIRESTORE_USUARIOS_MOTORISTA)
+
     override suspend fun salvar(motorista: Motorista): UIstatus<String> {
         return try {
-            val idGestor = firebaseAuth.currentUser?.uid
-                ?: return UIstatus.Erro("Usuário gestor não autenticado")
+            val idGestorLogado = firebaseAuth.currentUser?.uid
+                ?: return UIstatus.Erro("Gestor não autenticado. Faça login novamente.")
 
-            // Referência: usuarios / {idGestor} / motoristas / {idMotorista}
-            val refMotorista = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_USUARIOS)
-                .document(idGestor)
-                .collection("motoristas") // Sub-coleção isolada
-                .document()
+            // 1. Gera um novo documento na coleção raiz 'usuarios_motoristas'
+            val refMotorista = colecaoMotoristas.document()
 
-            val motoristaComId = motorista.copy(id = refMotorista.id)
+            // 2. Prepara o objeto com o ID do documento e o vínculo com o Gestor
+            val motoristaComIds = motorista.copy(
+                id = refMotorista.id,
+                idGestor = idGestorLogado // Crucial para as Rules do Firebase
+            )
 
-            refMotorista.set(motoristaComId).await()
+            // 3. Salva no Firestore
+            refMotorista.set(motoristaComIds).await()
+
             UIstatus.Sucesso(refMotorista.id)
 
         } catch (e: Exception) {
@@ -37,40 +43,38 @@ class MotoristaRepositoryImpl @Inject constructor(
 
     override suspend fun listar(): UIstatus<List<Motorista>> {
         return try {
-            val idGestor = firebaseAuth.currentUser?.uid
+            val idGestorLogado = firebaseAuth.currentUser?.uid
                 ?: return UIstatus.Erro("Usuário não autenticado")
 
-            val querySnapshot = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_USUARIOS)
-                .document(idGestor)
-                .collection("motoristas")
+            // IMPORTANTE: Filtramos para que o Guilherme veja apenas os motoristas dele
+            val querySnapshot = colecaoMotoristas
+                .whereEqualTo("idGestor", idGestorLogado)
                 .get()
                 .await()
 
-            val lista = querySnapshot.documents.mapNotNull { it.toObject(Motorista::class.java) }
+            val lista = querySnapshot.documents.mapNotNull { documento ->
+                documento.toObject(Motorista::class.java)
+            }
+
             UIstatus.Sucesso(lista)
+
         } catch (e: Exception) {
-            UIstatus.Erro("Erro ao listar seus motoristas")
+            android.util.Log.e("FIREBASE_ERROR", "Erro ao listar: ${e.message}", e)
+            UIstatus.Erro("Erro ao carregar motoristas: ${e.localizedMessage}")
         }
     }
 
     override suspend fun remover(idMotorista: String): UIstatus<Boolean> {
         return try {
-            // 1. Recupera o ID do Gestor logado para garantir que ele só delete da PRÓPRIA carteira
-            val idGestor = firebaseAuth.currentUser?.uid
-                ?: return UIstatus.Erro("Sessão expirada. Autentique-se novamente.")
-
-            // 2. Referência ao documento dentro da "caixa" do gestor atual
-            val refMotorista = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_USUARIOS)
-                .document(idGestor)
-                .collection("motoristas")
+            // A regra de segurança no Firebase impedirá a deleção
+            // se o idGestor do documento não for o UID de quem está tentando deletar
+            colecaoMotoristas
                 .document(idMotorista)
-
-            // 3. Executa a remoção e aguarda a conclusão (await)
-            refMotorista.delete().await()
+                .delete()
+                .await()
 
             UIstatus.Sucesso(true)
+
         } catch (e: Exception) {
             UIstatus.Erro("Não foi possível excluir o motorista: ${e.message}")
         }

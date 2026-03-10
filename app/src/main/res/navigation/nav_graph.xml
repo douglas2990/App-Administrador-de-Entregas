@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/cadastrarEmpresaFragment">
+    app:startDestination="@id/FirstFragment">
 
     <fragment
         android:id="@+id/FirstFragment"
@@ -14,6 +14,17 @@
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_cadastrarEmpresaFragment"
+            app:destination="@id/cadastrarEmpresaFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_CadastrarMotoristaFragment"
+            app:destination="@id/CadastrarMotoristaFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_motoristasCadastradosFragment"
+            app:destination="@id/motoristascadastradosFragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -72,4 +83,9 @@
             android:id="@+id/action_empresasCadastradasFragment_to_cadastrarEmpresaFragment"
             app:destination="@id/cadastrarEmpresaFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/motoristascadastradosFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.MotoristasCadastradosFragment"
+        android:label="motoristascadastrados_adapter"
+        tools:layout="@layout/motoristas_cadastrados_adapter" />
 </navigation>

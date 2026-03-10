@@ -14,6 +14,8 @@ object ConstantesFirebase {
     const val FIRESTORE_PRODUTOS = "produtos"
     const val FIRESTORE_EMPRESA = "empresa"
     const val FIRESTORE_USUARIOS = "usuarios"
+    const val FIRESTORE_USUARIOS_MOTORISTA = "usuarios_motoristas"
+    const val FIRESTORE_MOTORISTAS = "motoristas"
     const val FIRESTORE_ITENS = "itens"
     const val FIRESTORE_OPCIONAIS = "opcionais"
 }

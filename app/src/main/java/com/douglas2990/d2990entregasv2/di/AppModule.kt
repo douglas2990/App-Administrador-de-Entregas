@@ -11,6 +11,7 @@ import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.IAut
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoMotoristaUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.CadastroEmpresaUseCase
+import com.douglas2990.d2990entregasv2.domain.usecase.ListarMotoristasUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.SalvarMotoristaUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -95,6 +96,13 @@ object AppModule {
         firebaseFirestore: FirebaseFirestore
     ): IMotoristaRepository {
         return MotoristaRepositoryImpl(firebaseAuth, firebaseFirestore)
+    }
+
+    @Provides
+    fun provideListarMotoristasUseCase(
+        repository: IMotoristaRepository
+    ): ListarMotoristasUseCase {
+        return ListarMotoristasUseCase(repository)
     }
     
 }
