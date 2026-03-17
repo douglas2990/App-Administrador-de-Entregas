@@ -9,7 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.douglas2990.d2990entregasv2.databinding.FragmentEntregasDoDiaBinding
+import com.douglas2990.d2990entregasv2.databinding.FragmentRotasDoMotoristaBinding
+import com.douglas2990.d2990entregasv2.model.Motorista
 import com.douglas2990.d2990entregasv2.model.Rota
 import com.douglas2990.d2990entregasv2.presentation.ui.adapter.RotaAdapter
 import com.douglas2990.d2990entregasv2.presentation.viewmodel.RotaViewModel
@@ -18,20 +19,29 @@ import com.example.core.UIstatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EntregasdoDiaFragment : Fragment() {
+class RotasDoMotoristaFragment : Fragment() {
 
-    private var _binding: FragmentEntregasDoDiaBinding? = null
+    private var _binding: FragmentRotasDoMotoristaBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: RotaViewModel by viewModels()
     private lateinit var rotaAdapter: RotaAdapter
+    private var motorista: Motorista? = null
+    
     private val alertaCarregamento by lazy { AlertaCarregamento(requireContext()) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            motorista = it.getParcelable("motorista")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEntregasDoDiaBinding.inflate(inflater, container, false)
+        _binding = FragmentRotasDoMotoristaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -40,13 +50,19 @@ class EntregasdoDiaFragment : Fragment() {
 
         setupRecyclerView()
         setupObservers()
-        
-        viewModel.listarTodasAsRotas()
+
+        motorista?.let {
+            binding.textTitulo.text = "Rotas de ${it.nome}"
+            viewModel.listarRotasMotorista(it.id)
+        } ?: run {
+            Toast.makeText(context, "Motorista não encontrado", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupRecyclerView() {
         rotaAdapter = RotaAdapter(
             onItemClick = { rota ->
+                // Futuramente: Ver comprovante ou detalhes
                 if (rota.status == "CONCLUIDA") {
                     Toast.makeText(context, "Entrega Concluída!", Toast.LENGTH_SHORT).show()
                 }
@@ -93,7 +109,8 @@ class EntregasdoDiaFragment : Fragment() {
                 is UIstatus.Sucesso -> {
                     alertaCarregamento.fechar()
                     Toast.makeText(context, "Rota removida", Toast.LENGTH_SHORT).show()
-                    viewModel.listarTodasAsRotas()
+                    // Recarrega a lista
+                    motorista?.let { viewModel.listarRotasMotorista(it.id) }
                 }
                 is UIstatus.Erro -> {
                     alertaCarregamento.fechar()
@@ -116,6 +133,7 @@ class EntregasdoDiaFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        alertaCarregamento.fechar()
         _binding = null
     }
 }

@@ -7,6 +7,7 @@ object ConstantesFirebase {
     const val STORAGE_PRODUTOS = "produtos"
     const val STORAGE_USUARIOS = "usuarios"
     const val STORAGE_OPCIONAIS = "opcionais"
+    const val STORAGE_COMPROVANTES = "comprovantes"
 
     //FirebaseFirestore
     const val FIRESTORE_LOJAS = "lojas"
@@ -18,4 +19,5 @@ object ConstantesFirebase {
     const val FIRESTORE_MOTORISTAS = "motoristas"
     const val FIRESTORE_ITENS = "itens"
     const val FIRESTORE_OPCIONAIS = "opcionais"
+    const val FIRESTORE_ROTAS = "rotas"
 }

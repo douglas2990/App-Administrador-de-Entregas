@@ -87,5 +87,29 @@
         android:id="@+id/motoristascadastradosFragment"
         android:name="com.douglas2990.d2990entregasv2.presentation.ui.MotoristasCadastradosFragment"
         android:label="motoristascadastrados_adapter"
-        tools:layout="@layout/motoristas_cadastrados_adapter" />
+        tools:layout="@layout/motoristas_cadastrados_adapter" >
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_criarRotaProMotoristaFragment"
+            app:destination="@id/criarRotaProMotoristaFragment" />
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_rotasDoMotoristaFragment"
+            app:destination="@id/rotasDoMotoristaFragment" />
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_entregasdoDiaFragment"
+            app:destination="@id/entregasdoDiaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/criarRotaProMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CriarRotaProMotoristaFragment"
+        android:label="fragment_criar_rota_pro_motorista"
+        tools:layout="@layout/fragment_criar_rota_pro_motorista" />
+    <fragment
+        android:id="@+id/rotasDoMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.RotasDoMotoristaFragment"
+        android:label="fragment_rotas_do_motorista"
+        tools:layout="@layout/fragment_rotas_do_motorista" >
+        <argument
+            android:name="motorista"
+            app:argType="com.douglas2990.d2990entregasv2.model.Motorista" />
+    </fragment>
 </navigation>

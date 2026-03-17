@@ -48,14 +48,26 @@ class MotoristasCadastradosFragment : Fragment() {
     }
 
     private fun configurarRecyclerView() {
-        motoristaAdapter = MotoristaAdapter { motorista ->
-            // Ao clicar, leva o Guilherme para a tela de Rotas/Entregas
-            val bundle = Bundle().apply {
-                putParcelable("motorista", motorista)
+        motoristaAdapter = MotoristaAdapter(
+            onNovaRotaClick = { motorista ->
+                val bundle = Bundle().apply {
+                    putParcelable("motorista", motorista)
+                }
+                findNavController().navigate(
+                    R.id.action_motoristascadastradosFragment_to_criarRotaProMotoristaFragment,
+                    bundle
+                )
+            },
+            onVerRotasClick = { motorista ->
+                val bundle = Bundle().apply {
+                    putParcelable("motorista", motorista)
+                }
+                findNavController().navigate(
+                    R.id.action_motoristascadastradosFragment_to_rotasDoMotoristaFragment,
+                    bundle
+                )
             }
-            // Substitua 'action_ir_para_rotas' pelo ID real no seu nav_graph
-            //findNavController().navigate(R.id.action_motoristasCadastradosFragment_to_cadastrarRotaFragment, bundle)
-        }
+        )
 
         binding.rvMotoristas.apply {
             adapter = motoristaAdapter
@@ -90,9 +102,14 @@ class MotoristasCadastradosFragment : Fragment() {
     }
 
     private fun configurarCliques() {
+        // Botão para ver todas as rotas de todos os motoristas
+        binding.btnVerTodasRotas.setOnClickListener {
+            findNavController().navigate(R.id.action_motoristascadastradosFragment_to_entregasdoDiaFragment)
+        }
+
         // Botão flutuante para cadastrar novo motorista
         binding.fabAddMotorista.setOnClickListener {
-            //findNavController().navigate(R.id.action_motoristasCadastradosFragment_to_cadastrarMotoristaFragment)
+            findNavController().navigate(R.id.action_FirstFragment_to_CadastrarMotoristaFragment)
         }
     }
 
