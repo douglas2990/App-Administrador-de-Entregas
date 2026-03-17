@@ -9,7 +9,8 @@ import com.douglas2990.d2990entregasv2.databinding.MotoristasCadastradosAdapterB
 import com.douglas2990.d2990entregasv2.model.Motorista
 
 class MotoristaAdapter(
-    private val onClick: (Motorista) -> Unit
+    private val onNovaRotaClick: (Motorista) -> Unit,
+    private val onVerRotasClick: (Motorista) -> Unit
 ) : ListAdapter<Motorista, MotoristaAdapter.MotoristaViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MotoristaViewHolder {
@@ -32,14 +33,16 @@ class MotoristaAdapter(
             binding.textEmpresaMotorista.text = "Empresa: ${motorista.nomeEmpresa}"
             binding.textTelefoneMotorista.text = motorista.telefone
 
-            // Clique no Card para abrir a tela de Entregas/Rotas
-            binding.root.setOnClickListener {
-                onClick(motorista)
+            binding.btnNovaRota.setOnClickListener {
+                onNovaRotaClick(motorista)
+            }
+
+            binding.btnVerRotas.setOnClickListener {
+                onVerRotasClick(motorista)
             }
         }
     }
 
-    // Classe para comparar listas de forma eficiente
     class DiffCallback : DiffUtil.ItemCallback<Motorista>() {
         override fun areItemsTheSame(oldItem: Motorista, newItem: Motorista): Boolean {
             return oldItem.id == newItem.id

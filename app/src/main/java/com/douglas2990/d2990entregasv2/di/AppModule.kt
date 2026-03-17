@@ -5,13 +5,16 @@ import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.EmpresaRe
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IAutenticacaoMotoristaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IEmpresaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IMotoristaRepository
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IRotaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.MotoristaRepositoryImpl
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.RotaRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.AutenticacaoRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.IAutenticacaoRepository
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoMotoristaUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.CadastroEmpresaUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.ListarMotoristasUseCase
+import com.douglas2990.d2990entregasv2.domain.usecase.RotaUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.SalvarMotoristaUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -103,6 +106,22 @@ object AppModule {
         repository: IMotoristaRepository
     ): ListarMotoristasUseCase {
         return ListarMotoristasUseCase(repository)
+    }
+
+    @Provides
+    fun provideRotaRepository(
+        firebaseAuth: FirebaseAuth,
+        firebaseFirestore: FirebaseFirestore,
+        firebaseStorage: FirebaseStorage
+    ): IRotaRepository {
+        return RotaRepositoryImpl(firebaseAuth, firebaseFirestore, firebaseStorage)
+    }
+
+    @Provides
+    fun provideRotaUseCase(
+        repository: IRotaRepository
+    ): RotaUseCase {
+        return RotaUseCase(repository)
     }
     
 }

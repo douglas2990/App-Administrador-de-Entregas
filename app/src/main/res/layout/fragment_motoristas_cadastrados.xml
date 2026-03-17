@@ -21,6 +21,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerTodasRotas"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Ver Todas Rotas"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textTitulo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textTitulo" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMotoristas"
         android:layout_width="0dp"
