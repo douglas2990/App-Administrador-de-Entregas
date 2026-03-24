@@ -25,6 +25,10 @@
         <action
             android:id="@+id/action_FirstFragment_to_motoristasCadastradosFragment"
             app:destination="@id/motoristascadastradosFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_cadastroAcessoFragment"
+            app:destination="@id/cadastroAcessoFragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -112,4 +116,13 @@
             android:name="motorista"
             app:argType="com.douglas2990.d2990entregasv2.model.Motorista" />
     </fragment>
+
+    <fragment
+        android:id="@+id/cadastroAcessoFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.fragment.CadastroAcessoFragment"
+        android:label="Gerar Acesso Motorista"
+        tools:layout="@layout/fragment_cadastro_acesso">
+
+    </fragment>
+
 </navigation>

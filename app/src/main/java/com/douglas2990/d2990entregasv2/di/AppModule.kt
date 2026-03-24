@@ -1,8 +1,11 @@
 package com.douglas2990.d2990entregasv2.di
 
+import android.content.Context
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.AutenticacaoMotoristaRepositoryImpl
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.CadastroAcessoRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.EmpresaRepositoryImpl
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IAutenticacaoMotoristaRepository
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.ICadastroAcessoRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IEmpresaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IMotoristaRepository
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IRotaRepository
@@ -23,105 +26,86 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
 
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class) // Alterado para Singleton para suportar Context e instâncias únicas
 object AppModule {
 
+    // --- SEÇÃO DE FIREBASE (Mantenha como está) ---
 
     @Provides
-    fun provideAutenticacaoUseCase() : AutenticacaoUseCase {
-        return AutenticacaoUseCase()
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage = FirebaseStorage.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    // --- NOVO REPOSITÓRIO (ESTRUTURA PROFISSIONAL) ---
+
+    @Provides
+    @Singleton
+    fun provideCadastroAcessoRepository(
+        @ApplicationContext context: Context, // Injeta o contexto necessário para o SecondaryApp
+        firebaseAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): ICadastroAcessoRepository {
+        return CadastroAcessoRepositoryImpl(context, firebaseAuth, firestore)
     }
+
+    // --- SEUS REPOSITÓRIOS ATUAIS (Mantenha as injeções) ---
 
     @Provides
     fun provideAutenticacaoRepository(
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
-    ) : IAutenticacaoRepository {
-        return AutenticacaoRepositoryImpl(firebaseAuth, firestore)
-    }
-
-
-    @Provides
-    fun provideAutenticacaoMotoristaUseCase(): AutenticacaoMotoristaUseCase {
-        return AutenticacaoMotoristaUseCase()
-    }
-
-    @Provides
-    fun provideCadastroEmpresaUseCase(): CadastroEmpresaUseCase {
-        return CadastroEmpresaUseCase()
-    }
-
-
-    @Provides
-    fun provideAutenticacaoMotoristaRepository(
-        firebaseAuth: FirebaseAuth
-    ): IAutenticacaoMotoristaRepository {
-        return AutenticacaoMotoristaRepositoryImpl(firebaseAuth)
-    }
+    ) : IAutenticacaoRepository = AutenticacaoRepositoryImpl(firebaseAuth, firestore)
 
     @Provides
     fun provideEmpresaRepository(
         firebaseAuth: FirebaseAuth,
         firebaseFirestore: FirebaseFirestore
-    ) : IEmpresaRepository {
-        return EmpresaRepositoryImpl(firebaseAuth, firebaseFirestore)
-    }
-
-    @Provides
-    fun provideFirebaseAuth(): FirebaseAuth {
-        return FirebaseAuth.getInstance()
-    }
-
-
-    @Provides
-    fun provideFirebaseStorage() : FirebaseStorage {
-        return FirebaseStorage.getInstance()
-    }
-
-    @Provides
-    fun provideFirebaseFirestores() : FirebaseFirestore {
-        return FirebaseFirestore.getInstance()
-    }
-
-    @Provides
-    fun provideSalvarMotoristaUseCase(
-        repository: IMotoristaRepository // O Hilt injetará isso automaticamente
-    ): SalvarMotoristaUseCase {
-        return SalvarMotoristaUseCase(repository)
-    }
+    ) : IEmpresaRepository = EmpresaRepositoryImpl(firebaseAuth, firebaseFirestore)
 
     @Provides
     fun provideMotoristaRepository(
         firebaseAuth: FirebaseAuth,
         firebaseFirestore: FirebaseFirestore
-    ): IMotoristaRepository {
-        return MotoristaRepositoryImpl(firebaseAuth, firebaseFirestore)
-    }
-
-    @Provides
-    fun provideListarMotoristasUseCase(
-        repository: IMotoristaRepository
-    ): ListarMotoristasUseCase {
-        return ListarMotoristasUseCase(repository)
-    }
+    ): IMotoristaRepository = MotoristaRepositoryImpl(firebaseAuth, firebaseFirestore)
 
     @Provides
     fun provideRotaRepository(
         firebaseAuth: FirebaseAuth,
         firebaseFirestore: FirebaseFirestore,
         firebaseStorage: FirebaseStorage
-    ): IRotaRepository {
-        return RotaRepositoryImpl(firebaseAuth, firebaseFirestore, firebaseStorage)
-    }
+    ): IRotaRepository = RotaRepositoryImpl(firebaseAuth, firebaseFirestore, firebaseStorage)
+
+    // --- USE CASES (Mantenha as injeções) ---
 
     @Provides
-    fun provideRotaUseCase(
-        repository: IRotaRepository
-    ): RotaUseCase {
-        return RotaUseCase(repository)
-    }
-    
+    fun provideAutenticacaoUseCase() = AutenticacaoUseCase()
+
+    @Provides
+    fun provideAutenticacaoMotoristaUseCase() = AutenticacaoMotoristaUseCase()
+
+    @Provides
+    fun provideCadastroEmpresaUseCase() = CadastroEmpresaUseCase()
+
+    @Provides
+    fun provideSalvarMotoristaUseCase(repository: IMotoristaRepository) = SalvarMotoristaUseCase(repository)
+
+    @Provides
+    fun provideListarMotoristasUseCase(repository: IMotoristaRepository) = ListarMotoristasUseCase(repository)
+
+    @Provides
+    fun provideRotaUseCase(repository: IRotaRepository) = RotaUseCase(repository)
 }

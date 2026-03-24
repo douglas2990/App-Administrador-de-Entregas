@@ -21,12 +21,21 @@ class RotaRepositoryImpl @Inject constructor(
 
     override suspend fun salvar(rota: Rota): UIstatus<String> {
         return try {
-            val idGestor = firebaseAuth.currentUser?.uid
+            val idLogado = firebaseAuth.currentUser?.uid
                 ?: return UIstatus.Erro("Usuário não autenticado")
 
+            // Se a rota não tem ID, cria um novo. Se tem (edição), usa o existente.
             val refRota = if (rota.id.isEmpty()) colecaoRotas.document() else colecaoRotas.document(rota.id)
-            val rotaFinal = rota.copy(id = refRota.id, idGestor = idGestor)
-            
+
+            // O idGestor deve ser sempre o UID de quem criou (o Guilherme)
+            // Se for uma edição, mantemos o idGestor original da rota
+            val idGestorFinal = if (rota.idGestor.isEmpty()) idLogado else rota.idGestor
+
+            val rotaFinal = rota.copy(
+                id = refRota.id,
+                idGestor = idGestorFinal
+            )
+
             refRota.set(rotaFinal).await()
             UIstatus.Sucesso(refRota.id)
         } catch (e: Exception) {
@@ -34,14 +43,16 @@ class RotaRepositoryImpl @Inject constructor(
         }
     }
 
+    // AJUSTADO: Agora serve tanto para o Admin ver as rotas de UM motorista
+    // quanto para o Motorista ver as SUAS próprias rotas.
     override suspend fun listarPorMotorista(idMotorista: String): UIstatus<List<Rota>> {
         return try {
-            val idGestor = firebaseAuth.currentUser?.uid
+            val idLogado = firebaseAuth.currentUser?.uid
                 ?: return UIstatus.Erro("Usuário não autenticado")
 
-            // IMPORTANTE: A Query deve incluir o idGestor para bater com a regra de segurança
+            // IMPORTANTE: Removemos a obrigatoriedade do idGestor aqui para que o
+            // motorista consiga listar suas próprias rotas usando seu próprio UID.
             val querySnapshot = colecaoRotas
-                .whereEqualTo("idGestor", idGestor)
                 .whereEqualTo("idMotorista", idMotorista)
                 .orderBy("dataCriacao", Query.Direction.DESCENDING)
                 .get()
@@ -50,18 +61,16 @@ class RotaRepositoryImpl @Inject constructor(
             val lista = querySnapshot.toObjects(Rota::class.java)
             UIstatus.Sucesso(lista)
         } catch (e: Exception) {
-            // Fallback caso falte índice ou dê erro de permissão
+            // Fallback sem ordenação (caso o índice composto ainda não exista)
             try {
-                val idGestor = firebaseAuth.currentUser?.uid!!
                 val querySnapshotSemOrdem = colecaoRotas
-                    .whereEqualTo("idGestor", idGestor)
                     .whereEqualTo("idMotorista", idMotorista)
                     .get()
                     .await()
                 val lista = querySnapshotSemOrdem.toObjects(Rota::class.java)
                 UIstatus.Sucesso(lista)
             } catch (e2: Exception) {
-                UIstatus.Erro("Erro de permissão: Certifique-se de que o idGestor está correto nos documentos.")
+                UIstatus.Erro("Erro ao carregar rotas: ${e2.message}")
             }
         }
     }
@@ -71,6 +80,7 @@ class RotaRepositoryImpl @Inject constructor(
             val idGestor = firebaseAuth.currentUser?.uid
                 ?: return UIstatus.Erro("Usuário não autenticado")
 
+            // O Admin (Guilherme) vê todas as rotas que ELE criou
             val querySnapshot = colecaoRotas
                 .whereEqualTo("idGestor", idGestor)
                 .orderBy("dataCriacao", Query.Direction.DESCENDING)
@@ -116,8 +126,9 @@ class RotaRepositoryImpl @Inject constructor(
             storageRef.putFile(imageUri).await()
             val downloadUrl = storageRef.downloadUrl.await().toString()
 
+            // Atualiza a URL da foto e o status para CONCLUIDA
             colecaoRotas.document(idRota).update(
-                mapOf("comprovanteUrl" to downloadUrl, "status" to "CONCLUIDA")
+                mapOf("urlComprovante" to downloadUrl, "status" to "CONCLUIDA")
             ).await()
 
             UIstatus.Sucesso(downloadUrl)

@@ -30,11 +30,13 @@ class SalvarMotoristaUseCase @Inject constructor(
             return UIstatus.Erro("Selecione uma empresa para este motorista")
         }
 
-        // 5. Chamada ao Repository
-        return try {
-            repository.salvar(motorista)
-        } catch (e: Exception) {
-            UIstatus.Erro("Erro inesperado ao salvar: ${e.message}")
-        }
+        // 5. Chamada ao Repository (CORREÇÃO AQUI)
+        // Passamos o objeto e também extraímos o e-mail e a senha
+        // para a criação da conta no Firebase Auth
+        return repository.salvar(
+            motorista = motorista,
+            email = motorista.email,
+            senha = motorista.senha
+        )
     }
 }

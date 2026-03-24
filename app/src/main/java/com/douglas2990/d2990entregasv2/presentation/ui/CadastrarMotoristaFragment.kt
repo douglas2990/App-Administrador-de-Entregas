@@ -9,13 +9,10 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
-import com.douglas2990.d2990entregasv2.R
+import com.douglas2990.d2990entregasv2.presentation.viewmodel.CadastroMotoristaViewModel
 import com.douglas2990.d2990entregasv2.databinding.FragmentCadastrarMotoristaBinding
 import com.douglas2990.d2990entregasv2.model.Empresa
-import com.douglas2990.d2990entregasv2.presentation.viewmodel.AutenticacaoMotoristaViewModel
 import com.douglas2990.d2990entregasv2.model.Motorista
-import com.douglas2990.d2990entregasv2.presentation.viewmodel.CadastroMotoristaViewModel
 import com.example.core.UIstatus
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -106,7 +103,7 @@ class CadastrarMotoristaFragment : Fragment() {
                 idEmpresa = empresaObj.id,    // ID real do Firestore
                 nomeEmpresa = empresaObj.nome // Nome para exibição
             )
-            viewModel.cadastrarMotorista(motorista)
+            viewModel.cadastrarMotorista(motorista, email, senha)
         } else {
             Toast.makeText(requireContext(), "Preencha todos os campos e selecione a empresa", Toast.LENGTH_SHORT).show()
         }

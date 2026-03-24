@@ -32,42 +32,50 @@ class RotaViewModel @Inject constructor(
     fun salvarRota(rota: Rota) {
         _statusSalvar.value = UIstatus.Carregando
         viewModelScope.launch {
-            _statusSalvar.value = rotaUseCase.salvarRota(rota)
+            // O UseCase agora deve retornar UIstatus.Sucesso(idGerado) ou UIstatus.Erro(mensagem)
+            val resultado = rotaUseCase.salvarRota(rota)
+            _statusSalvar.value = resultado
         }
     }
 
     fun listarRotasMotorista(idMotorista: String) {
         _rotas.value = UIstatus.Carregando
         viewModelScope.launch {
-            _rotas.value = rotaUseCase.listarRotasMotorista(idMotorista)
+            val resultado = rotaUseCase.listarRotasMotorista(idMotorista)
+            _rotas.value = resultado
         }
     }
 
     fun listarTodasAsRotas() {
         _rotas.value = UIstatus.Carregando
         viewModelScope.launch {
-            _rotas.value = rotaUseCase.listarTodasAsRotas()
+            val resultado = rotaUseCase.listarTodasAsRotas()
+            _rotas.value = resultado
         }
     }
 
     fun concluirRota(idRota: String, imageUri: Uri) {
         _statusUpload.value = UIstatus.Carregando
         viewModelScope.launch {
-            _statusUpload.value = rotaUseCase.concluirRota(idRota, imageUri)
+            val resultado = rotaUseCase.concluirRota(idRota, imageUri)
+            _statusUpload.value = resultado
         }
     }
 
     fun reportarProblema(idRota: String, motivo: String) {
+        // Para reportar problema, geralmente não precisamos de um LiveData de status complexo,
+        // apenas atualizar a lista após o sucesso.
         viewModelScope.launch {
             rotaUseCase.reportarProblema(idRota, motivo)
-            listarTodasAsRotas() 
+            listarTodasAsRotas()
         }
     }
 
     fun excluirRota(idRota: String) {
         _statusExclusao.value = UIstatus.Carregando
         viewModelScope.launch {
-            _statusExclusao.value = rotaUseCase.excluirRota(idRota)
+            val resultado = rotaUseCase.excluirRota(idRota)
+            _statusExclusao.value = resultado
         }
     }
 }

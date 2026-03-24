@@ -62,7 +62,6 @@ class RotasDoMotoristaFragment : Fragment() {
     private fun setupRecyclerView() {
         rotaAdapter = RotaAdapter(
             onItemClick = { rota ->
-                // Futuramente: Ver comprovante ou detalhes
                 if (rota.status == "CONCLUIDA") {
                     Toast.makeText(context, "Entrega Concluída!", Toast.LENGTH_SHORT).show()
                 }
@@ -109,7 +108,6 @@ class RotasDoMotoristaFragment : Fragment() {
                 is UIstatus.Sucesso -> {
                     alertaCarregamento.fechar()
                     Toast.makeText(context, "Rota removida", Toast.LENGTH_SHORT).show()
-                    // Recarrega a lista
                     motorista?.let { viewModel.listarRotasMotorista(it.id) }
                 }
                 is UIstatus.Erro -> {

@@ -48,6 +48,9 @@ class FirstFragment : Fragment() {
         binding.buttonMostrarMotoristaCadastradoFragment.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_motoristasCadastradosFragment)
         }
+        binding.buttonCadastrarLoginMotorista.setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_cadastroAcessoFragment)
+        }
     }
 
     override fun onDestroyView() {

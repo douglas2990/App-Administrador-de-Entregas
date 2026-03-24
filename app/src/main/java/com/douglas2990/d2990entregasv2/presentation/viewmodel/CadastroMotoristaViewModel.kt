@@ -25,7 +25,6 @@ class CadastroMotoristaViewModel @Inject constructor(
     private val _statusCadastro = MutableLiveData<UIstatus<String>>()
     val statusCadastro: LiveData<UIstatus<String>> = _statusCadastro
 
-    // Carrega as empresas do "Guilherme" logado para o Spinner
     fun carregarEmpresas() {
         _empresas.value = UIstatus.Carregando
         viewModelScope.launch {
@@ -35,11 +34,19 @@ class CadastroMotoristaViewModel @Inject constructor(
         }
     }
 
-    fun cadastrarMotorista(motorista: Motorista) {
+    // AGORA RECEBE EMAIL E SENHA DA TELA
+    fun cadastrarMotorista(motorista: Motorista, email: String, senha: String) {
+
+        // Validação básica antes de tentar o Firebase
+        if (email.isEmpty() || senha.length < 6) {
+            _statusCadastro.value = UIstatus.Erro("E-mail inválido ou senha muito curta (mínimo 6 caracteres)")
+            return
+        }
+
         _statusCadastro.value = UIstatus.Carregando
         viewModelScope.launch {
-            // O repositório retorna UIstatus diretamente agora (sem callback)
-            val resultado = motoristaRepository.salvar(motorista)
+            // Chama o novo método do repositório que sincroniza Auth e Firestore
+            val resultado = motoristaRepository.salvar(motorista, email, senha)
             _statusCadastro.value = resultado
         }
     }

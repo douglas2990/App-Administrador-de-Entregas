@@ -94,7 +94,7 @@ class CriarRotaProMotoristaFragment : Fragment() {
 
             if (os.isNotEmpty() && empresaDestino.isNotEmpty() && endereco.isNotEmpty() && motoristaSelecionadoPos != -1) {
                 val motorista = listaMotoristas[motoristaSelecionadoPos]
-                
+
                 val novaRota = Rota(
                     os = os,
                     nomeEmpresaDestino = empresaDestino,
@@ -102,7 +102,7 @@ class CriarRotaProMotoristaFragment : Fragment() {
                     idMotorista = motorista.id,
                     nomeMotorista = motorista.nome
                 )
-                
+
                 rotaViewModel.salvarRota(novaRota)
             } else {
                 Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()

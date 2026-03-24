@@ -39,8 +39,8 @@ class EntregasdoDiaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        setupObservers()
-        
+        //setupObservers()
+
         viewModel.listarTodasAsRotas()
     }
 
@@ -48,7 +48,7 @@ class EntregasdoDiaFragment : Fragment() {
         rotaAdapter = RotaAdapter(
             onItemClick = { rota ->
                 if (rota.status == "CONCLUIDA") {
-                    Toast.makeText(context, "Entrega Concluída!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Entrega Concluída!", Toast.LENGTH_SHORT).show()
                 }
             },
             onItemLongClick = { rota ->
@@ -73,6 +73,7 @@ class EntregasdoDiaFragment : Fragment() {
                     val lista = status.dados ?: emptyList()
                     if (lista.isEmpty()) {
                         binding.textListaVazia.visibility = View.VISIBLE
+                        rotaAdapter.submitList(emptyList()) // Garante que a lista visual seja limpa
                     } else {
                         binding.textListaVazia.visibility = View.GONE
                         rotaAdapter.submitList(lista)
@@ -80,7 +81,8 @@ class EntregasdoDiaFragment : Fragment() {
                 }
                 is UIstatus.Erro -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(context, status.erro, Toast.LENGTH_SHORT).show()
+                    // LINHA 55: CORREÇÃO DE .erro PARA .mensagem
+                    Toast.makeText(requireContext(), status.erro, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -92,12 +94,13 @@ class EntregasdoDiaFragment : Fragment() {
                 }
                 is UIstatus.Sucesso -> {
                     alertaCarregamento.fechar()
-                    Toast.makeText(context, "Rota removida", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Rota removida", Toast.LENGTH_SHORT).show()
                     viewModel.listarTodasAsRotas()
                 }
                 is UIstatus.Erro -> {
                     alertaCarregamento.fechar()
-                    Toast.makeText(context, status.erro, Toast.LENGTH_SHORT).show()
+                    // LINHA 78: CORREÇÃO DE .erro PARA .mensagem
+                    Toast.makeText(requireContext(), status.erro, Toast.LENGTH_SHORT).show()
                 }
             }
         }
