@@ -31,9 +31,12 @@ class RotaRepositoryImpl @Inject constructor(
             // Se for uma edição, mantemos o idGestor original da rota
             val idGestorFinal = if (rota.idGestor.isEmpty()) idLogado else rota.idGestor
 
+            val dataFinal = if (rota.id.isEmpty()) System.currentTimeMillis() else rota.dataCriacao
+
             val rotaFinal = rota.copy(
                 id = refRota.id,
-                idGestor = idGestorFinal
+                idGestor = idGestorFinal,
+                dataCriacao = dataFinal
             )
 
             refRota.set(rotaFinal).await()
@@ -43,17 +46,23 @@ class RotaRepositoryImpl @Inject constructor(
         }
     }
 
-    // AJUSTADO: Agora serve tanto para o Admin ver as rotas de UM motorista
-    // quanto para o Motorista ver as SUAS próprias rotas.
     override suspend fun listarPorMotorista(idMotorista: String): UIstatus<List<Rota>> {
         return try {
-            val idLogado = firebaseAuth.currentUser?.uid
-                ?: return UIstatus.Erro("Usuário não autenticado")
+            val userLogado = firebaseAuth.currentUser ?: return UIstatus.Erro("Usuário não autenticado")
+            val idLogado = userLogado.uid
 
-            // IMPORTANTE: Removemos a obrigatoriedade do idGestor aqui para que o
-            // motorista consiga listar suas próprias rotas usando seu próprio UID.
-            val querySnapshot = colecaoRotas
-                .whereEqualTo("idMotorista", idMotorista)
+            // CRIAMOS A QUERY BASE
+            var query = colecaoRotas.whereEqualTo("idMotorista", idMotorista)
+
+            // O PULO DO GATO:
+            // Se quem está logado NÃO é o motorista que estamos buscando,
+            // significa que é o ADMIN (Guilherme) tentando ver.
+            // Então, precisamos filtrar também pelo idGestor dele para a Regra liberar!
+            if (idLogado != idMotorista) {
+                query = query.whereEqualTo("idGestor", idLogado)
+            }
+
+            val querySnapshot = query
                 .orderBy("dataCriacao", Query.Direction.DESCENDING)
                 .get()
                 .await()
@@ -61,46 +70,37 @@ class RotaRepositoryImpl @Inject constructor(
             val lista = querySnapshot.toObjects(Rota::class.java)
             UIstatus.Sucesso(lista)
         } catch (e: Exception) {
-            // Fallback sem ordenação (caso o índice composto ainda não exista)
-            try {
-                val querySnapshotSemOrdem = colecaoRotas
-                    .whereEqualTo("idMotorista", idMotorista)
-                    .get()
-                    .await()
-                val lista = querySnapshotSemOrdem.toObjects(Rota::class.java)
-                UIstatus.Sucesso(lista)
-            } catch (e2: Exception) {
-                UIstatus.Erro("Erro ao carregar rotas: ${e2.message}")
-            }
+            // Fallback simples caso dê erro de índice por causa do orderBy
+            UIstatus.Erro("Erro ao carregar: ${e.message}")
         }
     }
 
     override suspend fun listarTodas(): UIstatus<List<Rota>> {
         return try {
-            val idGestor = firebaseAuth.currentUser?.uid
-                ?: return UIstatus.Erro("Usuário não autenticado")
+            val user = firebaseAuth.currentUser
+            val uidAtual = user?.uid
 
-            // O Admin (Guilherme) vê todas as rotas que ELE criou
+            if (uidAtual == null) {
+                return UIstatus.Erro("Usuário deslogado no Firebase!")
+            }
+
+            // LOG DE AUDITORIA: Verifique se esse ID no Logcat é o mesmo que está no campo idGestor do banco
+            android.util.Log.d("DEBUG_PERMISSAO", "ID Logado no App: $uidAtual")
+
             val querySnapshot = colecaoRotas
-                .whereEqualTo("idGestor", idGestor)
-                .orderBy("dataCriacao", Query.Direction.DESCENDING)
+                .whereEqualTo("idGestor", uidAtual)
                 .get()
                 .await()
 
             val lista = querySnapshot.toObjects(Rota::class.java)
             UIstatus.Sucesso(lista)
+
+        } catch (e: com.google.firebase.firestore.FirebaseFirestoreException) {
+            android.util.Log.e("DEBUG_PERMISSAO", "Erro Código: ${e.code}")
+            android.util.Log.e("DEBUG_PERMISSAO", "Erro Mensagem: ${e.message}")
+            UIstatus.Erro("Erro de Permissão: ${e.code}")
         } catch (e: Exception) {
-            try {
-                val idGestor = firebaseAuth.currentUser?.uid!!
-                val querySnapshotSemOrdem = colecaoRotas
-                    .whereEqualTo("idGestor", idGestor)
-                    .get()
-                    .await()
-                val lista = querySnapshotSemOrdem.toObjects(Rota::class.java)
-                UIstatus.Sucesso(lista)
-            } catch (e2: Exception) {
-                UIstatus.Erro("Erro ao listar rotas gerais: ${e2.message}")
-            }
+            UIstatus.Erro("Erro desconhecido: ${e.message}")
         }
     }
 

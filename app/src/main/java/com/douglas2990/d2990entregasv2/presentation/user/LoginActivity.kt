@@ -35,6 +35,14 @@ class LoginActivity : AppCompatActivity() {
     private val autenticacaoViewModel: AutenticacaoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime()) // IME é o teclado
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, ime.bottom)
+            insets
+        }
+
         //Thread.sleep(3000)
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition{

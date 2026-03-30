@@ -29,6 +29,10 @@
         <action
             android:id="@+id/action_FirstFragment_to_cadastroAcessoFragment"
             app:destination="@id/cadastroAcessoFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_criarRotaProMotoristaFragment"
+            app:destination="@id/criarRotaProMotoristaFragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"

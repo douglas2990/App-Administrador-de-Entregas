@@ -24,6 +24,7 @@
             android:exported="false" />
         <activity
             android:name=".presentation.user.LoginActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:theme="@style/Theme._2990Entregas">
             <intent-filter>
