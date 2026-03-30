@@ -39,7 +39,7 @@ class EntregasdoDiaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        //setupObservers()
+        setupObservers()
 
         viewModel.listarTodasAsRotas()
     }

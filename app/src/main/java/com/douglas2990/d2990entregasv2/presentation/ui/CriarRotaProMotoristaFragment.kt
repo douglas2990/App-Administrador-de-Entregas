@@ -28,6 +28,8 @@ class CriarRotaProMotoristaFragment : Fragment() {
 
     private var listaMotoristas: List<Motorista> = emptyList()
 
+    private var motoristaPreSelecionado: Motorista? = null // Adicione esta linha
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,6 +40,8 @@ class CriarRotaProMotoristaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        motoristaPreSelecionado = arguments?.getParcelable("motorista")
 
         setupObservers()
         setupListeners()
@@ -57,6 +61,15 @@ class CriarRotaProMotoristaFragment : Fragment() {
                     val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, nomes)
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     binding.spinnerMotoristas.adapter = adapter
+
+                    motoristaPreSelecionado?.let { pre ->
+                        // Procura a posição do motorista na lista carregada pelo ID
+                        val index = listaMotoristas.indexOfFirst { it.id == pre.id }
+                        if (index != -1) {
+                            binding.spinnerMotoristas.setSelection(index)
+                        }
+                    }
+
                 }
                 is UIstatus.Erro -> {
                     binding.progressBar.visibility = View.GONE
