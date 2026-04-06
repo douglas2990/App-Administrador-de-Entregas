@@ -11,4 +11,7 @@ interface IRotaRepository {
     suspend fun atualizarStatus(idRota: String, status: String, observacao: String? = null): UIstatus<Boolean>
     suspend fun enviarComprovante(idRota: String, imageUri: Uri): UIstatus<String>
     suspend fun remover(idRota: String): UIstatus<Boolean>
+
+    suspend fun finalizarRotaComSucesso(idRota: String, imageUri: Uri): UIstatus<String>
+    suspend fun reportarProblemaRota(idRota: String, motivo: String, imageUri: Uri?): UIstatus<String>
 }

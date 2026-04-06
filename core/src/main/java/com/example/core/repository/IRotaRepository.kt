@@ -12,6 +12,9 @@ interface IRotaRepository {
     suspend fun enviarComprovante(idRota: String, imageUri: Uri): UIstatus<String>
     suspend fun remover(idRota: String): UIstatus<Boolean>
 
+    suspend fun finalizarRotaComSucesso(idRota: String, imageUri: Uri): UIstatus<String>
+    suspend fun reportarProblemaRota(idRota: String, motivo: String, imageUri: Uri?): UIstatus<String>
+
     fun listarPorMotoristaRealTime(
         idMotorista: String,
         onResult: (UIstatus<List<Rota>>) -> Unit

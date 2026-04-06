@@ -20,6 +20,16 @@ class RotaRepositoryImpl @Inject constructor(
 
     private val colecaoRotas = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
 
+    private suspend fun fazerUploadFoto(idRota: String, imageUri: Uri): String {
+        val storageRef = firebaseStorage.reference
+            .child(ConstantesFirebase.STORAGE_COMPROVANTES)
+            .child(idRota)
+            .child("comprovante_${System.currentTimeMillis()}.jpg")
+
+        storageRef.putFile(imageUri).await()
+        return storageRef.downloadUrl.await().toString()
+    }
+
     override suspend fun salvar(rota: Rota): UIstatus<String> {
         return try {
             val idLogado = firebaseAuth.currentUser?.uid
@@ -118,24 +128,7 @@ class RotaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun enviarComprovante(idRota: String, imageUri: Uri): UIstatus<String> {
-        return try {
-            val storageRef = firebaseStorage.reference
-                .child(ConstantesFirebase.STORAGE_COMPROVANTES)
-                .child(idRota)
-                .child("comprovante_${System.currentTimeMillis()}.jpg")
-
-            storageRef.putFile(imageUri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
-
-            // Atualiza a URL da foto e o status para CONCLUIDA
-            colecaoRotas.document(idRota).update(
-                mapOf("urlComprovante" to downloadUrl, "status" to "CONCLUIDA")
-            ).await()
-
-            UIstatus.Sucesso(downloadUrl)
-        } catch (e: Exception) {
-            UIstatus.Erro("Erro ao enviar comprovante: ${e.message}")
-        }
+        return finalizarRotaComSucesso(idRota, imageUri) // Redireciona para o novo método
     }
 
     override suspend fun remover(idRota: String): UIstatus<Boolean> {
@@ -144,6 +137,44 @@ class RotaRepositoryImpl @Inject constructor(
             UIstatus.Sucesso(true)
         } catch (e: Exception) {
             UIstatus.Erro("Erro ao remover rota: ${e.message}")
+        }
+    }
+
+    override suspend fun finalizarRotaComSucesso(idRota: String, imageUri: Uri): UIstatus<String> {
+        return try {
+            val urlFoto = fazerUploadFoto(idRota, imageUri)
+
+            colecaoRotas.document(idRota).update(
+                mapOf(
+                    "comprovanteUrl" to urlFoto,
+                    "status" to "CONCLUIDA",
+                    "observacao" to null // Limpa qualquer observação anterior
+                )
+            ).await()
+
+            UIstatus.Sucesso("Entrega finalizada com sucesso!")
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao finalizar: ${e.message}")
+        }
+    }
+
+    override suspend fun reportarProblemaRota(idRota: String, motivo: String, imageUri: Uri?): UIstatus<String> {
+        return try {
+            val updates = mutableMapOf<String, Any?>(
+                "status" to "PROBLEMA",
+                "observacao" to motivo
+            )
+
+            // Se o motorista tirou foto do problema, fazemos o upload
+            imageUri?.let { uri ->
+                val urlFoto = fazerUploadFoto(idRota, uri)
+                updates["comprovanteUrl"] = urlFoto
+            }
+
+            colecaoRotas.document(idRota).update(updates).await()
+            UIstatus.Sucesso("Problema reportado com sucesso!")
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao reportar: ${e.message}")
         }
     }
 

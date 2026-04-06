@@ -1,10 +1,13 @@
 package com.douglas2990.d2990entregasv2.presentation.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.ItemRotaBinding
 import com.douglas2990.d2990entregasv2.model.Rota
 
@@ -30,12 +33,45 @@ class RotaAdapter(
             binding.textMotorista.text = "Motorista: ${rota.nomeMotorista}"
             binding.chipStatus.text = rota.status
 
-            val color = when (rota.status) {
-                "CONCLUIDA" -> android.R.color.holo_green_dark
-                "PROBLEMA" -> android.R.color.holo_red_dark
-                else -> android.R.color.holo_orange_dark
+            val context = binding.root.context
+
+            val colorRes: Int
+            val iconRes: Int
+
+            when (rota.status) {
+                "CONCLUIDA" -> {
+                    colorRes = android.R.color.holo_green_dark
+                    iconRes = R.drawable.ic_check_circle_24 // Pode usar um check também
+                }
+                "PROBLEMA" -> {
+                    colorRes = android.R.color.holo_red_dark
+                    iconRes = R.drawable.ic_warning
+                }
+                else -> { // PENDENTE
+                    colorRes = android.R.color.holo_orange_dark
+                    iconRes = R.drawable.ic_delivery
+                }
             }
-            binding.chipStatus.setChipBackgroundColorResource(color)
+            binding.chipStatus.text = rota.status
+            binding.chipStatus.setChipBackgroundColorResource(colorRes)
+            binding.imgStatusIcon.setImageResource(iconRes)
+            binding.imgStatusIcon.setColorFilter(ContextCompat.getColor(context, colorRes))
+
+            // 2. Exibição da Observação/Motivo (Crucial para o Admin)
+            if (rota.status == "PROBLEMA" && !rota.observacao.isNullOrEmpty()) {
+                binding.textObservacao.visibility = View.VISIBLE
+                binding.textObservacao.text = "Motivo: ${rota.observacao}"
+            } else {
+                binding.textObservacao.visibility = View.GONE
+            }
+
+            //
+            //
+            //3. Ícone visual rápido (Opcional: se você tiver um ImageView de status no layout)
+            binding.imgStatusIcon.setImageResource(
+                if(rota.status == "PROBLEMA") R.drawable.ic_warning else R.drawable.ic_delivery
+             )
+
 
             binding.root.setOnClickListener { onItemClick(rota) }
             binding.root.setOnLongClickListener {

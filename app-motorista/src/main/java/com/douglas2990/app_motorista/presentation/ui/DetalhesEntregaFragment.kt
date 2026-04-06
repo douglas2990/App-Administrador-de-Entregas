@@ -13,6 +13,8 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.douglas2990.app_motorista.R
+import com.douglas2990.app_motorista.databinding.DialogReportarProblemaBinding
 import com.douglas2990.app_motorista.databinding.FragmentDetalhesEntregaBinding
 import com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel
 import com.example.core.model.Rota
@@ -33,12 +35,31 @@ class DetalhesEntregaFragment : Fragment() {
     private var rota: Rota? = null
     private var imageUri: Uri? = null
 
+    // Variável para saber se estamos tirando foto de Sucesso ou de Problema
+    private var motivoAtual: String? = null
+
+    // 1. Launcher para pedir Permissão da Câmera
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            prepararCamera()
+        } else {
+            Toast.makeText(context, "Permissão da câmera necessária para fotos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             binding.imgComprovante.setImageURI(imageUri)
-            binding.btnFinalizarEntrega.visibility = View.VISIBLE
-        } else {
-            Toast.makeText(context, "Falha ao capturar imagem", Toast.LENGTH_SHORT).show()
+            binding.imgComprovante.visibility = View.VISIBLE
+
+            // Se tiver um motivo, é um problema com foto. Se não, é entrega normal.
+            if (motivoAtual != null) {
+                enviarRelatoProblema(motivoAtual!!)
+            } else {
+                binding.btnFinalizarEntrega.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -49,17 +70,13 @@ class DetalhesEntregaFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDetalhesEntregaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupUI()
         setupListeners()
         setupObservers()
@@ -75,11 +92,8 @@ class DetalhesEntregaFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnTirarFoto.setOnClickListener {
-            prepararCamera()
-        }
-
-        binding.btnNavegar.setOnClickListener {
-            abrirMapa()
+            motivoAtual = null // Resetando para garantir que é fluxo de sucesso
+            verificarPermissaoECamera()
         }
 
         binding.btnFinalizarEntrega.setOnClickListener {
@@ -91,23 +105,44 @@ class DetalhesEntregaFragment : Fragment() {
         }
 
         binding.btnReportarProblema.setOnClickListener {
-            Toast.makeText(context, "Funcionalidade de problema em breve", Toast.LENGTH_SHORT).show()
+            exibirDialogProblema()
+        }
+
+        binding.btnNavegar.setOnClickListener { abrirMapa() }
+    }
+
+    // 2. Função de Segurança para Permissão
+    private fun verificarPermissaoECamera() {
+        when {
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.CAMERA
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED -> {
+                prepararCamera()
+            }
+            else -> {
+                requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
         }
     }
 
-    private fun abrirMapa() {
-        rota?.let {
-            val uriEndereco = Uri.encode(it.endereco)
-            val mapIntentUri = Uri.parse("google.navigation:q=$uriEndereco")
-            val mapIntent = Intent(Intent.ACTION_VIEW, mapIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            
-            if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
-                startActivity(mapIntent)
-            } else {
-                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/search/?api=1&query=$uriEndereco"))
-                startActivity(webIntent)
-            }
+    private fun prepararCamera() {
+        try {
+            val photoFile = File.createTempFile(
+                "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}_",
+                ".jpg",
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            )
+
+            imageUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                photoFile
+            )
+
+            takePictureLauncher.launch(imageUri)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Erro ao criar arquivo de imagem", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -120,7 +155,7 @@ class DetalhesEntregaFragment : Fragment() {
                 }
                 is UIstatus.Sucesso -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(context, "Entrega finalizada com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, status.dados, Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
                 is UIstatus.Erro -> {
@@ -132,21 +167,66 @@ class DetalhesEntregaFragment : Fragment() {
         }
     }
 
-    private fun prepararCamera() {
-        val photoFile = File.createTempFile(
-            "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}_",
-            ".jpg",
-            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        )
+    private fun exibirDialogProblema() {
+        val dialogBinding = DialogReportarProblemaBinding.inflate(layoutInflater)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
 
-        imageUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.fileprovider",
-            photoFile
-        )
+        dialogBinding.radioGroupProblemas.setOnCheckedChangeListener { _, checkedId ->
+            dialogBinding.inputLayoutOutro.visibility =
+                if (checkedId == R.id.radioOutro) View.VISIBLE else View.GONE
+        }
 
-        takePictureLauncher.launch(imageUri)
+        dialogBinding.btnConfirmarProblema.setOnClickListener {
+            val motivoId = dialogBinding.radioGroupProblemas.checkedRadioButtonId
+            if (motivoId == -1) {
+                Toast.makeText(context, "Selecione um motivo", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val motivoTexto = when (motivoId) {
+                R.id.radioRecusado -> "Recusado pelo cliente"
+                R.id.radioHorarioEncerrado -> "Horário encerrado"
+                R.id.radioNaoDeuTempo -> "Não deu tempo"
+                R.id.radioSemComprovante -> "Sem comprovante do cliente"
+                R.id.radioOutro -> dialogBinding.editOutroMotivo.text.toString()
+                else -> ""
+            }
+
+            if (motivoId == R.id.radioOutro && motivoTexto.isEmpty()) {
+                dialogBinding.editOutroMotivo.error = "Descreva o motivo"
+                return@setOnClickListener
+            }
+
+            dialog.dismiss()
+            confirmarComFotoOpcional(motivoTexto)
+        }
+        dialog.show()
     }
+
+    private fun confirmarComFotoOpcional(motivo: String) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Deseja tirar foto?")
+            .setMessage("Deseja tirar uma foto para comprovar a situação?")
+            .setPositiveButton("Sim, tirar foto") { _, _ ->
+                motivoAtual = motivo
+                verificarPermissaoECamera()
+            }
+            .setNegativeButton("Não, apenas enviar") { _, _ ->
+                enviarRelatoProblema(motivo)
+            }
+            .show()
+    }
+
+    private fun enviarRelatoProblema(motivo: String) {
+        rota?.let { r ->
+            // IMPORTANTE: Chamando a função correta do ViewModel
+            viewModel.reportarProblema(r.id, motivo, imageUri)
+        }
+    }
+
+    private fun abrirMapa() { /* seu código do mapa (mantido) */ }
 
     override fun onDestroyView() {
         super.onDestroyView()

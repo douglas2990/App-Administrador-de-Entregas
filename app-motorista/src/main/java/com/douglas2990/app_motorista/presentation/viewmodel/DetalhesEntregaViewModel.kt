@@ -23,14 +23,19 @@ class DetalhesEntregaViewModel @Inject constructor(
     fun finalizarEntrega(idRota: String, imageUri: Uri) {
         _statusEntrega.value = UIstatus.Carregando
         viewModelScope.launch {
-            _statusEntrega.value = rotaRepository.enviarComprovante(idRota, imageUri)
+            // Aqui enviamos o status "CONCLUIDA" e a foto
+            val resultado = rotaRepository.finalizarRotaComSucesso(idRota, imageUri)
+            _statusEntrega.value = resultado
         }
     }
 
-    fun reportarProblema(idRota: String, motivo: String) {
+    fun reportarProblema(idRota: String, motivo: String, imageUri: Uri? = null) {
         _statusEntrega.value = UIstatus.Carregando
         viewModelScope.launch {
-            val resultado = rotaRepository.atualizarStatus(idRota, "PROBLEMA", motivo)
+            // Note que passamos o status "PROBLEMA", o motivo para o campo 'observacao'
+            // e a imageUri que pode ser null
+            val resultado = rotaRepository.reportarProblemaRota(idRota, motivo, imageUri)
+
             if (resultado is UIstatus.Sucesso) {
                 _statusEntrega.value = UIstatus.Sucesso("Problema reportado com sucesso")
             } else if (resultado is UIstatus.Erro) {
