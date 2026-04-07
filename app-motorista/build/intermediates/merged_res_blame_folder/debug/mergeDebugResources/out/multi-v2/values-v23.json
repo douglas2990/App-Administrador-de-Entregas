@@ -1,0 +1,77 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.douglas2990.app_motorista.app-motorista-mergeDebugResources-55:/values-v23/values-v23.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dougl\\.gradle\\caches\\8.10.2\\transforms\\274ad9e57fb47e6817fff66a9f5e8556\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "4",
+                        "endColumns": "12",
+                        "endOffsets": "200"
+                    },
+                    "to": {
+                        "startLines": "50",
+                        "startColumns": "4",
+                        "startOffsets": "3232",
+                        "endLines": "52",
+                        "endColumns": "12",
+                        "endOffsets": "3377"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dougl\\.gradle\\caches\\8.10.2\\transforms\\3714acf66e028cbe9ae7aa1660623ca7\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
+                    "from": {
+                        "startLines": "2,5,9,13,16,19,22,25,28,32",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,271,413,574,784,991,1198,1401,1603,1868",
+                        "endLines": "4,8,12,15,18,21,24,27,31,35",
+                        "endColumns": "10,10,10,10,10,10,10,10,10,10",
+                        "endOffsets": "266,408,569,779,986,1193,1396,1598,1863,2136"
+                    },
+                    "to": {
+                        "startLines": "59,62,66,70,73,76,79,82,85,89",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "3743,3959,4101,4262,4472,4679,4886,5089,5291,5556",
+                        "endLines": "61,65,69,72,75,78,81,84,88,92",
+                        "endColumns": "10,10,10,10,10,10,10,10,10,10",
+                        "endOffsets": "3954,4096,4257,4467,4674,4881,5084,5286,5551,5824"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dougl\\.gradle\\caches\\8.10.2\\transforms\\20a8090f4e0f30a3a1436eacd39363d5\\transformed\\appcompat-1.7.0\\res\\values-v23\\values-v23.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,190,325,400,487,1225,1975,2094,2221,2443,2667,2782,2889,3002",
+                        "endLines": "2,3,4,5,19,33,34,35,38,42,43,44,45,49",
+                        "endColumns": "134,134,74,86,12,12,118,126,12,12,114,106,112,12",
+                        "endOffsets": "185,320,395,482,1220,1970,2089,2216,2438,2662,2777,2884,2997,3227"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dougl\\Documents\\Douglas 2026\\Projetos continuos Android Studio\\Otter 2\\testes\\appLogistica\\AppAdministrador2990Entregas\\app-motorista\\src\\main\\res\\values-v23\\themes.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "64",
+                        "endLines": "7",
+                        "endColumns": "12",
+                        "endOffsets": "470"
+                    },
+                    "to": {
+                        "startLines": "53",
+                        "startColumns": "4",
+                        "startOffsets": "3382",
+                        "endLines": "58",
+                        "endColumns": "12",
+                        "endOffsets": "3738"
+                    }
+                }
+            ]
+        }
+    ]
+}

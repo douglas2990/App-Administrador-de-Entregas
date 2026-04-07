@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.douglas2990.app_motorista.app-motorista-mergeDebugResources-55:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dougl\\.gradle\\caches\\8.10.2\\transforms\\20a8090f4e0f30a3a1436eacd39363d5\\transformed\\appcompat-1.7.0\\res\\values-h720dp-v13\\values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

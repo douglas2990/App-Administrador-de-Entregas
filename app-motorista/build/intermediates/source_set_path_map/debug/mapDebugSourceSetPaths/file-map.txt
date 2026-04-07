@@ -1,0 +1,61 @@
+com.douglas2990.app_motorista.app-motorista-credentials-1.2.0-rc01-0 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\0211b3409a3a427a14b800f17dc82b70\transformed\credentials-1.2.0-rc01\res
+com.douglas2990.app_motorista.app-motorista-firebase-common-21.0.0-1 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\05bdf5b2ca96ee6f8749fec68f914571\transformed\firebase-common-21.0.0\res
+com.douglas2990.app_motorista.app-motorista-profileinstaller-1.4.0-2 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\062df325127a6bb3d62c76599d9a7d18\transformed\profileinstaller-1.4.0\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-livedata-core-2.6.2-3 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\0847bf35b8edb56e78e58bad73ca9234\transformed\lifecycle-livedata-core-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-coordinatorlayout-1.1.0-4 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\0b5ad98af4be6d45e0f9d93c8fd06a97\transformed\coordinatorlayout-1.1.0\res
+com.douglas2990.app_motorista.app-motorista-transition-1.5.0-5 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\158f914f1212fc166f7b15e0cac02140\transformed\transition-1.5.0\res
+com.douglas2990.app_motorista.app-motorista-slidingpanelayout-1.2.0-6 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\1c00437cdfdca2d6877b382991b389fc\transformed\slidingpanelayout-1.2.0\res
+com.douglas2990.app_motorista.app-motorista-activity-1.8.0-7 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\1c8362e65a48cb06ff77af699205045f\transformed\activity-1.8.0\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-viewmodel-2.6.2-8 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\1cb5fdf39664c0fceb9acff52f911fe1\transformed\lifecycle-viewmodel-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-emoji2-views-helper-1.3.0-9 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\1f1c020c3d664fa91afc35b608cbe0cf\transformed\emoji2-views-helper-1.3.0\res
+com.douglas2990.app_motorista.app-motorista-appcompat-1.7.0-10 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\20a8090f4e0f30a3a1436eacd39363d5\transformed\appcompat-1.7.0\res
+com.douglas2990.app_motorista.app-motorista-navigation-common-ktx-2.8.7-11 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\21c62ad6ceae553d6d3c46dcc00a8eb4\transformed\navigation-common-ktx-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-navigation-ui-ktx-2.8.7-12 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\22cae20b79a6ad372b10729c32ac2673\transformed\navigation-ui-ktx-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-fragment-1.6.2-13 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\2689defcf5f7fb023557b56b885f2f1a\transformed\fragment-1.6.2\res
+com.douglas2990.app_motorista.app-motorista-startup-runtime-1.1.1-14 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\2725f20fd113f2809b3a0a0c86f89bf9\transformed\startup-runtime-1.1.1\res
+com.douglas2990.app_motorista.app-motorista-cardview-1.0.0-15 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\274ad9e57fb47e6817fff66a9f5e8556\transformed\cardview-1.0.0\res
+com.douglas2990.app_motorista.app-motorista-material-1.12.0-16 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\3714acf66e028cbe9ae7aa1660623ca7\transformed\material-1.12.0\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-livedata-2.6.2-17 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\39cfbfb4e4c0475e3f94a142646bfeb4\transformed\lifecycle-livedata-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-core-ktx-1.15.0-18 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\3a6321e01c08549c7f8b4fa0d03d3d6c\transformed\core-ktx-1.15.0\res
+com.douglas2990.app_motorista.app-motorista-savedstate-1.2.1-19 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\3aac6efc6d94dae3eff9c375c35deab4\transformed\savedstate-1.2.1\res
+com.douglas2990.app_motorista.app-motorista-constraintlayout-2.2.0-20 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\3c9a5deedb6b5c0ad3fa658fd153e1bc\transformed\constraintlayout-2.2.0\res
+com.douglas2990.app_motorista.app-motorista-activity-ktx-1.8.0-21 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\50a299f7705b1f7d3e5ece195309c80f\transformed\activity-ktx-1.8.0\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-viewmodel-savedstate-2.6.2-22 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\534c60d7c5c2499283ebeb34d0fd354b\transformed\lifecycle-viewmodel-savedstate-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-recyclerview-1.1.0-23 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\5a3547680d4e56ca4afaf63ffc35e5b2\transformed\recyclerview-1.1.0\res
+com.douglas2990.app_motorista.app-motorista-navigation-common-2.8.7-24 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\6eb6b6f62de1c682faad8acf95ea2183\transformed\navigation-common-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-play-services-auth-20.7.0-25 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\7d4be8947dec1fded73973ef26281810\transformed\play-services-auth-20.7.0\res
+com.douglas2990.app_motorista.app-motorista-drawerlayout-1.1.1-26 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\8178309f1211dfe5b2f3160b58ffdcc2\transformed\drawerlayout-1.1.1\res
+com.douglas2990.app_motorista.app-motorista-navigation-fragment-2.8.7-27 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\88f314fff49669db295be0610ba4c61c\transformed\navigation-fragment-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-navigation-runtime-ktx-2.8.7-28 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\8c169e76ae0f34bf684209361a533c7a\transformed\navigation-runtime-ktx-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-core-runtime-2.2.0-29 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\8c9399f1b623af23ed264ac8c0d84b88\transformed\core-runtime-2.2.0\res
+com.douglas2990.app_motorista.app-motorista-play-services-basement-18.3.0-30 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\9f11021006ce6e12c1a132f5fc9ddbb3\transformed\play-services-basement-18.3.0\res
+com.douglas2990.app_motorista.app-motorista-navigation-fragment-ktx-2.8.7-31 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\a09e8f2fae16c355a231da5c5973bd71\transformed\navigation-fragment-ktx-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-livedata-core-ktx-2.6.2-32 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\a959cec8f4c48fe5db912d005165d9ca\transformed\lifecycle-livedata-core-ktx-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-process-2.6.2-33 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\af16716d9533163158b88df81bf980fb\transformed\lifecycle-process-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-window-1.0.0-34 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\b5ad5873e1766d4ddc49cf5322ae81ab\transformed\window-1.0.0\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-viewmodel-ktx-2.6.2-35 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\bff2440adb1d46150ef2aebbd74f6214\transformed\lifecycle-viewmodel-ktx-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-core-1.15.0-36 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\c077f8cae62204adb0063a2c6e8af283\transformed\core-1.15.0\res
+com.douglas2990.app_motorista.app-motorista-viewpager2-1.0.0-37 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\c5252311399c500ca20234f6fafcfc08\transformed\viewpager2-1.0.0\res
+com.douglas2990.app_motorista.app-motorista-appcompat-resources-1.7.0-38 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\c66130116de010e83e1a5f27da90fbee\transformed\appcompat-resources-1.7.0\res
+com.douglas2990.app_motorista.app-motorista-savedstate-ktx-1.2.1-39 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\c78bbbdb3711fb417708fb481226fef8\transformed\savedstate-ktx-1.2.1\res
+com.douglas2990.app_motorista.app-motorista-emoji2-1.3.0-40 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\ca2995bae60b713b2110767363c1aada\transformed\emoji2-1.3.0\res
+com.douglas2990.app_motorista.app-motorista-play-services-base-18.1.0-41 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\cb47464504814683890dbdd934c539b0\transformed\play-services-base-18.1.0\res
+com.douglas2990.app_motorista.app-motorista-fragment-ktx-1.6.2-42 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\cc55f6f72305276e07d5d00d6896bdc1\transformed\fragment-ktx-1.6.2\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-runtime-2.6.2-43 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\cd8615f4f68a6465a6e87bc5508a3a09\transformed\lifecycle-runtime-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-navigation-runtime-2.8.7-44 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\d7544ce52accd1db9c718d45a0ebfcff\transformed\navigation-runtime-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-tracing-1.2.0-45 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\db71becde88f6b3960d031bdabf177df\transformed\tracing-1.2.0\res
+com.douglas2990.app_motorista.app-motorista-annotation-experimental-1.4.1-46 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\e3b091a65fd61bcb8cb68fb284227ffe\transformed\annotation-experimental-1.4.1\res
+com.douglas2990.app_motorista.app-motorista-browser-1.4.0-47 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\e79f887eb2d99d8a5d6f0df78420e09d\transformed\browser-1.4.0\res
+com.douglas2990.app_motorista.app-motorista-credentials-play-services-auth-1.2.0-rc01-48 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\f2391a968323fc4e749e38a67d8e4880\transformed\credentials-play-services-auth-1.2.0-rc01\res
+com.douglas2990.app_motorista.app-motorista-lifecycle-runtime-ktx-2.6.2-49 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\f6771c76a4228604a752df93744cf1da\transformed\lifecycle-runtime-ktx-2.6.2\res
+com.douglas2990.app_motorista.app-motorista-navigation-ui-2.8.7-50 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\f93fb55517969db0f66c18ee1316e2a3\transformed\navigation-ui-2.8.7\res
+com.douglas2990.app_motorista.app-motorista-swiperefreshlayout-1.1.0-51 C:\Users\Dougl\.gradle\caches\8.10.2\transforms\fb5d1bc082b70e2051404d3ae0b58468\transformed\swiperefreshlayout-1.1.0\res
+com.douglas2990.app_motorista.app-motorista-pngs-52 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\generated\res\pngs\debug
+com.douglas2990.app_motorista.app-motorista-res-53 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\generated\res\processDebugGoogleServices
+com.douglas2990.app_motorista.app-motorista-resValues-54 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\generated\res\resValues\debug
+com.douglas2990.app_motorista.app-motorista-packageDebugResources-55 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.douglas2990.app_motorista.app-motorista-packageDebugResources-56 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.douglas2990.app_motorista.app-motorista-debug-57 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\build\intermediates\merged_res\debug\mergeDebugResources
+com.douglas2990.app_motorista.app-motorista-debug-58 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\src\debug\res
+com.douglas2990.app_motorista.app-motorista-main-59 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\app-motorista\src\main\res
+com.douglas2990.app_motorista.app-motorista-debug-60 C:\Users\Dougl\Documents\Douglas 2026\Projetos continuos Android Studio\Otter 2\testes\appLogistica\AppAdministrador2990Entregas\core\build\intermediates\packaged_res\debug\packageDebugResources

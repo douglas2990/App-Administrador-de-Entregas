@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.douglas2990.app_motorista.app-motorista-mergeDebugResources-55:/values-w1240dp-v13/values-w1240dp-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dougl\\Documents\\Douglas 2026\\Projetos continuos Android Studio\\Otter 2\\testes\\appLogistica\\AppAdministrador2990Entregas\\app-motorista\\src\\main\\res\\values-w1240dp\\dimens.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "42",
+                        "endOffsets": "54"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "42",
+                        "endOffsets": "93"
+                    }
+                }
+            ]
+        }
+    ]
+}

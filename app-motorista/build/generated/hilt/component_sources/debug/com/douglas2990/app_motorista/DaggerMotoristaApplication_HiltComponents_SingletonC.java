@@ -1,0 +1,746 @@
+package com.douglas2990.app_motorista;
+
+import android.app.Activity;
+import android.app.Service;
+import android.view.View;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.ViewModel;
+import com.douglas2990.app_motorista.data.repository.AutenticacaoMotoristaRepositoryImpl;
+import com.douglas2990.app_motorista.data.repository.IAutenticacaoMotoristaRepository;
+import com.douglas2990.app_motorista.di.AppModule_ProvideFirebaseAuthFactory;
+import com.douglas2990.app_motorista.di.AppModule_ProvideFirebaseFirestoreFactory;
+import com.douglas2990.app_motorista.di.AppModule_ProvideFirebaseStorageFactory;
+import com.douglas2990.app_motorista.di.AppModule_ProvideRotaUseCaseFactory;
+import com.douglas2990.app_motorista.presentation.ui.DetalhesEntregaFragment;
+import com.douglas2990.app_motorista.presentation.ui.DetalhesEntregaFragment_MembersInjector;
+import com.douglas2990.app_motorista.presentation.ui.LoginFragment;
+import com.douglas2990.app_motorista.presentation.ui.MinhaAgendaFragment;
+import com.douglas2990.app_motorista.presentation.ui.MinhaAgendaFragment_MembersInjector;
+import com.douglas2990.app_motorista.presentation.ui.RotasMotoristaFragment;
+import com.douglas2990.app_motorista.presentation.viewmodel.AgendaMotoristaViewModel;
+import com.douglas2990.app_motorista.presentation.viewmodel.AgendaMotoristaViewModel_HiltModules;
+import com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel;
+import com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel_HiltModules;
+import com.douglas2990.app_motorista.presentation.viewmodel.LoginViewModel;
+import com.douglas2990.app_motorista.presentation.viewmodel.LoginViewModel_HiltModules;
+import com.douglas2990.app_motorista.presentation.viewmodel.RotasMotoristaViewModel;
+import com.douglas2990.app_motorista.presentation.viewmodel.RotasMotoristaViewModel_HiltModules;
+import com.douglas2990.app_motorista.usecase.RotaUseCase;
+import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.RotaRepositoryImpl;
+import com.example.core.repository.IRotaRepository;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import dagger.hilt.android.ActivityRetainedLifecycle;
+import dagger.hilt.android.ViewModelLifecycle;
+import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
+import dagger.hilt.android.internal.builders.ActivityRetainedComponentBuilder;
+import dagger.hilt.android.internal.builders.FragmentComponentBuilder;
+import dagger.hilt.android.internal.builders.ServiceComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewModelComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewWithFragmentComponentBuilder;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_InternalFactoryFactory_Factory;
+import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
+import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
+import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.DoubleCheck;
+import dagger.internal.IdentifierNameString;
+import dagger.internal.KeepFieldType;
+import dagger.internal.LazyClassKeyMap;
+import dagger.internal.Preconditions;
+import dagger.internal.Provider;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.processing.Generated;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation"
+})
+public final class DaggerMotoristaApplication_HiltComponents_SingletonC {
+  private DaggerMotoristaApplication_HiltComponents_SingletonC() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+    private ApplicationContextModule applicationContextModule;
+
+    private Builder() {
+    }
+
+    public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
+      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      return this;
+    }
+
+    public MotoristaApplication_HiltComponents.SingletonC build() {
+      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
+      return new SingletonCImpl(applicationContextModule);
+    }
+  }
+
+  private static final class ActivityRetainedCBuilder implements MotoristaApplication_HiltComponents.ActivityRetainedC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private SavedStateHandleHolder savedStateHandleHolder;
+
+    private ActivityRetainedCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ActivityRetainedCBuilder savedStateHandleHolder(
+        SavedStateHandleHolder savedStateHandleHolder) {
+      this.savedStateHandleHolder = Preconditions.checkNotNull(savedStateHandleHolder);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ActivityRetainedC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandleHolder, SavedStateHandleHolder.class);
+      return new ActivityRetainedCImpl(singletonCImpl, savedStateHandleHolder);
+    }
+  }
+
+  private static final class ActivityCBuilder implements MotoristaApplication_HiltComponents.ActivityC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private Activity activity;
+
+    private ActivityCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ActivityCBuilder activity(Activity activity) {
+      this.activity = Preconditions.checkNotNull(activity);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ActivityC build() {
+      Preconditions.checkBuilderRequirement(activity, Activity.class);
+      return new ActivityCImpl(singletonCImpl, activityRetainedCImpl, activity);
+    }
+  }
+
+  private static final class FragmentCBuilder implements MotoristaApplication_HiltComponents.FragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private Fragment fragment;
+
+    private FragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public FragmentCBuilder fragment(Fragment fragment) {
+      this.fragment = Preconditions.checkNotNull(fragment);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.FragmentC build() {
+      Preconditions.checkBuilderRequirement(fragment, Fragment.class);
+      return new FragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragment);
+    }
+  }
+
+  private static final class ViewWithFragmentCBuilder implements MotoristaApplication_HiltComponents.ViewWithFragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private View view;
+
+    private ViewWithFragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+    }
+
+    @Override
+    public ViewWithFragmentCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ViewWithFragmentC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewWithFragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl, view);
+    }
+  }
+
+  private static final class ViewCBuilder implements MotoristaApplication_HiltComponents.ViewC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private View view;
+
+    private ViewCBuilder(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public ViewCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ViewC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, view);
+    }
+  }
+
+  private static final class ViewModelCBuilder implements MotoristaApplication_HiltComponents.ViewModelC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private SavedStateHandle savedStateHandle;
+
+    private ViewModelLifecycle viewModelLifecycle;
+
+    private ViewModelCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ViewModelCBuilder savedStateHandle(SavedStateHandle handle) {
+      this.savedStateHandle = Preconditions.checkNotNull(handle);
+      return this;
+    }
+
+    @Override
+    public ViewModelCBuilder viewModelLifecycle(ViewModelLifecycle viewModelLifecycle) {
+      this.viewModelLifecycle = Preconditions.checkNotNull(viewModelLifecycle);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ViewModelC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandle, SavedStateHandle.class);
+      Preconditions.checkBuilderRequirement(viewModelLifecycle, ViewModelLifecycle.class);
+      return new ViewModelCImpl(singletonCImpl, activityRetainedCImpl, savedStateHandle, viewModelLifecycle);
+    }
+  }
+
+  private static final class ServiceCBuilder implements MotoristaApplication_HiltComponents.ServiceC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private Service service;
+
+    private ServiceCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ServiceCBuilder service(Service service) {
+      this.service = Preconditions.checkNotNull(service);
+      return this;
+    }
+
+    @Override
+    public MotoristaApplication_HiltComponents.ServiceC build() {
+      Preconditions.checkBuilderRequirement(service, Service.class);
+      return new ServiceCImpl(singletonCImpl, service);
+    }
+  }
+
+  private static final class ViewWithFragmentCImpl extends MotoristaApplication_HiltComponents.ViewWithFragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private final ViewWithFragmentCImpl viewWithFragmentCImpl = this;
+
+    private ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+
+
+    }
+  }
+
+  private static final class FragmentCImpl extends MotoristaApplication_HiltComponents.FragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl = this;
+
+    private FragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        Fragment fragmentParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+
+    @Override
+    public void injectFirstFragment(FirstFragment arg0) {
+    }
+
+    @Override
+    public void injectSecondFragment(SecondFragment arg0) {
+    }
+
+    @Override
+    public void injectDetalhesEntregaFragment(DetalhesEntregaFragment arg0) {
+      injectDetalhesEntregaFragment2(arg0);
+    }
+
+    @Override
+    public void injectLoginFragment(LoginFragment arg0) {
+    }
+
+    @Override
+    public void injectMinhaAgendaFragment(MinhaAgendaFragment arg0) {
+      injectMinhaAgendaFragment2(arg0);
+    }
+
+    @Override
+    public void injectRotasMotoristaFragment(RotasMotoristaFragment arg0) {
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return activityCImpl.getHiltInternalFactoryFactory();
+    }
+
+    @Override
+    public ViewWithFragmentComponentBuilder viewWithFragmentComponentBuilder() {
+      return new ViewWithFragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl);
+    }
+
+    @CanIgnoreReturnValue
+    private DetalhesEntregaFragment injectDetalhesEntregaFragment2(
+        DetalhesEntregaFragment instance) {
+      DetalhesEntregaFragment_MembersInjector.injectFirebaseAuth(instance, singletonCImpl.provideFirebaseAuthProvider.get());
+      return instance;
+    }
+
+    @CanIgnoreReturnValue
+    private MinhaAgendaFragment injectMinhaAgendaFragment2(MinhaAgendaFragment instance2) {
+      MinhaAgendaFragment_MembersInjector.injectFirebaseAuth(instance2, singletonCImpl.provideFirebaseAuthProvider.get());
+      return instance2;
+    }
+  }
+
+  private static final class ViewCImpl extends MotoristaApplication_HiltComponents.ViewC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final ViewCImpl viewCImpl = this;
+
+    private ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+  }
+
+  private static final class ActivityCImpl extends MotoristaApplication_HiltComponents.ActivityC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl = this;
+
+    private ActivityCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, Activity activityParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+
+    }
+
+    @Override
+    public void injectMainActivity(MainActivity arg0) {
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return DefaultViewModelFactories_InternalFactoryFactory_Factory.newInstance(getViewModelKeys(), new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl));
+    }
+
+    @Override
+    public Map<Class<?>, Boolean> getViewModelKeys() {
+      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>of(LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel, AgendaMotoristaViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel, DetalhesEntregaViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel, LoginViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel, RotasMotoristaViewModel_HiltModules.KeyModule.provide()));
+    }
+
+    @Override
+    public ViewModelComponentBuilder getViewModelComponentBuilder() {
+      return new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public FragmentComponentBuilder fragmentComponentBuilder() {
+      return new FragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @Override
+    public ViewComponentBuilder viewComponentBuilder() {
+      return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.AgendaMotoristaViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.LoginViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.RotasMotoristaViewModel";
+
+      @KeepFieldType
+      AgendaMotoristaViewModel com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel2;
+
+      @KeepFieldType
+      DetalhesEntregaViewModel com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel2;
+
+      @KeepFieldType
+      RotasMotoristaViewModel com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel2;
+    }
+  }
+
+  private static final class ViewModelCImpl extends MotoristaApplication_HiltComponents.ViewModelC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ViewModelCImpl viewModelCImpl = this;
+
+    private Provider<AgendaMotoristaViewModel> agendaMotoristaViewModelProvider;
+
+    private Provider<DetalhesEntregaViewModel> detalhesEntregaViewModelProvider;
+
+    private Provider<LoginViewModel> loginViewModelProvider;
+
+    private Provider<RotasMotoristaViewModel> rotasMotoristaViewModelProvider;
+
+    private ViewModelCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
+        ViewModelLifecycle viewModelLifecycleParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+      initialize(savedStateHandleParam, viewModelLifecycleParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandle savedStateHandleParam,
+        final ViewModelLifecycle viewModelLifecycleParam) {
+      this.agendaMotoristaViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.detalhesEntregaViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.rotasMotoristaViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+    }
+
+    @Override
+    public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>of(LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel, ((Provider) agendaMotoristaViewModelProvider), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel, ((Provider) detalhesEntregaViewModelProvider), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel, ((Provider) loginViewModelProvider), LazyClassKeyProvider.com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel, ((Provider) rotasMotoristaViewModelProvider)));
+    }
+
+    @Override
+    public Map<Class<?>, Object> getHiltViewModelAssistedMap() {
+      return ImmutableMap.<Class<?>, Object>of();
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.AgendaMotoristaViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.LoginViewModel";
+
+      static String com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel = "com.douglas2990.app_motorista.presentation.viewmodel.RotasMotoristaViewModel";
+
+      @KeepFieldType
+      AgendaMotoristaViewModel com_douglas2990_app_motorista_presentation_viewmodel_AgendaMotoristaViewModel2;
+
+      @KeepFieldType
+      DetalhesEntregaViewModel com_douglas2990_app_motorista_presentation_viewmodel_DetalhesEntregaViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_douglas2990_app_motorista_presentation_viewmodel_LoginViewModel2;
+
+      @KeepFieldType
+      RotasMotoristaViewModel com_douglas2990_app_motorista_presentation_viewmodel_RotasMotoristaViewModel2;
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final ViewModelCImpl viewModelCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          ViewModelCImpl viewModelCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.viewModelCImpl = viewModelCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.douglas2990.app_motorista.presentation.viewmodel.AgendaMotoristaViewModel 
+          return (T) new AgendaMotoristaViewModel(singletonCImpl.rotaUseCase());
+
+          case 1: // com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel 
+          return (T) new DetalhesEntregaViewModel(singletonCImpl.rotaUseCase());
+
+          case 2: // com.douglas2990.app_motorista.presentation.viewmodel.LoginViewModel 
+          return (T) new LoginViewModel(singletonCImpl.bindAutenticacaoRepositoryProvider.get());
+
+          case 3: // com.douglas2990.app_motorista.presentation.viewmodel.RotasMotoristaViewModel 
+          return (T) new RotasMotoristaViewModel(singletonCImpl.bindRotaRepositoryProvider.get(), singletonCImpl.provideFirebaseAuthProvider.get());
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ActivityRetainedCImpl extends MotoristaApplication_HiltComponents.ActivityRetainedC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl = this;
+
+    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+
+    private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
+        SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.singletonCImpl = singletonCImpl;
+
+      initialize(savedStateHandleHolderParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.provideActivityRetainedLifecycleProvider = DoubleCheck.provider(new SwitchingProvider<ActivityRetainedLifecycle>(singletonCImpl, activityRetainedCImpl, 0));
+    }
+
+    @Override
+    public ActivityComponentBuilder activityComponentBuilder() {
+      return new ActivityCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public ActivityRetainedLifecycle getActivityRetainedLifecycle() {
+      return provideActivityRetainedLifecycleProvider.get();
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // dagger.hilt.android.ActivityRetainedLifecycle 
+          return (T) ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory.provideActivityRetainedLifecycle();
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ServiceCImpl extends MotoristaApplication_HiltComponents.ServiceC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ServiceCImpl serviceCImpl = this;
+
+    private ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
+      this.singletonCImpl = singletonCImpl;
+
+
+    }
+  }
+
+  private static final class SingletonCImpl extends MotoristaApplication_HiltComponents.SingletonC {
+    private final ApplicationContextModule applicationContextModule;
+
+    private final SingletonCImpl singletonCImpl = this;
+
+    private Provider<FirebaseAuth> provideFirebaseAuthProvider;
+
+    private Provider<FirebaseFirestore> provideFirebaseFirestoreProvider;
+
+    private Provider<FirebaseStorage> provideFirebaseStorageProvider;
+
+    private Provider<RotaRepositoryImpl> rotaRepositoryImplProvider;
+
+    private Provider<IRotaRepository> bindRotaRepositoryProvider;
+
+    private Provider<AutenticacaoMotoristaRepositoryImpl> autenticacaoMotoristaRepositoryImplProvider;
+
+    private Provider<IAutenticacaoMotoristaRepository> bindAutenticacaoRepositoryProvider;
+
+    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+      this.applicationContextModule = applicationContextModuleParam;
+      initialize(applicationContextModuleParam);
+
+    }
+
+    private RotaUseCase rotaUseCase() {
+      return AppModule_ProvideRotaUseCaseFactory.provideRotaUseCase(bindRotaRepositoryProvider.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.provideFirebaseAuthProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseAuth>(singletonCImpl, 0));
+      this.provideFirebaseFirestoreProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseFirestore>(singletonCImpl, 2));
+      this.provideFirebaseStorageProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseStorage>(singletonCImpl, 3));
+      this.rotaRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 1);
+      this.bindRotaRepositoryProvider = DoubleCheck.provider((Provider) rotaRepositoryImplProvider);
+      this.autenticacaoMotoristaRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 4);
+      this.bindAutenticacaoRepositoryProvider = DoubleCheck.provider((Provider) autenticacaoMotoristaRepositoryImplProvider);
+    }
+
+    @Override
+    public void injectMotoristaApplication(MotoristaApplication motoristaApplication) {
+    }
+
+    @Override
+    public Set<Boolean> getDisableFragmentGetContextFix() {
+      return ImmutableSet.<Boolean>of();
+    }
+
+    @Override
+    public ActivityRetainedComponentBuilder retainedComponentBuilder() {
+      return new ActivityRetainedCBuilder(singletonCImpl);
+    }
+
+    @Override
+    public ServiceComponentBuilder serviceComponentBuilder() {
+      return new ServiceCBuilder(singletonCImpl);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.google.firebase.auth.FirebaseAuth 
+          return (T) AppModule_ProvideFirebaseAuthFactory.provideFirebaseAuth();
+
+          case 1: // com.douglas2990.d2990entregasv2.data.remote.firebase.repository.RotaRepositoryImpl 
+          return (T) new RotaRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideFirebaseAuthProvider.get(), singletonCImpl.provideFirebaseFirestoreProvider.get(), singletonCImpl.provideFirebaseStorageProvider.get());
+
+          case 2: // com.google.firebase.firestore.FirebaseFirestore 
+          return (T) AppModule_ProvideFirebaseFirestoreFactory.provideFirebaseFirestore();
+
+          case 3: // com.google.firebase.storage.FirebaseStorage 
+          return (T) AppModule_ProvideFirebaseStorageFactory.provideFirebaseStorage();
+
+          case 4: // com.douglas2990.app_motorista.data.repository.AutenticacaoMotoristaRepositoryImpl 
+          return (T) new AutenticacaoMotoristaRepositoryImpl(singletonCImpl.provideFirebaseAuthProvider.get(), singletonCImpl.provideFirebaseFirestoreProvider.get());
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+}

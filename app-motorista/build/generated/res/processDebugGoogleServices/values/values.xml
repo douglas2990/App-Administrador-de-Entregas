@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">971617709190</string>
+    <string name="google_api_key" translatable="false">AIzaSyCQxTauu4VgUuAIWA07UkHXa3XnSAF64Uo</string>
+    <string name="google_app_id" translatable="false">1:971617709190:android:b5e339ac4977119ee7f507</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCQxTauu4VgUuAIWA07UkHXa3XnSAF64Uo</string>
+    <string name="google_storage_bucket" translatable="false">entregas-ba3c8.firebasestorage.app</string>
+    <string name="project_id" translatable="false">entregas-ba3c8</string>
+</resources>
