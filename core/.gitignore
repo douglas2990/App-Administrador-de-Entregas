@@ -1,1 +1,10 @@
 /build
+# Bloqueio total do Firebase
+**/google-services.json
+app/google-services.json
+app-motorista/google-services.json
+
+# Bloqueio de pastas de sistema
+.gradle/
+build/
+**/build/
