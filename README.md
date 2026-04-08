@@ -36,10 +36,10 @@ Os arquivos de configuração do Firebase (`google-services.json`) foram omitido
 
 | App Administrador                                   | App Motorista                                                                                              |
 |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| <img src="screenshots/Screensho3.png" width="250">  | <img src="screenshots/Screenshot1.png" width="250">                                                        |
-| <img src="screenshots/Screensho4.png" width="250">  | <img src="screenshots/Screenshot2.png" width="250">                                                        |
-| <img src="screenshots/Screensho5.png" width="250">  | <img src="screenshots/Screenshot7.png" width="250">                                                        |
-| <img src="screenshots/Screensho6.png" width="250">  | <img src="screenshots/Screenshot8.png" width="250">                                                        |
+| <img src="screenshots/Screenshot3.png" width="250"> | <img src="screenshots/Screenshot1.png" width="250">                                                        |
+| <img src="screenshots/Screenshot4.png" width="250"> | <img src="screenshots/Screenshot2.png" width="250">                                                        |
+| <img src="screenshots/Screenshot5.png" width="250"> | <img src="screenshots/Screenshot7.png" width="250">                                                        |
+| <img src="screenshots/Screenshot6.png" width="250"> | <img src="screenshots/Screenshot8.png" width="250">                                                        |
 
 
 > **Nota:** Os prints acima demonstram o fluxo de gestão de ordens de serviço e a agenda de rotas do motorista.
