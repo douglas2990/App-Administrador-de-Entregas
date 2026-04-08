@@ -34,15 +34,15 @@ Os arquivos de configuração do Firebase (`google-services.json`) foram omitido
 
 ## 📸 Demonstração do App
 
-| App Administrador | App Motorista                                                                                                      |
-|---|--------------------------------------------------------------------------------------------------------------------|
-| <img src="screenshots/login_admin.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-34-468_com.douglas2990.motorista2990aplication.png" width="250"> |
-| <img src="screenshots/home_admin.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-43-450_com.douglas2990.motorista2990aplication.png" width="250"> |
-| <img src="screenshots/cadastro_os.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-21-30-829_com.douglas2990.d2990entregasv2.png" width="250">         |
-| <img src="screenshots/cadastro_os.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-24-17-930_com.douglas2990.d2990entregasv2.png" width="250">         |
-| <img src="screenshots/cadastro_os.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-24-42-682_com.douglas2990.d2990entregasv2.png" width="250">         |
-| <img src="screenshots/cadastro_os.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-00-425_com.douglas2990.d2990entregasv2.png" width="250">         |
-| <img src="screenshots/cadastro_os.png" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-27-690_com.douglas2990.d2990entregasv2.png" width="250">         |
+| App Administrador                                   | App Motorista                                                                                                      |
+|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| <img src="screenshots/login_admin.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-34-468_com.douglas2990.motorista2990aplication.png" width="250"> |
+| <img src="screenshots/home_admin.jpg" width="250">  | <img src="screenshots/Screenshot_2026-04-08-11-25-43-450_com.douglas2990.motorista2990aplication.png" width="250"> |
+| <img src="screenshots/cadastro_os.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-21-30-829_com.douglas2990.d2990entregasv2.png" width="250">         |
+| <img src="screenshots/cadastro_os.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-24-17-930_com.douglas2990.d2990entregasv2.png" width="250">         |
+| <img src="screenshots/cadastro_os.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-24-42-682_com.douglas2990.d2990entregasv2.png" width="250">         |
+| <img src="screenshots/cadastro_os.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-00-425_com.douglas2990.d2990entregasv2.png" width="250">         |
+| <img src="screenshots/cadastro_os.jpg" width="250"> | <img src="screenshots/Screenshot_2026-04-08-11-25-27-690_com.douglas2990.d2990entregasv2.png" width="250">         |
 
 > **Nota:** Os prints acima demonstram o fluxo de gestão de ordens de serviço e a agenda de rotas do motorista.
 
