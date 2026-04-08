@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.douglas2990.d2990entregasv2.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_cadastrarEmpresaFragment"
+            app:destination="@id/cadastrarEmpresaFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_CadastrarMotoristaFragment"
+            app:destination="@id/CadastrarMotoristaFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_motoristasCadastradosFragment"
+            app:destination="@id/motoristascadastradosFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_cadastroAcessoFragment"
+            app:destination="@id/cadastroAcessoFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_criarRotaProMotoristaFragment"
+            app:destination="@id/criarRotaProMotoristaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.douglas2990.d2990entregasv2.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/CadastrarMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarMotoristaFragment"
+        android:label="fragment_cadastro_motorista"
+        tools:layout="@layout/fragment_cadastrar_motorista" />
+<!--    <fragment
+        android:id="@+id/motoristasCadastradoFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.MotoristasCadastradoFragment"
+        android:label="fragment_motoristas_cadastrado_list"
+        tools:layout="@layout/fragment_motoristas_cadastrado_list" />-->
+    <fragment
+        android:id="@+id/cadastrarNotaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarNotaFragment"
+        android:label="fragment_cadastrar_nota"
+        tools:layout="@layout/fragment_cadastrar_nota" />
+    <fragment
+        android:id="@+id/entregasdoDiaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.EntregasdoDiaFragment"
+        android:label="fragment_entregasdo_dia"
+        tools:layout="@layout/fragment_entregas_do_dia" />
+    <fragment
+        android:id="@+id/cadastrarEmpresaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CadastrarEmpresaFragment"
+        android:label="fragment_cadastrar_empresa"
+        tools:layout="@layout/fragment_cadastrar_empresa" >
+
+
+        <action
+            android:id="@+id/action_cadastrarEmpresaFragment_to_empresasCadastradasFragment"
+            app:destination="@id/empresasCadastradasFragment" />
+        <argument
+            android:name="empresa"
+            app:argType="com.douglas2990.d2990entregasv2.model.Empresa"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+    </fragment>
+    <fragment
+        android:id="@+id/empresasCadastradasFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.EmpresasCadastradasFragment"
+        android:label="fragment_empresas_cadastradas"
+        tools:layout="@layout/fragment_empresas_cadastradas">
+
+        <action
+            android:id="@+id/action_empresasCadastradasFragment_to_cadastrarEmpresaFragment"
+            app:destination="@id/cadastrarEmpresaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/motoristascadastradosFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.MotoristasCadastradosFragment"
+        android:label="motoristascadastrados_adapter"
+        tools:layout="@layout/fragment_motoristas_cadastrados" >
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_criarRotaProMotoristaFragment"
+            app:destination="@id/criarRotaProMotoristaFragment" />
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_rotasDoMotoristaFragment"
+            app:destination="@id/rotasDoMotoristaFragment" />
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_entregasdoDiaFragment"
+            app:destination="@id/entregasdoDiaFragment" />
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_CadastrarMotoristaFragment"
+            app:destination="@id/CadastrarMotoristaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/criarRotaProMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.CriarRotaProMotoristaFragment"
+        android:label="fragment_criar_rota_pro_motorista"
+        tools:layout="@layout/fragment_criar_rota_pro_motorista" >
+
+        <argument
+            android:name="detalhe_motorista"
+            app:argType="com.douglas2990.d2990entregasv2.model.Motorista"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/rotasDoMotoristaFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.RotasDoMotoristaFragment"
+        android:label="fragment_rotas_do_motorista"
+        tools:layout="@layout/fragment_rotas_do_motorista" >
+
+        <argument
+            android:name="motorista"
+            app:argType="com.douglas2990.d2990entregasv2.model.Motorista"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cadastroAcessoFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.fragment.CadastroAcessoFragment"
+        android:label="Gerar Acesso Motorista"
+        tools:layout="@layout/fragment_cadastro_acesso">
+
+    </fragment>
+
+</navigation>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Relatar Problema na Entrega"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroupProblemas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton android:id="@+id/radioRecusado"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Recusado pelo cliente" />
+
+        <RadioButton android:id="@+id/radioHorarioEncerrado"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Horário de entrega encerrado" />
+
+        <RadioButton android:id="@+id/radioNaoDeuTempo"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Não deu tempo / Trânsito" />
+
+        <RadioButton android:id="@+id/radioSemComprovante"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Cliente não entregou comprovante" />
+
+        <RadioButton android:id="@+id/radioOutro"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Outro problema" />
+    </RadioGroup>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutOutro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editOutroMotivo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Descreva o motivo" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnConfirmarProblema"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enviar Relato"
+        android:layout_marginTop="16dp" />
+</LinearLayout>

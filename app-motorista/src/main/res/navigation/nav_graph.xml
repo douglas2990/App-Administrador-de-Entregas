@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_rotasMotoristaFragment"
+            app:destination="@id/rotasMotoristaFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_loginFragment_to_agendaFragment"
+            app:destination="@id/agendaFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/rotasMotoristaFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.RotasMotoristaFragment"
+        android:label="Minhas Rotas"
+        tools:layout="@layout/fragment_rotas_motorista">
+        <action
+            android:id="@+id/action_rotasMotoristaFragment_to_detalhesEntregaFragment"
+            app:destination="@id/detalhesEntregaFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detalhesEntregaFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.DetalhesEntregaFragment"
+        android:label="Executar Entrega"
+        tools:layout="@layout/fragment_detalhes_entrega">
+    </fragment>
+
+    <fragment
+        android:id="@+id/agendaFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.AgendaFragment"
+        android:label="Agenda de Entregas"
+        tools:layout="@layout/fragment_agenda">
+
+        <argument
+            android:name="motorista"
+            app:argType="com.example.core.model.Motorista"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <action
+            android:id="@+id/action_agendaFragment_to_rotasDoMotoristaFragment"
+            app:destination="@id/rotasMotoristaFragment" />
+
+        <action
+            android:id="@+id/action_agendaFragment_to_detalhesEntregaFragment"
+            app:destination="@id/detalhesEntregaFragment" />
+
+    </fragment>
+
+</navigation>
