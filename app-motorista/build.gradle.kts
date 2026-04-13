@@ -80,6 +80,9 @@ dependencies {
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.55")
     kspAndroidTest("com.google.dagger:hilt-android-compiler:2.55")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    ksp ("com.github.bumptech.glide:ksp:4.16.0")
 }
 
 /*

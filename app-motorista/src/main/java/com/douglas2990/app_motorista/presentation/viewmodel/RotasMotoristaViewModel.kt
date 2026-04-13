@@ -1,14 +1,17 @@
 package com.douglas2990.app_motorista.presentation.viewmodel
 
 
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import com.example.core.UIstatus
 import com.example.core.model.Rota
 import com.example.core.repository.IRotaRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,4 +45,6 @@ class RotasMotoristaViewModel @Inject constructor(
     /*fun atualizarManualmente() {
         observarMinhasRotas()
     }*/
+
+
 }
