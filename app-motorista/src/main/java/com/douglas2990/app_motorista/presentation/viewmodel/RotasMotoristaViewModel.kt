@@ -1,6 +1,7 @@
 package com.douglas2990.app_motorista.presentation.viewmodel
 
 
+import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -46,9 +47,15 @@ class RotasMotoristaViewModel @Inject constructor(
 
     fun carregarDadosMotorista() {
         viewModelScope.launch {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
-            val motorista = rotaRepository.buscarMotorista(uid) // repository é o RotaRepositoryImpl
-            _nomeEmpresa.postValue(motorista?.nomeEmpresa ?: "Empresa não identificada")
+            val uid = auth.currentUser?.uid ?: return@launch
+            // Busca o motorista no repositório (que agora usa a constante certa)
+            val motorista = rotaRepository.buscarMotorista(uid)
+
+            if (motorista != null && motorista.nomeEmpresa.isNotEmpty()) {
+                _nomeEmpresa.postValue(motorista.nomeEmpresa)
+            } else {
+                _nomeEmpresa.postValue("Empresa não identificada")
+            }
         }
     }
 

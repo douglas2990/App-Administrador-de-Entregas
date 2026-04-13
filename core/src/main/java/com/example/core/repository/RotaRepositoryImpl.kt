@@ -2,6 +2,7 @@ package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.core.UIstatus
 import com.example.core.model.Motorista
 import com.example.core.model.Rota
@@ -257,12 +258,24 @@ class RotaRepositoryImpl @Inject constructor(
     // Dentro da classe RotaRepositoryImpl
     override suspend fun buscarMotorista(uid: String): Motorista? {
         return try {
-            val document = firebaseFirestore.collection("usuarios") // ou "motoristas"
+            // USANDO A CONSTANTE CORRETA: FIRESTORE_USUARIOS_MOTORISTA
+            val document = firebaseFirestore
+                .collection(ConstantesFirebase.FIRESTORE_USUARIOS_MOTORISTA)
                 .document(uid)
                 .get()
                 .await()
-            document.toObject(Motorista::class.java)
+
+            if (document.exists()) {
+                val motorista = document.toObject(Motorista::class.java)
+                // Log para conferir no Logcat se a empresa veio preenchida
+                println("FIREBASE_SUCESSO: Motorista encontrado! Empresa: ${motorista?.nomeEmpresa}")
+                motorista
+            } else {
+                println("FIREBASE_AVISO: UID $uid não encontrado em ${ConstantesFirebase.FIRESTORE_USUARIOS_MOTORISTA}")
+                null
+            }
         } catch (e: Exception) {
+            println("FIREBASE_ERRO: ${e.message}")
             null
         }
     }
