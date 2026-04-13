@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,13 +28,19 @@ class RotasDoMotoristaFragment : Fragment() {
     private val viewModel: RotaViewModel by viewModels()
     private lateinit var rotaAdapter: RotaAdapter
     private var motorista: Motorista? = null
+
+    private var dataSelecionada: Long = -1L
     
     private val alertaCarregamento by lazy { AlertaCarregamento(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            motorista = it.getParcelable("motorista")
+            // 1. O jeito moderno de pegar Parcelable
+            motorista = BundleCompat.getParcelable(it, "motorista", Motorista::class.java)
+
+            // 2. O getLong continua o mesmo, ele não foi depreciado
+            dataSelecionada = it.getLong("data_selecionada", -1L)
         }
     }
 
@@ -51,9 +58,22 @@ class RotasDoMotoristaFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
 
-        motorista?.let {
-            binding.textTitulo.text = "Rotas de ${it.nome}"
-            viewModel.listarRotasMotorista(it.id)
+        motorista?.let { mot ->
+            // 3. Lógica de Título Dinâmica
+            binding.textTitulo.text = if (dataSelecionada != -1L) {
+                "Rotas de ${mot.nome}" // Opcional: Adicionar a data formatada no título aqui
+            } else {
+                "Rotas de ${mot.nome}"
+            }
+
+            // 4. Decisão de qual filtro usar
+            if (dataSelecionada != -1L) {
+                // Se o Admin veio da tela de Agenda, filtramos por data
+                viewModel.listarPorDataEMotorista(mot.id, dataSelecionada)
+            } else {
+                // Se o Admin veio direto, listamos todas (comportamento antigo)
+                viewModel.listarRotasMotorista(mot.id)
+            }
         } ?: run {
             Toast.makeText(context, "Motorista não encontrado", Toast.LENGTH_SHORT).show()
         }

@@ -71,10 +71,11 @@ object AppModule {
         firebaseAuth: FirebaseAuth,
         firebaseFirestore: FirebaseFirestore,
         firebaseStorage: FirebaseStorage
-    ): IRotaRepository = RotaRepositoryImpl(firebaseAuth, firebaseFirestore, firebaseStorage)
+        // Tire o context daqui também!
+    ): IRotaRepository {
+        return RotaAdminRepositoryImpl(firebaseAuth, firebaseFirestore, firebaseStorage)
+    }
 
-    // Nota: UseCases não precisam de @Provides se tiverem @Inject constructor.
-    // O Hilt os injetará automaticamente.
 
 
     @Provides

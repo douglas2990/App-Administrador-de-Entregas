@@ -1,14 +1,17 @@
 package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
 
+import android.content.Context
 import android.net.Uri
 import com.example.core.UIstatus
 import com.example.core.model.Rota
 import com.example.core.repository.IRotaRepository
+import com.example.core.repository.ImageHelper
 import com.example.core.util.ConstantesFirebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -18,7 +21,8 @@ import javax.inject.Inject
 class RotaRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firebaseFirestore: FirebaseFirestore,
-    private val firebaseStorage: FirebaseStorage
+    private val firebaseStorage: FirebaseStorage,
+    @ApplicationContext private val context: Context
 ) : IRotaRepository {
 
     private val colecaoRotas = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
@@ -184,7 +188,12 @@ class RotaRepositoryImpl @Inject constructor(
             .child(idRota)
             .child("comprovante_${System.currentTimeMillis()}.jpg")
 
-        storageRef.putFile(imageUri).await()
+        // Chamamos o seu Helper para transformar a URI em um ByteArray de 720p
+        val dadosImagem = ImageHelper.prepararParaUpload(context, imageUri)
+            ?: throw Exception("Erro ao processar imagem")
+
+        //storageRef.putFile(imageUri).await()
+        storageRef.putBytes(dadosImagem).await()
         return storageRef.downloadUrl.await().toString()
     }
 

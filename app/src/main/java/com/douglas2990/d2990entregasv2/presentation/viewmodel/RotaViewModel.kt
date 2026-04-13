@@ -24,6 +24,10 @@ class RotaViewModel @Inject constructor(
     private val _rotas = MutableLiveData<UIstatus<List<Rota>>>()
     val rotas: LiveData<UIstatus<List<Rota>>> = _rotas
 
+    // 1. LiveData para a lista de datas (Agenda/Calendário)
+    private val _datasComRotas = MutableLiveData<UIstatus<List<Long>>>()
+    val datasComRotas: LiveData<UIstatus<List<Long>>> = _datasComRotas
+
     private val _statusUpload = MutableLiveData<UIstatus<String>>()
     val statusUpload: LiveData<UIstatus<String>> = _statusUpload
 
@@ -77,6 +81,32 @@ class RotaViewModel @Inject constructor(
         viewModelScope.launch {
             val resultado = rotaUseCase.excluirRota(idRota)
             _statusExclusao.value = resultado
+        }
+    }
+    // 2. Busca as datas disponíveis para o Administrador filtrar
+    fun listarDatasComRotasAdmin(idMotorista: String) {
+        _datasComRotas.value = UIstatus.Carregando
+        viewModelScope.launch {
+            val resultado = rotaUseCase.listarDatasComRotas(idMotorista)
+            _datasComRotas.value = resultado
+        }
+    }
+
+    // 3. Busca as datas disponíveis para o Motorista (Agenda Principal)
+    fun listarDatasComRotasMotorista(idMotorista: String) {
+        _datasComRotas.value = UIstatus.Carregando
+        viewModelScope.launch {
+            val resultado = rotaUseCase.listarDatasComRotas(idMotorista)
+            _datasComRotas.value = resultado
+        }
+    }
+
+    // 4. Busca as rotas de um motorista em uma data específica
+    fun listarPorDataEMotorista(idMotorista: String, data: Long) {
+        _rotas.value = UIstatus.Carregando
+        viewModelScope.launch {
+            val resultado = rotaUseCase.listarPorDataEMotorista(idMotorista, data)
+            _rotas.value = resultado
         }
     }
 }

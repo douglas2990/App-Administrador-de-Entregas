@@ -11,6 +11,9 @@ interface IRotaRepository {
     // Busca as datas únicas para marcar no calendário (Usa Long/Timestamp)
     suspend fun listarDatasComRotas(idMotorista: String): UIstatus<List<Long>>
 
+    // Admin vê as datas das rotas que ele criou para o motorista
+    suspend fun listarDatasComRotasAdmin(idMotorista: String): UIstatus<List<Long>>
+
     // Busca as rotas de um dia específico (Usa Long/Timestamp - Versão One-shot)
     suspend fun listarPorDataEMotorista(idMotorista: String, data: Long): UIstatus<List<Rota>>
 

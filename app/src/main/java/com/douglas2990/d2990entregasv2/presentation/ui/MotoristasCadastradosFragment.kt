@@ -63,7 +63,7 @@ class MotoristasCadastradosFragment : Fragment() {
                     putParcelable("motorista", motorista)
                 }
                 findNavController().navigate(
-                    R.id.action_motoristascadastradosFragment_to_rotasDoMotoristaFragment,
+                    R.id.action_motoristascadastradosFragment_to_datasRotasAdminFragment,
                     bundle
                 )
             }

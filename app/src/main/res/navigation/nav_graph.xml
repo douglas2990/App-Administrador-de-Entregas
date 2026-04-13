@@ -108,6 +108,11 @@
         <action
             android:id="@+id/action_motoristascadastradosFragment_to_CadastrarMotoristaFragment"
             app:destination="@id/CadastrarMotoristaFragment" />
+
+        <action
+            android:id="@+id/action_motoristascadastradosFragment_to_datasRotasAdminFragment"
+            app:destination="@id/datasRotasAdminFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/criarRotaProMotoristaFragment"
@@ -141,6 +146,20 @@
         android:label="Gerar Acesso Motorista"
         tools:layout="@layout/fragment_cadastro_acesso">
 
+    </fragment>
+    <fragment
+        android:id="@+id/datasRotasAdminFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.DatasRotasAdminFragment"
+        android:label="fragment_datas_rotas_admin"
+        tools:layout="@layout/fragment_datas_rotas_admin">
+
+        <argument
+            android:name="motorista"
+            app:argType="com.douglas2990.d2990entregasv2.model.Motorista" />
+
+        <action
+            android:id="@+id/action_datasRotasAdmin_to_rotasDoMotorista"
+            app:destination="@id/rotasDoMotoristaFragment" />
     </fragment>
 
 </navigation>

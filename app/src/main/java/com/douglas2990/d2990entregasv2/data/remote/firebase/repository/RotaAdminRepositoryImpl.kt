@@ -14,10 +14,11 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-class RotaRepositoryImpl @Inject constructor(
+class RotaAdminRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firebaseFirestore: FirebaseFirestore,
-    private val firebaseStorage: FirebaseStorage
+    private val firebaseStorage: FirebaseStorage,
+    //@ApplicationContext private val context: Context
 ) : IRotaRepository {
 
     private val colecaoRotas = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
@@ -226,5 +227,28 @@ class RotaRepositoryImpl @Inject constructor(
                 val lista = snapshot?.toObjects(Rota::class.java) ?: emptyList()
                 callback(UIstatus.Sucesso(lista))
             }
+    }
+
+    // No RotaRepositoryImpl.kt
+
+    override suspend fun listarDatasComRotasAdmin(idMotorista: String): UIstatus<List<Long>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("idGestor", idLogado) // Filtro para o Admin ver só o que ele criou
+                .get()
+                .await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            val datasUnicas = rotas.mapNotNull { it.dataPrevista }
+                .distinct()
+                .sorted()
+
+            UIstatus.Sucesso(datasUnicas)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao buscar datas: ${e.message}")
+        }
     }
 }
