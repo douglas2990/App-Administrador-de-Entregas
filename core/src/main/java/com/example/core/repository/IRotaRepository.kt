@@ -2,6 +2,7 @@ package com.example.core.repository
 
 import android.net.Uri
 import com.example.core.UIstatus
+import com.example.core.model.Motorista
 import com.example.core.model.Rota
 
 interface IRotaRepository {
@@ -24,4 +25,6 @@ interface IRotaRepository {
     )
 
     fun listarPorMotoristaEDataRealTime(uid: String, data: String, callback: (UIstatus<List<Rota>>) -> Unit)
+
+    suspend fun buscarMotorista(uid: String): Motorista?
 }

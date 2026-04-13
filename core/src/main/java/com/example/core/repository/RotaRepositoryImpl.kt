@@ -3,6 +3,7 @@ package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
 import android.content.Context
 import android.net.Uri
 import com.example.core.UIstatus
+import com.example.core.model.Motorista
 import com.example.core.model.Rota
 import com.example.core.repository.IRotaRepository
 import com.example.core.repository.ImageHelper
@@ -251,6 +252,19 @@ class RotaRepositoryImpl @Inject constructor(
                 val lista = snapshot?.toObjects(Rota::class.java) ?: emptyList()
                 callback(UIstatus.Sucesso(lista))
             }
+    }
+
+    // Dentro da classe RotaRepositoryImpl
+    override suspend fun buscarMotorista(uid: String): Motorista? {
+        return try {
+            val document = firebaseFirestore.collection("usuarios") // ou "motoristas"
+                .document(uid)
+                .get()
+                .await()
+            document.toObject(Motorista::class.java)
+        } catch (e: Exception) {
+            null
+        }
     }
 
 }

@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.example.core.UIstatus
+import com.example.core.model.Motorista
 import com.example.core.model.Rota
 import com.example.core.repository.IRotaRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +25,10 @@ class RotasMotoristaViewModel @Inject constructor(
     private val _rotas = MutableLiveData<UIstatus<List<Rota>>>()
     val rotas: LiveData<UIstatus<List<Rota>>> = _rotas
 
+    private val _nomeEmpresa = MutableLiveData<String>()
+    val nomeEmpresa: LiveData<String> = _nomeEmpresa
+
+
     /**
      * Inicia a observação em tempo real.
      * Toda alteração no Firestore refletirá aqui automaticamente.
@@ -35,6 +41,14 @@ class RotasMotoristaViewModel @Inject constructor(
         // Precisamos que seu Repository aceite esse novo parâmetro de data
         rotaRepository.listarPorMotoristaEDataRealTime(uidMotorista, dataSelecionada) { resultado ->
             _rotas.postValue(resultado)
+        }
+    }
+
+    fun carregarDadosMotorista() {
+        viewModelScope.launch {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+            val motorista = rotaRepository.buscarMotorista(uid) // repository é o RotaRepositoryImpl
+            _nomeEmpresa.postValue(motorista?.nomeEmpresa ?: "Empresa não identificada")
         }
     }
 

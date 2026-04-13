@@ -41,6 +41,7 @@ class RotasMotoristaFragment : Fragment() {
     private val viewModel: RotasMotoristaViewModel by viewModels()
 
     //val dataSelecionada = arguments?.getString("data") ?: ""
+    private var nomeEmpresaAtual: String = "D2990 Entregas"
 
 
 
@@ -80,6 +81,7 @@ class RotasMotoristaFragment : Fragment() {
         // Agora sim, com a data preenchida, chamamos o ViewModel
         if (dataParaFiltrar.isNotEmpty()) {
             viewModel.observarMinhasRotas(dataParaFiltrar)
+            viewModel.carregarDadosMotorista()
         } else {
             Log.e("DEBUG_ROTAS", "ERRO: dataParaFiltrar continua vazia!")
             binding.textListaVazia.visibility = View.VISIBLE
@@ -101,6 +103,13 @@ class RotasMotoristaFragment : Fragment() {
     }
 
     private fun setupObservers() {
+
+        viewModel.nomeEmpresa.observe(viewLifecycleOwner) { empresa ->
+            if (!empresa.isNullOrBlank()) {
+                nomeEmpresaAtual = empresa
+            }
+        }
+
         viewModel.rotas.observe(viewLifecycleOwner) { status ->
 
             // REGRA DE OURO: Se não está mais carregando, para as animações
@@ -127,8 +136,7 @@ class RotasMotoristaFragment : Fragment() {
 
 
 
-
-                    btnEnviarRelatorioPDF(lista)
+                    btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
 
                     // Gerencia o texto de lista vazia
                     binding.textListaVazia.visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
@@ -298,10 +306,11 @@ class RotasMotoristaFragment : Fragment() {
         startActivity(Intent.createChooser(intent, "Enviar Relatório Profissional"))
     }
 
-    fun btnEnviarRelatorioPDF(lista: List<Rota>){
+    fun btnEnviarRelatorioPDF(lista: List<Rota>, nomeEmpresaFallback: String){
         binding.btnEnviarRelatorio.setOnClickListener {
             //gerarRelatorioPDF(lista)
-            gerarRelatorioPDFComFotos(lista)
+            val empresaFinal = viewModel.nomeEmpresa.value ?: nomeEmpresaFallback
+            gerarRelatorioPDFComFotos(lista,empresaFinal)
         }
     }
 
@@ -321,7 +330,7 @@ class RotasMotoristaFragment : Fragment() {
     }
 
     // Adicione o parâmetro nomeEmpresa para ser dinâmico
-    private fun gerarRelatorioPDFComFotos(lista: List<Rota>) {
+    private fun gerarRelatorioPDFComFotos(lista: List<Rota>, nomeEmpresaFirebase: String) {
         viewLifecycleOwner.lifecycleScope.launch {
             if (lista.isEmpty()) return@launch
 
@@ -335,9 +344,7 @@ class RotasMotoristaFragment : Fragment() {
             var canvas = page.canvas
 
             var y = 50f
-
-            // Como todas as rotas são do mesmo motorista, pegamos os dados da primeira
-            val dadosMotorista = lista[0]
+            val primeiraRota = lista[0]
 
             // --- 1. CABEÇALHO ---
             titlePaint.textSize = 22f
@@ -348,13 +355,14 @@ class RotasMotoristaFragment : Fragment() {
 
             headerPaint.textSize = 12f
             headerPaint.isAntiAlias = true
+            headerPaint.color = android.graphics.Color.BLACK
 
-            canvas.drawText("Motorista: ${dadosMotorista.nomeMotorista}", 40f, y, headerPaint)
+            canvas.drawText("Motorista: ${primeiraRota.nomeMotorista}", 40f, y, headerPaint)
             y += 20f
 
+            // AQUI: Usando o nome que o ViewModel buscou no Firebase
             headerPaint.isFakeBoldText = true
-            // Se você tiver o nome da empresa na Rota, use aqui. Se não, pode fixar ou buscar do Firebase.
-            canvas.drawText("Empresa: D2990 LOGÍSTICA", 40f, y, headerPaint)
+            canvas.drawText("Empresa: ${nomeEmpresaFirebase.uppercase()}", 40f, y, headerPaint)
             headerPaint.isFakeBoldText = false
             y += 20f
 
@@ -380,8 +388,8 @@ class RotasMotoristaFragment : Fragment() {
 
                 paint.isFakeBoldText = true
                 paint.textSize = 14f
-                // Usando o campo 'os' que você já tem no modelo Rota
-                canvas.drawText("O.S.: ${rota.os.ifBlank { rota.id.takeLast(6) }}", 40f, y, paint)
+                val idExibicao = rota.os.ifBlank { rota.id.takeLast(8) }
+                canvas.drawText("O.S.: #$idExibicao", 40f, y, paint)
                 y += 22f
 
                 paint.textSize = 12f
@@ -391,10 +399,6 @@ class RotasMotoristaFragment : Fragment() {
                 paint.isFakeBoldText = false
                 canvas.drawText("Endereço: ${rota.endereco}", 40f, y, paint)
                 y += 20f
-
-                // --- LINHA DA NOTA FISCAL (FUTURO) ---
-                // canvas.drawText("Nº Nota: ${rota.numeroNota}", 40f, y, paint)
-                // y += 18f
 
                 if (!rota.comprovanteUrl.isNullOrEmpty()) {
                     val bitmap = baixarBitmap(rota.comprovanteUrl.toString())
@@ -419,13 +423,15 @@ class RotasMotoristaFragment : Fragment() {
 
             pdfDocument.finishPage(page)
 
-            // Nome do arquivo baseado no motorista da primeira rota
-            val nomeArquivo = "Relatorio_${dadosMotorista.nomeMotorista.filter { it.isLetterOrDigit() }}_${System.currentTimeMillis()}.pdf"
+            // CORREÇÃO: Usando requireContext().cacheDir diretamente para evitar erros de referência
+            val nomeArquivo = "Relatorio_${primeiraRota.nomeMotorista.filter { it.isLetterOrDigit() }}_${System.currentTimeMillis()}.pdf"
             val file = java.io.File(requireContext().cacheDir, nomeArquivo)
 
             try {
                 pdfDocument.writeTo(java.io.FileOutputStream(file))
                 enviarDocumento(file)
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 pdfDocument.close()
             }
