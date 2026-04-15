@@ -1,6 +1,7 @@
 package com.douglas2990.app_motorista.presentation.viewmodel
 
 
+import android.content.Context
 import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
@@ -12,9 +13,11 @@ import com.example.core.UIstatus
 import com.example.core.model.Motorista
 import com.example.core.model.Rota
 import com.example.core.repository.IRotaRepository
+import com.example.core.util.PdfRelatorioHelper
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,11 +32,35 @@ class RotasMotoristaViewModel @Inject constructor(
     private val _nomeEmpresa = MutableLiveData<String>()
     val nomeEmpresa: LiveData<String> = _nomeEmpresa
 
+    private val _pdfArquivoPronto = MutableLiveData<File?>()
+    val pdfArquivoPronto: LiveData<File?> = _pdfArquivoPronto
+
+    private val _arquivoPdfGerado = MutableLiveData<File?>()
+    val arquivoPdfGerado: LiveData<File?> = _arquivoPdfGerado
+
 
     /**
      * Inicia a observação em tempo real.
      * Toda alteração no Firestore refletirá aqui automaticamente.
      */
+
+    fun gerarRelatorio(context: Context, lista: List<Rota>) {
+        viewModelScope.launch {
+            val empresa = _nomeEmpresa.value ?: "D2990 Entregas"
+            val helper = PdfRelatorioHelper(context)
+            val file = helper.gerarRelatorio(lista, empresa)
+            _arquivoPdfGerado.postValue(file)
+        }
+    }
+
+    fun prepararRelatorio(context: Context, lista: List<Rota>) {
+        viewModelScope.launch {
+            val empresa = _nomeEmpresa.value ?: "D2990 Entregas"
+            val helper = PdfRelatorioHelper(context)
+            val arquivo = helper.gerarRelatorio(lista, empresa)
+            _pdfArquivoPronto.postValue(arquivo)
+        }
+    }
     fun observarMinhasRotas(dataSelecionada: String) {
         val uidMotorista = auth.currentUser?.uid ?: return
 

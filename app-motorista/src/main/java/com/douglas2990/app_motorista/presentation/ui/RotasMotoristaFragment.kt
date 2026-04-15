@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.core.model.Motorista
+import com.example.core.util.ShareHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -110,6 +111,14 @@ class RotasMotoristaFragment : Fragment() {
             }
         }
 
+        viewModel.arquivoPdfGerado.observe(viewLifecycleOwner) { arquivo ->
+            binding.progressBar.visibility = View.GONE
+            arquivo?.let {
+                // Usa o Helper para compartilhar
+                ShareHelper(requireContext()).compartilharPdf(it)
+            }
+        }
+
         viewModel.rotas.observe(viewLifecycleOwner) { status ->
 
             // REGRA DE OURO: Se não está mais carregando, para as animações
@@ -132,14 +141,23 @@ class RotasMotoristaFragment : Fragment() {
 
                     val todasConcluidas = lista.isNotEmpty() && lista.all { it.status != "PENDENTE" }
 
-                    binding.btnEnviarRelatorio.visibility = if (todasConcluidas) View.VISIBLE else View.GONE
+                    binding.btnEnviarRelatorio
+                        .visibility = if (todasConcluidas) View.VISIBLE else View.GONE
+
+                    //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
+
+                    binding.btnEnviarRelatorio.setOnClickListener {
+                        val lista = (viewModel.rotas.value as? UIstatus.Sucesso)?.dados ?: emptyList()
+                        viewModel.gerarRelatorio(requireContext(), lista)
+                    }
 
 
 
-                    btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
+                    //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
 
                     // Gerencia o texto de lista vazia
-                    binding.textListaVazia.visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
+                    binding.textListaVazia
+                        .visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
                 }
                 is UIstatus.Erro -> {
                     // Usa a variável 'mensagem' que definimos no :core
