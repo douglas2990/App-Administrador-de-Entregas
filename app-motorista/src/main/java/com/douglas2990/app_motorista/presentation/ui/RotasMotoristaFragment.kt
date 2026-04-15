@@ -112,10 +112,11 @@ class RotasMotoristaFragment : Fragment() {
         }
 
         viewModel.arquivoPdfGerado.observe(viewLifecycleOwner) { arquivo ->
+            binding.btnEnviarRelatorio.isEnabled = true
             binding.progressBar.visibility = View.GONE
-            arquivo?.let {
-                // Usa o Helper para compartilhar
-                ShareHelper(requireContext()).compartilharPdf(it)
+
+            if (arquivo != null) {
+                ShareHelper(requireContext()).compartilharPdf(arquivo)
             }
         }
 
@@ -147,8 +148,26 @@ class RotasMotoristaFragment : Fragment() {
                     //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
 
                     binding.btnEnviarRelatorio.setOnClickListener {
-                        val lista = (viewModel.rotas.value as? UIstatus.Sucesso)?.dados ?: emptyList()
-                        viewModel.gerarRelatorio(requireContext(), lista)
+                        // 1. Pegamos a lista do status atual
+                        val statusAtual = viewModel.rotas.value
+
+                        if (statusAtual is UIstatus.Sucesso) {
+                            val listaCompleta = statusAtual.dados ?: emptyList()
+
+                            // 2. Opcional: Filtramos para enviar apenas o que não está pendente
+                            val listaParaRelatorio = listaCompleta.filter { it.status != "PENDENTE" }
+
+                            if (listaParaRelatorio.isNotEmpty()) {
+                                // 3. Feedback visual: desativa o botão e mostra o progress
+                                binding.btnEnviarRelatorio.isEnabled = false
+                                binding.progressBar.visibility = View.VISIBLE
+
+                                // 4. Ordem para a ViewModel
+                                viewModel.gerarRelatorio(requireContext(), listaParaRelatorio)
+                            } else {
+                                Toast.makeText(requireContext(), "Não há entregas finalizadas para o relatório", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
 
 

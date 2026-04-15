@@ -6,6 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.core.model.Rota
+import com.example.core.BuildConfig
 import java.io.File
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
@@ -46,7 +47,7 @@ class ShareHelper(private val context: Context) {
      */
     fun enviarMensagemTexto(lista: List<Rota>) {
         val mensagemFormatada = gerarRelatorioTexto(lista)
-        val numero = ConstantesNumeroCelular.WHATSAPP_SUPORTE
+        val numero = BuildConfig.WHATSAPP_SUPORTE
 
         try {
             val url = "https://api.whatsapp.com/send?phone=$numero&text=${URLEncoder.encode(mensagemFormatada, "UTF-8")}"

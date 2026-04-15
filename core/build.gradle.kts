@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -21,6 +23,26 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        // 1. Defina o arquivo
+        val file = project.rootProject.file("local.properties")
+
+        // 2. Crie a variável do número
+        var numero = ""
+
+        // 3. Carregue as propriedades (Sem usar java.util aqui dentro, use apenas Properties)
+        if (file.exists()) {
+            val props = Properties()
+            file.reader().use { props.load(it) }
+            numero = props.getProperty("WHATSAPP_NUMERO") ?: ""
+        }
+
+        // 4. Gere o campo
+        buildConfigField("String", "WHATSAPP_SUPORTE", "\"$numero\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
