@@ -27,4 +27,5 @@ interface IRotaRepository {
     fun listarPorMotoristaEDataRealTime(uid: String, data: String, callback: (UIstatus<List<Rota>>) -> Unit)
 
     suspend fun buscarMotorista(uid: String): Motorista?
+    suspend fun recuperarTelefoneAdmin(idGestor: String): String?
 }

@@ -20,6 +20,9 @@ class DetalhesEntregaViewModel @Inject constructor(
     private val _statusEntrega = MutableLiveData<UIstatus<String>>()
     val statusEntrega: LiveData<UIstatus<String>> = _statusEntrega
 
+    private val _telefoneAdmin = MutableLiveData<String?>()
+    val telefoneAdmin: LiveData<String?> = _telefoneAdmin
+
     fun finalizarEntrega(idRota: String, imageUri: Uri) {
         _statusEntrega.value = UIstatus.Carregando
         viewModelScope.launch {
@@ -41,6 +44,13 @@ class DetalhesEntregaViewModel @Inject constructor(
             } else if (resultado is UIstatus.Erro) {
                 _statusEntrega.value = UIstatus.Erro(resultado.erro)
             }
+        }
+    }
+
+    fun buscarTelefoneAdmin(idGestor: String) {
+        viewModelScope.launch {
+            val fone = rotaRepository.recuperarTelefoneAdmin(idGestor)
+            _telefoneAdmin.value = fone
         }
     }
 }

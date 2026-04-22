@@ -98,8 +98,15 @@ class CadastroActivity : AppCompatActivity() {
                 val senha = editCadastroSenha.text.toString()
                 val telefone = editCadastroTelefone.text.toString()
 
-                val usuario = Usuario(
+                val telefoneParaSalvar = binding.editCadastroTelefone.text.toString()
+                    .replace(Regex("[^0-9]"), "") // Remove parênteses, espaços e traços
+
+/*                val usuario = Usuario(
                     email, senha, nome, telefone
+                ) */
+
+                val usuario = Usuario(
+                    email, senha, nome, telefoneParaSalvar
                 )
                 autenticacaoViewModel.cadastrarUsuario( usuario ){ uiStatus ->
                     when( uiStatus ){

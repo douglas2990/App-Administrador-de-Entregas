@@ -38,6 +38,9 @@ class RotasMotoristaViewModel @Inject constructor(
     private val _arquivoPdfGerado = MutableLiveData<File?>()
     val arquivoPdfGerado: LiveData<File?> = _arquivoPdfGerado
 
+    private val _telefoneAdmin = MutableLiveData<String?>()
+    val telefoneAdmin: LiveData<String?> = _telefoneAdmin
+
 
     /**
      * Inicia a observação em tempo real.
@@ -83,6 +86,13 @@ class RotasMotoristaViewModel @Inject constructor(
             } else {
                 _nomeEmpresa.postValue("Empresa não identificada")
             }
+        }
+    }
+
+    fun buscarTelefoneAdmin(idGestor: String) {
+        viewModelScope.launch {
+            val fone = rotaRepository.recuperarTelefoneAdmin(idGestor)
+            _telefoneAdmin.value = fone
         }
     }
 

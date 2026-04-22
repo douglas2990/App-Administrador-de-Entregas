@@ -280,4 +280,26 @@ class RotaRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun recuperarTelefoneAdmin(idGestor: String): String? {
+        return try {
+            val document = firebaseFirestore
+                .collection(ConstantesFirebase.FIRESTORE_USUARIOS) // Coleção onde o Admin se cadastrou
+                .document(idGestor)
+                .get()
+                .await()
+
+            if (document.exists()) {
+                // Pegamos o campo "telefone" que você configurou na CadastroActivity
+                val telefone = document.getString("telefone")
+                Log.d("FIREBASE_FONE", "Telefone do Admin recuperado: $telefone")
+                telefone
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("FIREBASE_FONE", "Erro ao buscar telefone: ${e.message}")
+            null
+        }
+    }
+
 }

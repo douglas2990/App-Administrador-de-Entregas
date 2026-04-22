@@ -6,7 +6,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.core.model.Rota
-import com.example.core.BuildConfig
 import java.io.File
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
@@ -16,9 +15,9 @@ import java.util.Locale
 class ShareHelper(private val context: Context) {
 
     /**
-     * Envia o PDF diretamente para o WhatsApp ou abre o seletor de apps
+     * Envia o PDF para o WhatsApp do Administrador específico
      */
-    fun compartilharPdf(arquivo: File) {
+    fun compartilharPdf(arquivo: File, telefone: String) {
         try {
             val uri = FileProvider.getUriForFile(
                 context,
@@ -26,31 +25,49 @@ class ShareHelper(private val context: Context) {
                 arquivo
             )
 
+            // Limpa e garante o DDI 55
+            val numeroLimpo = telefone.replace(Regex("[^0-9]"), "")
+            val numeroDestino = if (numeroLimpo.startsWith("55")) numeroLimpo else "55$numeroLimpo"
+
+            // Usamos ACTION_SEND com o pacote do WhatsApp para enviar o arquivo DIRETO
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/pdf"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_TEXT, "Segue em anexo o relatório de entregas.")
+                // O segredo para ir para o número certo com arquivo é o "jid"
+                putExtra("jid", "$numeroDestino@s.whatsapp.net")
+                setPackage("com.whatsapp") // Tenta abrir o WhatsApp normal
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
-            // Opcional: Tentar abrir direto no WhatsApp
-            // intent.setPackage("com.whatsapp")
-
-            context.startActivity(Intent.createChooser(intent, "Enviar Relatório"))
+            context.startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(context, "Erro ao compartilhar arquivo", Toast.LENGTH_SHORT).show()
+            // Se falhar o setPackage (Wp não instalado), abre o seletor padrão
+            abrirSeletorPadrao(arquivo)
         }
     }
 
+    private fun abrirSeletorPadrao(arquivo: File) {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", arquivo)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, "Enviar Relatório"))
+    }
+
     /**
-     * Gera o texto e abre o WhatsApp com a mensagem pronta
+     * Abre o WhatsApp com o texto formatado para o número do Admin
      */
-    fun enviarMensagemTexto(lista: List<Rota>) {
+    fun enviarMensagemTexto(lista: List<Rota>, telefone: String) {
         val mensagemFormatada = gerarRelatorioTexto(lista)
-        val numero = BuildConfig.WHATSAPP_SUPORTE
+
+        // Limpa e garante o DDI 55
+        val numeroLimpo = telefone.replace(Regex("[^0-9]"), "")
+        val numeroDestino = if (numeroLimpo.startsWith("55")) numeroLimpo else "55$numeroLimpo"
 
         try {
-            val url = "https://api.whatsapp.com/send?phone=$numero&text=${URLEncoder.encode(mensagemFormatada, "UTF-8")}"
+            val url = "https://api.whatsapp.com/send?phone=$numeroDestino&text=${URLEncoder.encode(mensagemFormatada, "UTF-8")}"
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(url)
             }

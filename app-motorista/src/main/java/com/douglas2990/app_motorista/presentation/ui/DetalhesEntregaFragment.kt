@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.douglas2990.app_motorista.databinding.FragmentDetalhesEntregaBinding
 import com.douglas2990.app_motorista.presentation.viewmodel.DetalhesEntregaViewModel
 import com.example.core.model.Rota
 import com.example.core.UIstatus
+import com.example.core.util.ShareHelper
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.text.SimpleDateFormat
@@ -37,6 +39,9 @@ class DetalhesEntregaFragment : Fragment() {
 
     // Variável para saber se estamos tirando foto de Sucesso ou de Problema
     private var motivoAtual: String? = null
+
+    private var telefoneDoGestor: String? = null
+    private val shareHelper by lazy { ShareHelper(requireContext()) }
 
     // 1. Launcher para pedir Permissão da Câmera
     private val requestPermissionLauncher = registerForActivityResult(
@@ -80,6 +85,9 @@ class DetalhesEntregaFragment : Fragment() {
         setupUI()
         setupListeners()
         setupObservers()
+        rota?.let {
+            viewModel.buscarTelefoneAdmin(it.idGestor)
+        }
     }
 
     private fun setupUI() {
@@ -155,6 +163,7 @@ class DetalhesEntregaFragment : Fragment() {
                 }
                 is UIstatus.Sucesso -> {
                     binding.progressBar.visibility = View.GONE
+                    val telefoneDestino = viewModel.telefoneAdmin.value ?: ""
                     Toast.makeText(context, status.dados, Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
@@ -165,6 +174,14 @@ class DetalhesEntregaFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.telefoneAdmin.observe(viewLifecycleOwner) { telefone ->
+            if (telefone != null) {
+                this.telefoneDoGestor = telefone
+                Log.d("DETALHES", "Telefone do Admin pronto: $telefone")
+            }
+        }
+
     }
 
     private fun exibirDialogProblema() {
@@ -226,10 +243,29 @@ class DetalhesEntregaFragment : Fragment() {
         }
     }
 
-    private fun abrirMapa() { /* seu código do mapa (mantido) */ }
+    private fun abrirMapa() {
+        rota?.let { r ->
+            val endereco = r.endereco
+            if (endereco.isNotEmpty()) {
+                // Criamos a URI de busca. O "q=" faz o mapa procurar o endereço exato.
+                val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(endereco)}")
+                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+                // Verifica se existe algum app de mapa instalado
+                if (mapIntent.resolveActivity(requireContext().packageManager) != null) {
+                    startActivity(mapIntent)
+                } else {
+                    Toast.makeText(context, "Nenhum aplicativo de mapas encontrado", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "Endereço não disponível para esta rota", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }

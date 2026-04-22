@@ -44,6 +44,9 @@ class RotasMotoristaFragment : Fragment() {
     //val dataSelecionada = arguments?.getString("data") ?: ""
     private var nomeEmpresaAtual: String = "D2990 Entregas"
 
+    private var telefoneDoGestor: String? = null
+    private val shareHelper by lazy { ShareHelper(requireContext()) }
+
 
 
 
@@ -111,12 +114,30 @@ class RotasMotoristaFragment : Fragment() {
             }
         }
 
+        viewModel.telefoneAdmin.observe(viewLifecycleOwner) { telefone ->
+            if (telefone != null) {
+                this.telefoneDoGestor = telefone
+                Log.d("DEBUG_ROTAS", "Telefone do Admin carregado: $telefone")
+            }
+        }
+
         viewModel.arquivoPdfGerado.observe(viewLifecycleOwner) { arquivo ->
             binding.btnEnviarRelatorio.isEnabled = true
             binding.progressBar.visibility = View.GONE
 
             if (arquivo != null) {
-                ShareHelper(requireContext()).compartilharPdf(arquivo)
+                // Usamos o telefone que foi salvo anteriormente
+                val fone = telefoneDoGestor ?: ""
+
+                if (fone.isNotEmpty()) {
+                    // Agora passa o arquivo e o telefone para o ShareHelper
+                    ShareHelper(requireContext()).compartilharPdf(arquivo, fone)
+                } else {
+                    // Caso o telefone ainda não tenha carregado (por lentidão do Firebase)
+                    // você pode chamar o seletor padrão ou avisar o usuário
+                    Toast.makeText(context, "Contato do Admin ainda não carregado", Toast.LENGTH_SHORT).show()
+                    ShareHelper(requireContext()).compartilharPdf(arquivo, "")
+                }
             }
         }
 
@@ -141,6 +162,10 @@ class RotasMotoristaFragment : Fragment() {
                     rotaAdapter.submitList(lista)
 
                     val todasConcluidas = lista.isNotEmpty() && lista.all { it.status != "PENDENTE" }
+
+                    if (lista.isNotEmpty()) {
+                        viewModel.buscarTelefoneAdmin(lista[0].idGestor)
+                    }
 
                     binding.btnEnviarRelatorio
                         .visibility = if (todasConcluidas) View.VISIBLE else View.GONE
