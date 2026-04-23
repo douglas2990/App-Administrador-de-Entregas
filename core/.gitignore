@@ -1,3 +1,4 @@
 /build
 **/Segredos.kt
 app/google-services.json
+**/google-services.json

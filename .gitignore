@@ -15,4 +15,5 @@
 local.properties
 app/google-services.json
 **/Segredos.kt
+**/google-services.json
 
