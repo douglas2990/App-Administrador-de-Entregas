@@ -2,6 +2,7 @@ package com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user
 
 import com.douglas2990.d2990entregasv2.model.user.Usuario
 import com.example.core.UIstatus
+import com.example.core.model.SolicitacaoAcesso
 import com.example.core.util.ConstantesFirebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -17,134 +18,108 @@ class AutenticacaoRepositoryImpl @Inject constructor(
     private val firebaseFirestore: FirebaseFirestore
 ): IAutenticacaoRepository {
 
-    override suspend fun recuperarDadosUsuarioLogado(
-        uiStatus: (UIstatus<Usuario>) -> Unit
-    ) {
+    override suspend fun recuperarDadosUsuarioLogado(uiStatus: (UIstatus<Usuario>) -> Unit) {
         try {
+            val idUsuario = firebaseAuth.currentUser?.uid ?: return uiStatus.invoke(UIstatus.Erro("Deslogado"))
+            val doc = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_USUARIOS).document(idUsuario).get().await()
 
-            val idUsuario = firebaseAuth.currentUser?.uid ?:
-            return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
-
-            val refUsuario = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_USUARIOS)
-                .document( idUsuario )
-
-            val documentSnapshot = refUsuario.get().await()
-            if( documentSnapshot.exists() ){
-                val usuario = documentSnapshot.toObject( Usuario::class.java )
-                if(usuario != null){
-                    uiStatus.invoke(UIstatus.Sucesso(usuario))
-                }else{
-                    uiStatus.invoke(UIstatus.Erro("Erro ao converter dados do usuário"))
-                }
-            }else{
-                uiStatus.invoke(UIstatus.Erro("Não existem dados para o usuário"))
+            if (doc.exists()) {
+                val user = doc.toObject(Usuario::class.java)
+                if (user != null) uiStatus.invoke(UIstatus.Sucesso(user))
+                else uiStatus.invoke(UIstatus.Erro("Erro de conversão"))
+            } else {
+                uiStatus.invoke(UIstatus.Erro("Usuário não encontrado"))
             }
-        }catch (erroRecuperarLoja: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao recuperar dados do usuário"))
+        } catch (e: Exception) {
+            uiStatus.invoke(UIstatus.Erro("Erro ao recuperar dados"))
         }
     }
 
-    override suspend fun atualizarUsuario(
-        usuario: Usuario,
-        uiStatus: (UIstatus<String>) -> Unit
-    ) {
+    override suspend fun atualizarUsuario(usuario: Usuario, uiStatus: (UIstatus<String>) -> Unit) {
         try {
-
-            val idUsuario = firebaseAuth.currentUser?.uid ?:
-            return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
-
-            val refUsuario = firebaseFirestore
-                .collection(ConstantesFirebase.FIRESTORE_USUARIOS)
-                .document( idUsuario )
-            refUsuario.update( usuario.mapToUsuarioFirestore() ).await()
-
-            uiStatus.invoke(UIstatus.Sucesso( idUsuario ))
-
-        }catch (erroAtualizarCampo: Exception){
-            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar dados do usuário"))
+            val idUsuario = firebaseAuth.currentUser?.uid ?: return uiStatus.invoke(UIstatus.Erro("Deslogado"))
+            firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_USUARIOS)
+                .document(idUsuario).update(usuario.mapToUsuarioFirestore()).await()
+            uiStatus.invoke(UIstatus.Sucesso(idUsuario))
+        } catch (e: Exception) {
+            uiStatus.invoke(UIstatus.Erro("Erro ao atualizar"))
         }
-
     }
 
     override suspend fun cadastrarUsuario(
         usuario: Usuario,
-        uiStatus: (UIstatus<Boolean>)->Unit
+        uiStatus: (UIstatus<Boolean>) -> Unit
     ) {
-
         try {
+            // 1. CHECAGEM DE WHITELIST: O e-mail está na coleção 'autorizados'?
+            val autorizadoDoc = firebaseFirestore.collection("autorizados")
+                .document(usuario.email)
+                .get()
+                .await()
 
-            firebaseAuth.createUserWithEmailAndPassword(
-                usuario.email, usuario.senha
-            ).await()
+            if (!autorizadoDoc.exists()) {
+                // 2. SOLICITAÇÃO: Se não está autorizado, cria o pedido para o ModuloDeveloper
+                val solicitacao = SolicitacaoAcesso(
+                    id = usuario.email,
+                    nome = usuario.nome,
+                    email = usuario.email,
+                    dataSolicitacao = System.currentTimeMillis()
+                )
+
+                firebaseFirestore.collection("solicitacoes")
+                    .document(usuario.email)
+                    .set(solicitacao)
+                    .await()
+
+                // Avisa a UI que o acesso está pendente de aprovação manual
+                return uiStatus.invoke(UIstatus.Erro("Acesso pendente. Solicitação enviada ao desenvolvedor. Chame no WhatsApp!"))
+            }
+
+            // 3. CADASTRO REAL: Se chegou aqui, o e-mail está autorizado
+            firebaseAuth.createUserWithEmailAndPassword(usuario.email, usuario.senha).await()
 
             val idUsuario = firebaseAuth.currentUser?.uid ?:
-            return uiStatus.invoke( UIstatus.Erro("Usuário não está logado") )
+            return uiStatus.invoke(UIstatus.Erro("Falha ao recuperar ID de autenticação"))
 
-            //Salvar dados usuario no Firestore
             usuario.id = idUsuario
-            val usuariosRef = firebaseFirestore
-                .collection( ConstantesFirebase.FIRESTORE_USUARIOS )
-                .document( idUsuario )
+            firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_USUARIOS)
+                .document(idUsuario)
+                .set(usuario.mapToUsuarioFirestore())
+                .await()
 
-            usuariosRef.set(
-                usuario.mapToUsuarioFirestore()
-            ).await()
+            uiStatus.invoke(UIstatus.Sucesso(true))
 
-            uiStatus.invoke(
-                UIstatus.Sucesso( true )
-            )
-
-        }catch ( erroUsuarioJaCadastrado: FirebaseAuthUserCollisionException){
-            uiStatus.invoke(
-                UIstatus.Erro("Usuário já cadastrado!")
-            )
-        }catch ( erroEmailInvalido: FirebaseAuthInvalidCredentialsException){
-            uiStatus.invoke(
-                UIstatus.Erro("E-mail está inválido, digite outro e-mail!")
-            )
-        }catch ( erroSenhaFraca: FirebaseAuthWeakPasswordException){
-            uiStatus.invoke(
-                UIstatus.Erro("Sua senha está muito fraca, digite mais caracteres!")
-            )
-        }catch ( erroPadrao: Exception ){
-            uiStatus.invoke(
-                UIstatus.Erro("Erro ao fazer seu cadastro, tente novamente!")
-            )
+        } catch (e: FirebaseAuthUserCollisionException) {
+            uiStatus.invoke(UIstatus.Erro("Usuário já cadastrado!"))
+        } catch (e: FirebaseAuthWeakPasswordException) {
+            uiStatus.invoke(UIstatus.Erro("Sua senha está muito fraca!"))
+        } catch (e: Exception) {
+            uiStatus.invoke(UIstatus.Erro("Erro ao processar cadastro: ${e.localizedMessage}"))
         }
-
     }
 
     override suspend fun logarUsuario(
         usuario: Usuario,
-        uiStatus: (UIstatus<Boolean>)->Unit
+        uiStatus: (UIstatus<Boolean>) -> Unit
     ) {
         try {
-            val retorno = firebaseAuth.signInWithEmailAndPassword(
-                usuario.email, usuario.senha
-            ).await() != null
+            val authResult = firebaseAuth.signInWithEmailAndPassword(usuario.email, usuario.senha).await()
+            val uid = authResult.user?.uid ?: throw Exception("Erro ao recuperar UID")
 
-            if( retorno ){//true
-                uiStatus.invoke(
-                    UIstatus.Sucesso( true )
-                )
+            // VERIFICAÇÃO DE PERFIL: Garante que motorista não entra no app Admin
+            val doc = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_USUARIOS)
+                .document(uid).get().await()
+
+            if (doc.exists()) {
+                uiStatus.invoke(UIstatus.Sucesso(true))
+            } else {
+                firebaseAuth.signOut()
+                uiStatus.invoke(UIstatus.Erro("Acesso Negado: App exclusivo para Administradores."))
             }
-
-        }catch ( erroUsuarioInvalido: FirebaseAuthInvalidUserException){
-            uiStatus.invoke(
-                UIstatus.Erro("E-mail inválido, usuário não cadastrado!")
-            )
-        }catch ( erroSenhaInvalida: FirebaseAuthInvalidCredentialsException ){
-            uiStatus.invoke(
-                UIstatus.Erro("A senha digitada está errada")
-            )
-        }catch ( erroPadrao: Exception ){
-            uiStatus.invoke(
-                UIstatus.Erro("Dados de acesso errado, tente novamente!")
-            )
+        } catch (e: Exception) {
+            uiStatus.invoke(UIstatus.Erro("Dados incorretos ou sem permissão de acesso."))
         }
     }
-
     override fun verificarUsuarioLogado(): Boolean {
         return firebaseAuth.currentUser != null
     }

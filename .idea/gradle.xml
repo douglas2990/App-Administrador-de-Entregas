@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/app-motorista" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/modulo_developer" />
           </set>
         </option>
       </GradleProjectSettings>

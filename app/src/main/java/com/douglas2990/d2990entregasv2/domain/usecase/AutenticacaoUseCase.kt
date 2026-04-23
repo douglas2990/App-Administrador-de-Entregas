@@ -27,9 +27,15 @@ class AutenticacaoUseCase @Inject constructor(
 /*        val valTelefone = usuario.telefone.validator()
             .minLength(14)
             .check() */
-
+/*
         val valTelefone = usuario.telefone.validator()
             .minLength(11)
+            .check()*/
+
+        val valTelefone = usuario.telefone.validator()
+            .nonEmpty() // Garante que não está vazio
+            .minLength(10) // Aceita fixo (10) ou celular (11)
+            .maxLength(11) // Garante que não venha lixo
             .check()
 
         if ( valNome )

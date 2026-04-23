@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Motorista(
+
     val id: String = "",
     val idGestor: String = "",
     val nome: String = "",
@@ -12,5 +13,6 @@ data class Motorista(
     val senha: String = "", // Primeira senha cadastrada pelo gestor
     val telefone: String = "",
     val idEmpresa: String = "", // Vinculação técnica
-    val nomeEmpresa: String = "" // Para exibição facilitada
+    val nomeEmpresa: String = "",
+    val tipo: String = "MOTORISTA",// Para exibição facilitada
 ) : Parcelable

@@ -41,7 +41,8 @@ class MotoristaRepositoryImpl @Inject constructor(
             // 3. O SEGREDO: Usamos o UID do Auth como o ID do documento no Firestore
             val motoristaComIds = motorista.copy(
                 id = novoUid, // ID agora é o UID real do motorista
-                idGestor = idGestorLogado
+                idGestor = idGestorLogado,
+                tipo = "MOTORISTA"
             )
 
             // 4. Salva no Firestore usando o UID como nome do documento

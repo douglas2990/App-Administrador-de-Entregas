@@ -1,6 +1,7 @@
 package com.douglas2990.app_motorista.data.repository
 
 import com.example.core.UIstatus
+import com.example.core.util.ConstantesFirebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -21,17 +22,22 @@ class AutenticacaoMotoristaRepositoryImpl @Inject constructor(
             val result = firebaseAuth.signInWithEmailAndPassword(email, senha).await()
             val uid = result.user?.uid ?: return UIstatus.Erro("Usuário não encontrado")
 
-            // Verifica se o usuário é realmente um motorista no Firestore
-            val doc = firestore.collection("usuarios_motoristas").document(uid).get().await()
-            
+            // USANDO A CONSTANTE: ConstantesFirebase.FIRESTORE_USUARIOS_MOTORISTA
+            val doc = firestore.collection(ConstantesFirebase.FIRESTORE_USUARIOS_MOTORISTA)
+                .document(uid)
+                .get()
+                .await()
+
             if (doc.exists()) {
                 UIstatus.Sucesso(uid)
             } else {
+                // Se o e-mail existe no Auth mas não está na coleção de motoristas,
+                // significa que é um Admin tentando logar no app do motorista.
                 firebaseAuth.signOut()
-                UIstatus.Erro("Este usuário não tem permissão de motorista.")
+                UIstatus.Erro("Acesso Negado: Use o aplicativo de Administrador.")
             }
         } catch (e: Exception) {
-            UIstatus.Erro("Erro ao fazer login: ${e.message}")
+            UIstatus.Erro("Erro ao fazer login: Dados de acesso inválidos.")
         }
     }
 

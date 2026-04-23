@@ -9,7 +9,8 @@ data class ResultadoValidacao (
     //var cnpj: Boolean = false
 ){
     val sucessoValidacaoCadastro: Boolean
-        get() = nome && email && senha && telefone && empresa
+        //get() = nome && email && senha && telefone && empresa
+        get() = nome && email && senha && telefone
 
     val sucessoValidacaoLogin: Boolean
         get() = email && senha

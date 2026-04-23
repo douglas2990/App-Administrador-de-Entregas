@@ -23,3 +23,4 @@ rootProject.name = "App Administrador 2990Entregas"
 include(":app")
 include(":core")
 include(":app-motorista")
+include(":modulo_developer")

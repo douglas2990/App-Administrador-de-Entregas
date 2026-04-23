@@ -23,6 +23,9 @@ class AutenticacaoViewModel @Inject constructor(
     private val uploadRepository: UploadRepository
 ): ViewModel() {
 
+    private val _statusCadastro = MutableLiveData<UIstatus<Boolean>>()
+    val statusCadastro: LiveData<UIstatus<Boolean>> = _statusCadastro
+
     private val _resultadoValidacao = MutableLiveData<ResultadoValidacao>()
     val resultadoValidacao: LiveData<ResultadoValidacao>
         get() = _resultadoValidacao
@@ -31,20 +34,24 @@ class AutenticacaoViewModel @Inject constructor(
     val carregando: LiveData<Boolean>
         get() = _carregando
 
-    fun cadastrarUsuario(usuario: Usuario, uiStatus: (UIstatus<Boolean>)->Unit  ){
-
-        val retornoValidacao = autenticacaoUseCase.validarCadastroUsuario( usuario )
+    fun cadastrarUsuario(usuario: Usuario) {
+        val retornoValidacao = autenticacaoUseCase.validarCadastroUsuario(usuario)
         _resultadoValidacao.value = retornoValidacao
-        if( retornoValidacao.sucessoValidacaoCadastro ){
+
+        if (retornoValidacao.sucessoValidacaoCadastro) {
             _carregando.value = true
             viewModelScope.launch {
-                autenticacaoRepositoryImpl.cadastrarUsuario(
-                    usuario, uiStatus
-                )
-                _carregando.postValue( false )
+                autenticacaoRepositoryImpl.cadastrarUsuario(usuario) { status ->
+                    _statusCadastro.postValue(status)
+                    _carregando.postValue(false)
+                }
             }
+        } else {
+            // MUITO IMPORTANTE: Se a validação falhar, pare o carregamento
+            // e avise a UI para que o usuário saiba o que houve
+            _carregando.value = false
+            _statusCadastro.value = UIstatus.Erro("Verifique os campos em vermelho.")
         }
-
     }
 
     fun logarUsuario(usuario: Usuario, uiStatus: (UIstatus<Boolean>)->Unit ){

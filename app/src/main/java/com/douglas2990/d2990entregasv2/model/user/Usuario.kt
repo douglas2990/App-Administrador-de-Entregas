@@ -1,12 +1,14 @@
 package com.douglas2990.d2990entregasv2.model.user
 
 data class Usuario(
+
     val email: String = "",
     val senha: String = "",
     val nome: String = "",
     val telefone: String = "",
     val urlPerfil: String = "",
     var id: String = "",
+    val tipo: String = "ADMIN"
 ){
     fun mapToUsuarioFirestore() : Map<String, Any>{
         val dados = mutableMapOf<String, Any>()
@@ -16,6 +18,7 @@ data class Usuario(
         if( nome.isNotEmpty() ) dados["nome"] = nome
         if( telefone.isNotEmpty() ) dados["telefone"] = telefone
         if( urlPerfil.isNotEmpty() ) dados["urlPerfil"] = urlPerfil
+        dados["tipo"] = tipo
 
         return dados
     }
