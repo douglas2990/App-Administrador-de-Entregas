@@ -52,7 +52,7 @@ class AutenticacaoRepositoryImpl @Inject constructor(
     ) {
         try {
             // 1. CHECAGEM DE WHITELIST: O e-mail está na coleção 'autorizados'?
-            val autorizadoDoc = firebaseFirestore.collection("autorizados")
+            val autorizadoDoc = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_AUTORIZADOS)
                 .document(usuario.email)
                 .get()
                 .await()
