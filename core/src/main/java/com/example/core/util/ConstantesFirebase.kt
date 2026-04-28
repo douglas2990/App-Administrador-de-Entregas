@@ -22,4 +22,5 @@ object ConstantesFirebase {
     const val FIRESTORE_ROTAS = "rotas"
     const val FIRESTORE_SOLICITACOES = "solicitacoes"
     const val FIRESTORE_AUTORIZADOS = "autorizados"
+    const val FIRESTORE_SOLICITACOES_ACESSO = "solicitacoes_acesso"
 }

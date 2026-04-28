@@ -75,4 +75,17 @@ class AutenticacaoUseCase @Inject constructor(
 
         return resultadoValidacao
     }
+
+    // Dentro do seu AutenticacaoUseCase.kt
+    fun validarSolicitacaoAcesso(nome: String, email: String): ResultadoValidacao {
+        val resultado = ResultadoValidacao()
+
+        val valNome = nome.validator().minLength(6).check()
+        val valEmail = email.validator().validEmail().check()
+
+        if (valNome) resultado.nome = true
+        if (valEmail) resultado.email = true
+
+        return resultado
+    }
 }

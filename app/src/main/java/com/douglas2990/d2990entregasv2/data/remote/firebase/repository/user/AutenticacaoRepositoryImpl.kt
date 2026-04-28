@@ -35,6 +35,18 @@ class AutenticacaoRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun solicitarAcesso(email: String, uiStatus: (UIstatus<Boolean>) -> Unit) {
+        try {
+            val dados = mapOf("email" to email, "status" to "PENDENTE")
+            firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_SOLICITACOES)
+                .document(email)
+                .set(dados).await()
+            uiStatus(UIstatus.Sucesso(true))
+        } catch (e: Exception) {
+            uiStatus(UIstatus.Erro("Erro ao solicitar"))
+        }
+    }
+
     override suspend fun atualizarUsuario(usuario: Usuario, uiStatus: (UIstatus<String>) -> Unit) {
         try {
             val idUsuario = firebaseAuth.currentUser?.uid ?: return uiStatus.invoke(UIstatus.Erro("Deslogado"))
@@ -66,7 +78,7 @@ class AutenticacaoRepositoryImpl @Inject constructor(
                     dataSolicitacao = System.currentTimeMillis()
                 )
 
-                firebaseFirestore.collection("solicitacoes")
+                firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_SOLICITACOES)
                     .document(usuario.email)
                     .set(solicitacao)
                     .await()
@@ -130,6 +142,17 @@ class AutenticacaoRepositoryImpl @Inject constructor(
 
     override fun deslogarUsuario() {
         firebaseAuth.signOut()
+    }
+
+    override fun ouvirStatusAprovacao(email: String, retornoStatus: (String) -> Unit) {
+        firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_SOLICITACOES)
+            .document(email)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+
+                val status = snapshot?.getString("status") ?: "PENDENTE"
+                retornoStatus(status)
+            }
     }
 
 }

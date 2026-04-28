@@ -22,7 +22,11 @@ interface IAutenticacaoRepository {
         uiStatus: (UIstatus<Usuario>) -> Unit
     )
 
+    suspend fun solicitarAcesso(email: String, uiStatus: (UIstatus<Boolean>) -> Unit)
+
     fun verificarUsuarioLogado() : Boolean
     fun recuperarIdUsuarioLogado(): String
     fun deslogarUsuario()
+
+    fun ouvirStatusAprovacao(email: String, retornoStatus: (String) -> Unit)
 }

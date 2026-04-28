@@ -9,9 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.douglas2990.d2990entregasv2.MainActivity
 import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.ActivityCadastroBinding
+import com.douglas2990.d2990entregasv2.model.user.EtapaCadastro
 import com.douglas2990.d2990entregasv2.model.user.Usuario
 import com.douglas2990.d2990entregasv2.presentation.viewmodel.user.AutenticacaoViewModel
 import com.example.core.AlertaCarregamento
+import com.example.core.BuildConfig
 import com.example.core.UIstatus
 import com.example.core.esconderTeclado
 import com.example.core.exibirMensagem
@@ -38,6 +40,7 @@ class CadastroActivity : AppCompatActivity() {
         //enableEdgeToEdge()
         setContentView(binding.root)
         inicializar()
+        configurarInterface(EtapaCadastro.SOLICITAR_ACESSO)
     }
 
     private fun inicializar() {
@@ -66,6 +69,10 @@ class CadastroActivity : AppCompatActivity() {
             binding.editCadastroTelefone.error = if (res.telefone) null else getString(R.string.erro_cadastro_telefone)
         }
 
+        autenticacaoViewModel.etapaCadastro.observe(this) { etapa ->
+            configurarInterface(etapa)
+        }
+
         // ADICIONE ESTE:
         autenticacaoViewModel.statusCadastro.observe(this) { uiStatus ->
             when (uiStatus) {
@@ -87,6 +94,7 @@ class CadastroActivity : AppCompatActivity() {
                 is UIstatus.Carregando -> { }
             }
         }
+
     }
 
    /* private fun inicializarObservaveis() {
@@ -171,21 +179,37 @@ class CadastroActivity : AppCompatActivity() {
             btnCadastrar.setOnClickListener { view ->
                 view.esconderTeclado()
 
-                // Limpa focos para validar
-                listOf(editCadastroNome, editCadastroEmail, editCadastroSenha, editCadastroTelefone).forEach { it.clearFocus() }
+                val nome = editCadastroNome.text.toString()
+                val email = editCadastroEmail.text.toString()
 
-                val telefoneRaw = editCadastroTelefone.text.toString().replace(Regex("[^0-9]"), "")
+                // FASE 1: Solicitação (Só precisa de Nome e Email)
+                if (btnCadastrar.text == "Solicitar Acesso") {
+                    // Validação simples local antes de chamar a VM
+                    if (nome.length < 2) {
+                        editCadastroNome.error = getString(R.string.erro_cadastro_nome)
+                        return@setOnClickListener
+                    }
+                    if (!email.contains("@")) {
+                        editCadastroEmail.error = getString(R.string.erro_cadastro_email)
+                        return@setOnClickListener
+                    }
 
-                val usuario = Usuario(
-                    email = editCadastroEmail.text.toString(),
-                    senha = editCadastroSenha.text.toString(),
-                    nome = editCadastroNome.text.toString(),
-                    //telefone = editCadastroTelefone.text.toString().replace(Regex("[^0-9]"), "")
-                    telefone = telefoneRaw
-                )
+                    autenticacaoViewModel.solicitarAcesso(email, nome)
+                }
+                // FASE 2: Cadastro Real (Quando os campos aparecerem)
+                else {
+                    val senha = editCadastroSenha.text.toString()
+                    val telefoneRaw = editCadastroTelefone.text.toString().replace(Regex("[^0-9]"), "")
 
-                // APENAS CHAMA A FUNÇÃO. Não trate o resultado aqui dentro.
-                autenticacaoViewModel.cadastrarUsuario(usuario)
+                    val usuario = Usuario(
+                        email = email,
+                        senha = senha,
+                        nome = nome,
+                        telefone = telefoneRaw
+                    )
+                    // Aqui sim o cadastrarUsuario vai usar o UseCase para validar TUDO
+                    autenticacaoViewModel.cadastrarUsuario(usuario)
+                }
             }
         }
     }
@@ -202,11 +226,53 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     private fun notificarDesenvolvedor(emailSolicitante: String) {
-        val meuNumero = "55119XXXXXXXX" // Seu número com DDI e DDD
+        //val meuNumero = "55119XXXXXXXX" // Seu número com DDI e DDD
+        val meuNumero = BuildConfig.WHATSAPP_SUPORTE // Seu número com DDI e DDD
+
+
         val mensagem = "Olá Douglas, solicito acesso para o e-mail: $emailSolicitante"
         val uri = Uri.parse("https://api.whatsapp.com/send?phone=$meuNumero&text=${URLEncoder.encode(mensagem, "UTF-8")}")
         val intent = Intent(Intent.ACTION_VIEW, uri)
         startActivity(intent)
+    }
+
+    private fun configurarInterface(etapa: EtapaCadastro) {
+        with(binding) {
+            when(etapa) {
+                EtapaCadastro.SOLICITAR_ACESSO -> {
+                    layoutCampos.visibility = View.VISIBLE
+                    layoutEspera.visibility = View.GONE
+
+                    // Mostra só Nome e Email
+                    textInputCadastroNome.visibility = View.VISIBLE
+                    textInputCadastroEmail.visibility = View.VISIBLE
+
+                    // Esconde Senha e Telefone (o container inteiro)
+                    textInputCadastroSenha.visibility = View.GONE
+                    textInputCadastroTelefone.visibility = View.GONE
+
+                    btnCadastrar.text = "Solicitar Acesso"
+                }
+                EtapaCadastro.AGUARDANDO -> {
+                    layoutCampos.visibility = View.GONE
+                    layoutEspera.visibility = View.VISIBLE
+                }
+                EtapaCadastro.COMPLETAR_DADOS -> {
+                    layoutCampos.visibility = View.VISIBLE
+                    layoutEspera.visibility = View.GONE
+
+                    // Mostra tudo
+                    textInputCadastroSenha.visibility = View.VISIBLE
+                    textInputCadastroTelefone.visibility = View.VISIBLE
+
+                    // Trava o que já foi validado
+                    editCadastroNome.isEnabled = false
+                    editCadastroEmail.isEnabled = false
+
+                    btnCadastrar.text = "Finalizar Cadastro"
+                }
+            }
+        }
     }
 
 }

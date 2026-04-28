@@ -8,6 +8,7 @@ import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.UploadRep
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.user.IAutenticacaoRepository
 import com.douglas2990.d2990entregasv2.domain.usecase.AutenticacaoUseCase
 import com.douglas2990.d2990entregasv2.domain.usecase.ResultadoValidacao
+import com.douglas2990.d2990entregasv2.model.user.EtapaCadastro
 import com.douglas2990.d2990entregasv2.model.user.UploadStorage
 import com.douglas2990.d2990entregasv2.model.user.Usuario
 import com.example.core.UIstatus
@@ -29,6 +30,9 @@ class AutenticacaoViewModel @Inject constructor(
     private val _resultadoValidacao = MutableLiveData<ResultadoValidacao>()
     val resultadoValidacao: LiveData<ResultadoValidacao>
         get() = _resultadoValidacao
+
+    private val _etapaCadastro = MutableLiveData<EtapaCadastro>(EtapaCadastro.SOLICITAR_ACESSO)
+    val etapaCadastro: LiveData<EtapaCadastro> = _etapaCadastro
 
     private val _carregando = MutableLiveData<Boolean>()
     val carregando: LiveData<Boolean>
@@ -123,6 +127,36 @@ class AutenticacaoViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun observarStatusAprovacao(email: String) {
+        // Chamamos o repositório para ouvir as mudanças
+        autenticacaoRepositoryImpl.ouvirStatusAprovacao(email) { status ->
+            if (status == "APROVADO") {
+                _etapaCadastro.postValue(EtapaCadastro.COMPLETAR_DADOS)
+            } else if (status == "PENDENTE") {
+                _etapaCadastro.postValue(EtapaCadastro.AGUARDANDO)
+            }
+        }
+    }
+
+    fun solicitarAcesso(email: String, nome: String) {
+        _carregando.value = true
+        viewModelScope.launch {
+            // 1. Envia para a coleção "solicitacoes"
+            autenticacaoRepositoryImpl.solicitarAcesso(email) { status ->
+                if (status is UIstatus.Sucesso) {
+                    // 2. Se salvou com sucesso, muda a etapa para "Aguardando"
+                    _etapaCadastro.value = EtapaCadastro.AGUARDANDO
+
+                    // 3. Começa a observar em tempo real se o status vira "APROVADO"
+                    observarStatusAprovacao(email)
+                } else if (status is UIstatus.Erro) {
+                    _statusCadastro.postValue(UIstatus.Erro(status.erro))
+                }
+                _carregando.value = false
+            }
+        }
     }
 
 }
