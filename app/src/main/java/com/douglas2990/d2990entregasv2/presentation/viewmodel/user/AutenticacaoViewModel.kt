@@ -159,4 +159,22 @@ class AutenticacaoViewModel @Inject constructor(
         }
     }
 
+    fun verificarStatusAtual(email: String) {
+        viewModelScope.launch {
+            val status = autenticacaoRepositoryImpl.verificarSolicitacaoExistente(email)
+            when (status) {
+                "PENDENTE" -> {
+                    _etapaCadastro.value = EtapaCadastro.AGUARDANDO
+                    observarStatusAprovacao(email) // Reativa o ouvinte em tempo real
+                }
+                "APROVADO" -> {
+                    _etapaCadastro.value = EtapaCadastro.COMPLETAR_DADOS
+                }
+                else -> {
+                    _etapaCadastro.value = EtapaCadastro.SOLICITAR_ACESSO
+                }
+            }
+        }
+    }
+
 }

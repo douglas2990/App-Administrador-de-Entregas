@@ -11,6 +11,7 @@ import com.douglas2990.d2990entregasv2.R
 import com.douglas2990.d2990entregasv2.databinding.ActivityCadastroBinding
 import com.douglas2990.d2990entregasv2.model.user.EtapaCadastro
 import com.douglas2990.d2990entregasv2.model.user.Usuario
+import com.douglas2990.d2990entregasv2.presentation.user.util.PreferenciasUsuario
 import com.douglas2990.d2990entregasv2.presentation.viewmodel.user.AutenticacaoViewModel
 import com.example.core.AlertaCarregamento
 import com.example.core.BuildConfig
@@ -57,6 +58,17 @@ class CadastroActivity : AppCompatActivity() {
 
 
     private fun inicializarObservaveis() {
+        val emailSalvo = obterEmailSalvo() // Pega do SharedPreferences
+        val nomeSalvo = obterNomeSalvo() // Pega do SharedPreferences
+
+
+        if (emailSalvo.isNotEmpty()) {
+            binding.editCadastroEmail.setText(emailSalvo)
+            binding.editCadastroNome.setText(nomeSalvo)
+            autenticacaoViewModel.verificarStatusAtual(emailSalvo)
+        }
+
+
         autenticacaoViewModel.carregando.observe(this) { carregando ->
             if (carregando) alertaCarregamento.exibir("Fazendo seu Cadastro!")
             else alertaCarregamento.fechar()
@@ -97,38 +109,45 @@ class CadastroActivity : AppCompatActivity() {
 
     }
 
-   /* private fun inicializarObservaveis() {
+    private fun obterEmailSalvo(): String {
+        return PreferenciasUsuario.recuperarEmail(this)
+    }
+    private fun obterNomeSalvo(): String {
+        return PreferenciasUsuario.recuperarNome(this)
+    }
 
-        autenticacaoViewModel.carregando.observe(this){carregando ->
-            if (carregando){
-                alertaCarregamento.exibir("Fazendo seu Cadastro!")
+    /* private fun inicializarObservaveis() {
 
-            }else{
-                alertaCarregamento.fechar()
-            }
+         autenticacaoViewModel.carregando.observe(this){carregando ->
+             if (carregando){
+                 alertaCarregamento.exibir("Fazendo seu Cadastro!")
 
-        }
+             }else{
+                 alertaCarregamento.fechar()
+             }
+
+         }
 
 
 
-        autenticacaoViewModel.resultadoValidacao
-            .observe(this){resultadoValidacao ->
-                with( binding ){
-                    editCadastroNome.error =
-                        if (resultadoValidacao.nome) null else getString(R.string.erro_cadastro_nome)
+         autenticacaoViewModel.resultadoValidacao
+             .observe(this){resultadoValidacao ->
+                 with( binding ){
+                     editCadastroNome.error =
+                         if (resultadoValidacao.nome) null else getString(R.string.erro_cadastro_nome)
 
-                    editCadastroEmail.error =
-                        if (resultadoValidacao.email) null else getString(R.string.erro_cadastro_email)
+                     editCadastroEmail.error =
+                         if (resultadoValidacao.email) null else getString(R.string.erro_cadastro_email)
 
-                    editCadastroSenha.error =
-                        if (resultadoValidacao.senha) null else getString(R.string.erro_cadastro_senha)
+                     editCadastroSenha.error =
+                         if (resultadoValidacao.senha) null else getString(R.string.erro_cadastro_senha)
 
-                    editCadastroTelefone.error =
-                        if (resultadoValidacao.telefone) null else getString(R.string.erro_cadastro_telefone)
-                }
+                     editCadastroTelefone.error =
+                         if (resultadoValidacao.telefone) null else getString(R.string.erro_cadastro_telefone)
+                 }
 
-            }
-    }*/
+             }
+     }*/
 
   /*  private fun inicializarEventosClique() {
         with( binding ){
@@ -193,6 +212,8 @@ class CadastroActivity : AppCompatActivity() {
                         editCadastroEmail.error = getString(R.string.erro_cadastro_email)
                         return@setOnClickListener
                     }
+
+                    PreferenciasUsuario.salvarEmail(this@CadastroActivity, email, nome)
 
                     autenticacaoViewModel.solicitarAcesso(email, nome)
                 }

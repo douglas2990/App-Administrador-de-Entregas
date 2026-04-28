@@ -3,9 +3,11 @@
 Sistema multi-módulo desenvolvido para gestão logística, permitindo que administradores gerenciem rotas e motoristas realizem entregas com comprovação em tempo real.
 
 ## 📱 O Projeto
-O ecossistema é dividido em dois aplicativos principais integrados via Firebase:
-- **App Administrador:** Cadastro de ordens de serviço (OS), monitoramento de status e gestão de motoristas.
-- **App Motorista:** Visualização de rotas diárias, atualização de status e envio de comprovantes de entrega.
+O ecossistema é um sistema integrado via **Firebase**, dividido em três frentes principais:
+
+* 🚀 **App Administrador:** Gestão completa de ordens de serviço (OS), monitoramento de status em tempo real e gerenciamento de motoristas.
+* 🛣️ **App Motorista:** Focado na operação, permite a visualização de rotas diárias, atualização de status de entrega e envio de comprovantes.
+* 🛡️ **Módulo Developer:** Camada de segurança para controle de acesso, permitindo a aprovação manual de novos usuários administrativos.
 
 ## 🏗️ Arquitetura e Boas Práticas
 Para garantir a escalabilidade e testabilidade do sistema, utilizei os princípios da **Clean Architecture** dividindo o projeto em camadas:

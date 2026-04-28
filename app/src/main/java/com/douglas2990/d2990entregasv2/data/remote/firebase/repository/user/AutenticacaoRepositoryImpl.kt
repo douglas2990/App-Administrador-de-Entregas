@@ -155,4 +155,21 @@ class AutenticacaoRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun verificarSolicitacaoExistente(email: String): String? {
+        return try {
+            val documento = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_SOLICITACOES)
+                .document(email)
+                .get()
+                .await()
+
+            if (documento.exists()) {
+                documento.getString("status") // Retorna "PENDENTE" ou "APROVADO"
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }

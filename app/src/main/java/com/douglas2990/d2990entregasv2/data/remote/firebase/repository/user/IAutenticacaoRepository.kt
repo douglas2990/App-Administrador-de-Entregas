@@ -29,4 +29,6 @@ interface IAutenticacaoRepository {
     fun deslogarUsuario()
 
     fun ouvirStatusAprovacao(email: String, retornoStatus: (String) -> Unit)
+
+    suspend fun verificarSolicitacaoExistente(email: String): String?
 }
