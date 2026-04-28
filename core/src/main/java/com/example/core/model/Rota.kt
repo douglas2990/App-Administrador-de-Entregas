@@ -17,5 +17,7 @@ data class Rota(
     val observacao: String? = null,
     val dataPrevista: Long? = null,
     val dataPrevistaFormatada: String = "", // Valor padrão é obrigatório!
-    val dataCriacao: Long = System.currentTimeMillis()
+    val dataCriacao: Long = System.currentTimeMillis(),
+    val arquivada: Boolean = false,
+    val dataFinalizacao: Long? = null
 ) : Parcelable

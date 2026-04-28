@@ -46,11 +46,12 @@ class RotasMotoristaFragment : Fragment() {
 
     private var telefoneDoGestor: String? = null
     private val shareHelper by lazy { ShareHelper(requireContext()) }
-
-
-
-
     private lateinit var rotaAdapter: RotaAdapter
+
+    private var dataAtualSelecionada: String = ""
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,7 +79,23 @@ class RotasMotoristaFragment : Fragment() {
             arguments?.getParcelable<AgendaDia>("agenda_dia")
         }
 
-        val dataParaFiltrar = agendaDia?.data ?: ""
+        val dataExtraida = agendaDia?.data ?: ""
+
+
+        this.dataAtualSelecionada = dataExtraida // Salva na variável global da classe
+
+        Log.d("DEBUG_ROTAS", "Data extraída: $dataAtualSelecionada")
+
+        if (dataAtualSelecionada.isNotEmpty()) {
+            viewModel.observarMinhasRotas(dataAtualSelecionada)
+            viewModel.carregarDadosMotorista()
+        }else {
+            Log.e("DEBUG_ROTAS", "ERRO: dataAtualSelecionada vazia!")
+            binding.textListaVazia.visibility = View.VISIBLE
+        }
+
+
+       /* val dataParaFiltrar = agendaDia?.data ?: ""
         Log.d("DEBUG_ROTAS", "Data extraída: $dataParaFiltrar")
 
         // Dispara a busca das rotas vinculadas ao UID do motorista logado
@@ -89,7 +106,7 @@ class RotasMotoristaFragment : Fragment() {
         } else {
             Log.e("DEBUG_ROTAS", "ERRO: dataParaFiltrar continua vazia!")
             binding.textListaVazia.visibility = View.VISIBLE
-        }
+        }*/
     }
 
     private fun setupRecyclerView() {
@@ -141,6 +158,21 @@ class RotasMotoristaFragment : Fragment() {
             }
         }
 
+        viewModel.statusArquivamento.observe(viewLifecycleOwner) { status ->
+            when (status) {
+                is UIstatus.Carregando -> binding.progressBar.visibility = View.VISIBLE
+                is UIstatus.Sucesso -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(context, "Dia enviado para o histórico!", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack() // Volta para a Agenda
+                }
+                is UIstatus.Erro -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(context, status.erro, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
         viewModel.rotas.observe(viewLifecycleOwner) { status ->
 
             // REGRA DE OURO: Se não está mais carregando, para as animações
@@ -153,24 +185,48 @@ class RotasMotoristaFragment : Fragment() {
                 is UIstatus.Carregando -> {
                     // Só mostra o progress central se não for um "puxar para atualizar"
                    // if (!binding.swipeRefresh.isRefreshing) {
-                        binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.VISIBLE
                     binding.textListaVazia.visibility = View.GONE
                     //}
                 }
                 is UIstatus.Sucesso -> {
-                    val lista = status.dados ?: emptyList()
-                    rotaAdapter.submitList(lista)
+                    //val lista = status.dados ?: emptyList()
+                    val listaBruta = status.dados ?: emptyList()
 
-                    val todasConcluidas = lista.isNotEmpty() && lista.all { it.status != "PENDENTE" }
+                    val isHistorico = arguments?.getBoolean("is_historico") ?: false
 
-                    if (lista.isNotEmpty()) {
-                        viewModel.buscarTelefoneAdmin(lista[0].idGestor)
+                    val listaFiltrada = if (isHistorico) {
+                        // Se for histórico, mostra o que já foi finalizado
+                        listaBruta.filter { it.status != "PENDENTE" }
+                    } else {
+                        // Se for agenda normal, mostra apenas o que ainda é pendente
+                        listaBruta.filter { it.status == "PENDENTE" }
                     }
 
-                    binding.btnEnviarRelatorio
-                        .visibility = if (todasConcluidas) View.VISIBLE else View.GONE
+                    rotaAdapter.submitList(listaFiltrada)
 
-                    //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
+                    val todasConcluidas = listaFiltrada.isNotEmpty() && listaFiltrada.all { it.status != "PENDENTE" }
+
+                    if (listaFiltrada.isNotEmpty()) {
+                        viewModel.buscarTelefoneAdmin(listaFiltrada[0].idGestor)
+                    }
+
+                    if (isHistorico) {
+                        binding.btnEnviarRelatorio.visibility = if (listaFiltrada.isNotEmpty()) View.VISIBLE else View.GONE
+                        binding.btnArquivar.visibility = View.GONE
+                    } else {
+                        binding.btnEnviarRelatorio.visibility = if (todasConcluidas) View.VISIBLE else View.GONE
+                        binding.btnArquivar.visibility = if (todasConcluidas) View.VISIBLE else View.GONE
+                    }
+
+                    binding.btnArquivar.setOnClickListener {
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                        // dataParaFiltrar é a variável que você já extraiu do Bundle no onViewCreated
+                        viewModel.arquivarDia(uid, dataAtualSelecionada)
+                    }
+
+                    binding.textListaVazia.visibility = if (listaFiltrada.isEmpty()) View.VISIBLE else View.GONE
+
 
                     binding.btnEnviarRelatorio.setOnClickListener {
                         // 1. Pegamos a lista do status atual
@@ -195,13 +251,20 @@ class RotasMotoristaFragment : Fragment() {
                         }
                     }
 
+                    binding.btnArquivar.setOnClickListener {
+                        val uidMotorista = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                        if (uidMotorista.isNotEmpty() && dataAtualSelecionada.isNotEmpty()) {
+                            viewModel.arquivarDia(uidMotorista, dataAtualSelecionada)
+                        }
+                    }
+
 
 
                     //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
 
                     // Gerencia o texto de lista vazia
                     binding.textListaVazia
-                        .visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
+                        .visibility = if (listaFiltrada.isEmpty()) View.VISIBLE else View.GONE
                 }
                 is UIstatus.Erro -> {
                     // Usa a variável 'mensagem' que definimos no :core

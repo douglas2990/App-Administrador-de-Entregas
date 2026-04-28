@@ -1,9 +1,5 @@
 package com.douglas2990.app_motorista.di
 
-import com.douglas2990.app_motorista.data.repository.AutenticacaoMotoristaRepositoryImpl
-import com.douglas2990.app_motorista.data.repository.IAutenticacaoMotoristaRepository
-import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.RotaRepositoryImpl
-import com.example.core.repository.IRotaRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage

@@ -38,6 +38,10 @@ class RotasMotoristaViewModel @Inject constructor(
     private val _arquivoPdfGerado = MutableLiveData<File?>()
     val arquivoPdfGerado: LiveData<File?> = _arquivoPdfGerado
 
+
+    private val _statusArquivamento = MutableLiveData<UIstatus<Boolean>>()
+    val statusArquivamento: LiveData<UIstatus<Boolean>> = _statusArquivamento
+
     private val _telefoneAdmin = MutableLiveData<String?>()
     val telefoneAdmin: LiveData<String?> = _telefoneAdmin
 
@@ -93,6 +97,16 @@ class RotasMotoristaViewModel @Inject constructor(
         viewModelScope.launch {
             val fone = rotaRepository.recuperarTelefoneAdmin(idGestor)
             _telefoneAdmin.value = fone
+        }
+    }
+
+
+    fun arquivarDia(uidMotorista: String, data: String) {
+        _statusArquivamento.value = UIstatus.Carregando
+        viewModelScope.launch {
+            // Chama o repositório para mudar o status das rotas para ARQUIVADO ou similar
+            val resultado = rotaRepository.arquivarRotas(uidMotorista, data)
+            _statusArquivamento.postValue(resultado)
         }
     }
 

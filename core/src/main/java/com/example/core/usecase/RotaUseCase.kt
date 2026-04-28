@@ -28,7 +28,6 @@ class RotaUseCase @Inject constructor(
         return repository.salvar(rota)
     }
 
-    // 2. NOVOS MÉTODOS PARA O CALENDÁRIO DO MOTORISTA
 
     // Busca os dias que possuem entregas (ex: 10/04, 12/04)
     suspend fun listarDatasComRotas(idMotorista: String) =
@@ -40,8 +39,9 @@ class RotaUseCase @Inject constructor(
 
     // 3. MÉTODOS EXISTENTES
 
-    suspend fun listarRotasMotorista(idMotorista: String) =
-        repository.listarPorMotorista(idMotorista)
+    suspend fun listarRotasMotorista(idMotorista: String): UIstatus<List<Rota>> {
+        return repository.listarPorMotorista(idMotorista)
+    }
 
     suspend fun listarTodasAsRotas() =
         repository.listarTodas()

@@ -1,4 +1,4 @@
-package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
+package com.example.core.repository
 
 import android.content.Context
 import android.net.Uri
@@ -6,8 +6,6 @@ import android.util.Log
 import com.example.core.UIstatus
 import com.example.core.model.Motorista
 import com.example.core.model.Rota
-import com.example.core.repository.IRotaRepository
-import com.example.core.repository.ImageHelper
 import com.example.core.util.ConstantesFirebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,6 +16,7 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 class RotaRepositoryImpl @Inject constructor(
@@ -42,7 +41,7 @@ class RotaRepositoryImpl @Inject constructor(
             val dataCriacaoFinal = if (rota.id.isEmpty()) System.currentTimeMillis() else rota.dataCriacao
 
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
-                timeZone = java.util.TimeZone.getTimeZone("UTC") // GARANTE O DIA CORRETO
+                timeZone = TimeZone.getTimeZone("UTC") // GARANTE O DIA CORRETO
             }
             val dataFormatada = rota.dataPrevista?.let { sdf.format(Date(it)) } ?: ""
 
@@ -299,6 +298,25 @@ class RotaRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("FIREBASE_FONE", "Erro ao buscar telefone: ${e.message}")
             null
+        }
+    }
+
+    override suspend fun arquivarRotas(idMotorista: String, data: String): UIstatus<Boolean> {
+        return try {
+            val query = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevistaFormatada", data)
+                .get()
+                .await()
+
+            val batch = firebaseFirestore.batch()
+            for (documento in query.documents) {
+                batch.update(documento.reference, "arquivada", true)
+            }
+            batch.commit().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao arquivar: ${e.message}")
         }
     }
 

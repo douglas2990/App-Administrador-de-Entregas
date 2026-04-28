@@ -28,4 +28,8 @@ interface IRotaRepository {
 
     suspend fun buscarMotorista(uid: String): Motorista?
     suspend fun recuperarTelefoneAdmin(idGestor: String): String?
+
+
+
+    suspend fun arquivarRotas(idMotorista: String, data: String): UIstatus<Boolean>
 }

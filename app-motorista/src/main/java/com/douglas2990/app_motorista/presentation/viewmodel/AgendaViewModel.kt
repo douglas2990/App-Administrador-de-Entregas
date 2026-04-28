@@ -23,14 +23,19 @@ class AgendaViewModel @Inject constructor(
     private val _statusAgenda = MutableLiveData<UIstatus<List<AgendaDia>>>()
     val statusAgenda: LiveData<UIstatus<List<AgendaDia>>> = _statusAgenda
 
+
     fun carregarAgenda(idMotorista: String) {
+
         _statusAgenda.value = UIstatus.Carregando
+
         viewModelScope.launch {
             val resultado = rotaUseCase.listarRotasMotorista(idMotorista)
 
             if (resultado is UIstatus.Sucesso) {
-                // Aqui acontece a mágica: transformamos List<Rota> em List<AgendaDia>
-                val agendaAgrupada = agruparRotasPorData(resultado.dados)
+
+                val rotasPendentes = resultado.dados.filter { it.status == "PENDENTE" }
+
+                val agendaAgrupada = agruparRotasPorData(rotasPendentes)
                 _statusAgenda.value = UIstatus.Sucesso(agendaAgrupada)
             } else if (resultado is UIstatus.Erro) {
                 _statusAgenda.value = UIstatus.Erro(resultado.erro)

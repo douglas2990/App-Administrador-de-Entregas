@@ -62,4 +62,17 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/historicoFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.HistoricoFragment"
+        android:label="Histórico de Entregas"
+        tools:layout="@layout/fragment_agenda">
+        <action
+            android:id="@+id/action_historicoFragment_to_detalhesEntregaFragment"
+            app:destination="@id/detalhesEntregaFragment" />
+        <action
+            android:id="@+id/action_historicoFragment_to_rotasMotoristaFragment"
+            app:destination="@id/rotasMotoristaFragment" />
+    </fragment>
+
 </navigation>

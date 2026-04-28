@@ -1,41 +1,33 @@
 package com.douglas2990.app_motorista.presentation.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.douglas2990.app_motorista.R
 import com.douglas2990.app_motorista.databinding.FragmentAgendaBinding
 import com.douglas2990.app_motorista.presentation.ui.adapter.AgendaAdapter
-import com.douglas2990.app_motorista.presentation.viewmodel.AgendaViewModel
+import com.douglas2990.app_motorista.presentation.viewmodel.HistoricoViewModel
 import com.example.core.UIstatus
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AgendaFragment : Fragment() {
+class HistoricoFragment : Fragment() {
 
     private var _binding: FragmentAgendaBinding? = null
     private val binding get() = _binding!!
 
-    // 1. INJEÇÃO DO FIREBASE AUTH (Hilt cuida disso para você)
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
-    private val viewModel: AgendaViewModel by viewModels()
+    private val viewModel: HistoricoViewModel by viewModels()
     private lateinit var agendaAdapter: AgendaAdapter
 
     override fun onCreateView(
@@ -49,34 +41,30 @@ class AgendaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        configurarRecyclerView()
-        observarDados()
+        // Customização da UI para o modo Histórico
+        binding.textTituloAgenda.text = "Meu Histórico"
 
-        // 2. PEGANDO O UID REAL E DISPARANDO O CARREGAMENTO
-        val uidAtual = firebaseAuth.currentUser?.uid
-        if (uidAtual != null) {
-            Log.d("DEBUG_AGENDA", "Iniciando busca para o UID: $uidAtual")
-            viewModel.carregarAgenda(idMotorista = uidAtual)
+        configurarRecyclerView()
+        setupObservers()
+        setupListeners()
+
+        // Dispara o carregamento inicial
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModel.carregarHistoricoAgrupado(uid)
         } else {
             Toast.makeText(context, "Usuário não autenticado!", Toast.LENGTH_SHORT).show()
         }
-
-        binding.btnVoltar.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
-        acesso_menu_agenda()
     }
 
     private fun configurarRecyclerView() {
-        // Certifique-se de que o clique está passando o objeto correto
         agendaAdapter = AgendaAdapter { agendaDia ->
             val bundle = Bundle().apply {
-                // Verifique se AgendaDia implementa Parcelable no seu modelo!
                 putParcelable("agenda_dia", agendaDia)
+                putBoolean("is_historico", true) // Crucial para o filtro no próximo fragmento
             }
             findNavController().navigate(
-                R.id.action_agendaFragment_to_rotasDoMotoristaFragment, // Use o ID correto do seu nav_graph
+                R.id.action_historicoFragment_to_rotasMotoristaFragment,
                 bundle
             )
         }
@@ -88,8 +76,8 @@ class AgendaFragment : Fragment() {
         }
     }
 
-    private fun observarDados() {
-        viewModel.statusAgenda.observe(viewLifecycleOwner) { status ->
+    private fun setupObservers() {
+        viewModel.statusHistoricoAgenda.observe(viewLifecycleOwner) { status ->
             when (status) {
                 is UIstatus.Carregando -> {
                     binding.progressBar.visibility = View.VISIBLE
@@ -98,8 +86,9 @@ class AgendaFragment : Fragment() {
                 is UIstatus.Sucesso -> {
                     binding.progressBar.visibility = View.GONE
                     if (status.dados.isEmpty()) {
+                        binding.textListaVazia.text = "Nenhum histórico encontrado"
                         binding.textListaVazia.visibility = View.VISIBLE
-                        agendaAdapter.adicionarLista(emptyList()) // Limpa se estiver vazio
+                        agendaAdapter.adicionarLista(emptyList())
                     } else {
                         binding.textListaVazia.visibility = View.GONE
                         agendaAdapter.adicionarLista(status.dados)
@@ -113,24 +102,10 @@ class AgendaFragment : Fragment() {
         }
     }
 
-    private fun acesso_menu_agenda(){
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_agenda, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.historicoFragment -> {
-                        // Navega automaticamente se o ID do menu for igual ao ID do NavGraph
-                        findNavController().navigate(R.id.historicoFragment)
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    private fun setupListeners() {
+        binding.btnVoltar.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     override fun onDestroyView() {
