@@ -34,7 +34,13 @@ class DataAgendaAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(timestamp: Long) {
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                // 2. FORCE O USO DE UTC AQUI TAMBÉM
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }
+
+
+
             binding.textDataFormatada.text = sdf.format(Date(timestamp))
 
             binding.root.setOnClickListener {

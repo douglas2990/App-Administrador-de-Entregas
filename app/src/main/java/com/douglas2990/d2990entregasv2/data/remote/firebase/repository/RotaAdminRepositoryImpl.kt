@@ -37,15 +37,23 @@ class RotaAdminRepositoryImpl @Inject constructor(
             val dataCriacaoFinal = if (rota.id.isEmpty()) System.currentTimeMillis() else rota.dataCriacao
 
 
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+            /*val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
                 timeZone = java.util.TimeZone.getTimeZone("UTC") // GARANTE O DIA CORRETO
+            }*/
+
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
             }
+
             val dataFormatada = rota.dataPrevista?.let { sdf.format(Date(it)) } ?: ""
+
+            val dataLimpaUTC = if (dataFormatada.isNotEmpty()) sdf.parse(dataFormatada)?.time else rota.dataPrevista
 
             val rotaFinal = rota.copy(
                 id = refRota.id,
                 idGestor = idGestorFinal,
                 dataCriacao = dataCriacaoFinal,
+                dataPrevista = dataLimpaUTC,
                 dataPrevistaFormatada = dataFormatada, // Campo crucial para o motorista
                 status = if (rota.id.isEmpty()) "PENDENTE" else rota.status
             )
@@ -244,7 +252,7 @@ class RotaAdminRepositoryImpl @Inject constructor(
             val rotas = querySnapshot.toObjects(Rota::class.java)
             val datasUnicas = rotas.mapNotNull { it.dataPrevista }
                 .distinct()
-                .sorted()
+                .sortedDescending()
 
             UIstatus.Sucesso(datasUnicas)
         } catch (e: Exception) {

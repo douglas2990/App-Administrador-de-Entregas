@@ -84,10 +84,12 @@ class RotaViewModel @Inject constructor(
         }
     }
     // 2. Busca as datas disponíveis para o Administrador filtrar
+// No arquivo RotaViewModel.kt
+
     fun listarDatasComRotasAdmin(idMotorista: String) {
         _datasComRotas.value = UIstatus.Carregando
         viewModelScope.launch {
-            val resultado = rotaUseCase.listarDatasComRotas(idMotorista)
+            val resultado = rotaUseCase.listarDatasComRotasAdmin(idMotorista)
             _datasComRotas.value = resultado
         }
     }

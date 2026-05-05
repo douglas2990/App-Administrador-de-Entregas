@@ -53,4 +53,7 @@ class RotaUseCase @Inject constructor(
 
     suspend fun excluirRota(idRota: String) =
         repository.remover(idRota)
+
+    suspend fun listarDatasComRotasAdmin(idMotorista: String) =
+        repository.listarDatasComRotasAdmin(idMotorista)
 }
