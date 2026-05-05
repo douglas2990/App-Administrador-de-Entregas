@@ -43,6 +43,8 @@ class DetalhesEntregaFragment : Fragment() {
     private var telefoneDoGestor: String? = null
     private val shareHelper by lazy { ShareHelper(requireContext()) }
 
+    private var ehAUltimaEntrega: Boolean = false
+
     // 1. Launcher para pedir Permissão da Câmera
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -82,6 +84,15 @@ class DetalhesEntregaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        arguments?.let {
+            rota = it.getParcelable("rota")
+            // Captura se esta entrega era a última da lista
+            ehAUltimaEntrega = it.getBoolean("sou_a_ultima", false)
+        }
+
+
         setupUI()
         setupListeners()
         setupObservers()
@@ -165,6 +176,17 @@ class DetalhesEntregaFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     val telefoneDestino = viewModel.telefoneAdmin.value ?: ""
                     Toast.makeText(context, status.dados, Toast.LENGTH_SHORT).show()
+
+
+                    if (ehAUltimaEntrega) {
+                        val result = Bundle().apply {
+                            putBoolean("ultima_finalizada", true)
+                        }
+                        parentFragmentManager.setFragmentResult("chave_finalizacao", result)
+                    }
+
+
+
                     findNavController().popBackStack()
                 }
                 is UIstatus.Erro -> {

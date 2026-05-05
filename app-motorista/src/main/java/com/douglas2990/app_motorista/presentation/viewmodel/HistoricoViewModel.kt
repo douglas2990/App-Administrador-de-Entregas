@@ -29,7 +29,11 @@ class HistoricoViewModel @Inject constructor(
             val resultado = rotaUseCase.listarRotasMotorista(idMotorista)
             if (resultado is UIstatus.Sucesso) {
                 // Filtramos apenas o que JÁ FOI FINALIZADO
-                val rotasFinalizadas = resultado.dados.filter { it.status != "PENDENTE" }
+                val rotasFinalizadas = resultado.dados.filter {
+                    rota ->
+                    val status = rota.status?.trim()?.uppercase()
+                    status == "CONCLUIDA" || status == "PROBLEMA"
+                }
                 val agrupado = agruparPorData(rotasFinalizadas)
                 _statusHistoricoAgenda.value = UIstatus.Sucesso(agrupado)
             } else if (resultado is UIstatus.Erro) {

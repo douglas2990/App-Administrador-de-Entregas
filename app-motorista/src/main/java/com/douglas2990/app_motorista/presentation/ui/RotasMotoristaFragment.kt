@@ -50,6 +50,7 @@ class RotasMotoristaFragment : Fragment() {
 
     private var dataAtualSelecionada: String = ""
 
+    private var dialogoExibidoNestaSessao = false
 
 
 
@@ -65,9 +66,12 @@ class RotasMotoristaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
+
         setupRecyclerView()
         setupObservers()
-
+        setupResultListener()
+        setupClickListeners()
 
         // Pegamos o objeto AgendaDia que você enviou da Agenda
         val agendaDia = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -79,10 +83,10 @@ class RotasMotoristaFragment : Fragment() {
             arguments?.getParcelable<AgendaDia>("agenda_dia")
         }
 
-        val dataExtraida = agendaDia?.data ?: ""
+        dataAtualSelecionada = agendaDia?.data ?: ""
 
 
-        this.dataAtualSelecionada = dataExtraida // Salva na variável global da classe
+        //this.dataAtualSelecionada = dataExtraida // Salva na variável global da classe
 
         Log.d("DEBUG_ROTAS", "Data extraída: $dataAtualSelecionada")
 
@@ -109,10 +113,29 @@ class RotasMotoristaFragment : Fragment() {
         }*/
     }
 
+    private fun setupResultListener() {
+        parentFragmentManager.setFragmentResultListener("chave_finalizacao", viewLifecycleOwner) { _, bundle ->
+            if (bundle.getBoolean("ultima_finalizada")) {
+                binding.root.postDelayed({
+                    if (isAdded) {
+                        val statusAtual = viewModel.rotas.value
+                        if (statusAtual is UIstatus.Sucesso) {
+                            mostrarDialogoRelatorioFinal(statusAtual.dados ?: emptyList())
+                        }
+                    }
+                }, 600)
+            }
+        }
+    }
+
     private fun setupRecyclerView() {
         rotaAdapter = RotaAdapter(
             onItemClick = { rota ->
-                irParaTelaEntrega(rota)
+
+                val qtdPendentes = rotaAdapter.currentList.count { it.status == "PENDENTE" }
+                //val ehAUltima = listaPendente.size == 1
+
+                irParaTelaEntrega(rota, qtdPendentes == 1)
             },
             onItemLongClick = { /* O motorista não exclui rotas, apenas visualiza */ }
         )
@@ -174,43 +197,41 @@ class RotasMotoristaFragment : Fragment() {
         }
 
         viewModel.rotas.observe(viewLifecycleOwner) { status ->
-
-            // REGRA DE OURO: Se não está mais carregando, para as animações
             if (status !is UIstatus.Carregando) {
                 binding.progressBar.visibility = View.GONE
-                //binding.swipeRefresh.isRefreshing = false
             }
 
             when (status) {
                 is UIstatus.Carregando -> {
-                    // Só mostra o progress central se não for um "puxar para atualizar"
-                   // if (!binding.swipeRefresh.isRefreshing) {
                     binding.progressBar.visibility = View.VISIBLE
                     binding.textListaVazia.visibility = View.GONE
-                    //}
                 }
                 is UIstatus.Sucesso -> {
-                    //val lista = status.dados ?: emptyList()
                     val listaBruta = status.dados ?: emptyList()
-
                     val isHistorico = arguments?.getBoolean("is_historico") ?: false
 
                     val listaFiltrada = if (isHistorico) {
-                        // Se for histórico, mostra o que já foi finalizado
                         listaBruta.filter { it.status != "PENDENTE" }
                     } else {
-                        // Se for agenda normal, mostra apenas o que ainda é pendente
-                        listaBruta.filter { it.status == "PENDENTE" }
+                        listaBruta
                     }
 
                     rotaAdapter.submitList(listaFiltrada)
 
+                    // Cálculo se tudo foi feito
                     val todasConcluidas = listaFiltrada.isNotEmpty() && listaFiltrada.all { it.status != "PENDENTE" }
 
-                    if (listaFiltrada.isNotEmpty()) {
-                        viewModel.buscarTelefoneAdmin(listaFiltrada[0].idGestor)
+                    // Controle de Diálogo Automático
+                    if (!isHistorico && todasConcluidas && !dialogoExibidoNestaSessao) {
+                        binding.root.postDelayed({
+                            if (isAdded) {
+                                mostrarDialogoRelatorioFinal(listaFiltrada)
+                                dialogoExibidoNestaSessao = true
+                            }
+                        }, 500)
                     }
 
+                    // Atualiza apenas Visibilidade
                     if (isHistorico) {
                         binding.btnEnviarRelatorio.visibility = if (listaFiltrada.isNotEmpty()) View.VISIBLE else View.GONE
                         binding.btnArquivar.visibility = View.GONE
@@ -219,70 +240,85 @@ class RotasMotoristaFragment : Fragment() {
                         binding.btnArquivar.visibility = if (todasConcluidas) View.VISIBLE else View.GONE
                     }
 
-                    binding.btnArquivar.setOnClickListener {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-                        // dataParaFiltrar é a variável que você já extraiu do Bundle no onViewCreated
-                        viewModel.arquivarDia(uid, dataAtualSelecionada)
-                    }
-
                     binding.textListaVazia.visibility = if (listaFiltrada.isEmpty()) View.VISIBLE else View.GONE
 
-
-                    binding.btnEnviarRelatorio.setOnClickListener {
-                        // 1. Pegamos a lista do status atual
-                        val statusAtual = viewModel.rotas.value
-
-                        if (statusAtual is UIstatus.Sucesso) {
-                            val listaCompleta = statusAtual.dados ?: emptyList()
-
-                            // 2. Opcional: Filtramos para enviar apenas o que não está pendente
-                            val listaParaRelatorio = listaCompleta.filter { it.status != "PENDENTE" }
-
-                            if (listaParaRelatorio.isNotEmpty()) {
-                                // 3. Feedback visual: desativa o botão e mostra o progress
-                                binding.btnEnviarRelatorio.isEnabled = false
-                                binding.progressBar.visibility = View.VISIBLE
-
-                                // 4. Ordem para a ViewModel
-                                viewModel.gerarRelatorio(requireContext(), listaParaRelatorio)
-                            } else {
-                                Toast.makeText(requireContext(), "Não há entregas finalizadas para o relatório", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                    if (listaFiltrada.isNotEmpty()) {
+                        viewModel.buscarTelefoneAdmin(listaFiltrada[0].idGestor)
                     }
-
-                    binding.btnArquivar.setOnClickListener {
-                        val uidMotorista = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-                        if (uidMotorista.isNotEmpty() && dataAtualSelecionada.isNotEmpty()) {
-                            viewModel.arquivarDia(uidMotorista, dataAtualSelecionada)
-                        }
-                    }
-
-
-
-                    //btnEnviarRelatorioPDF(lista, nomeEmpresaAtual)
-
-                    // Gerencia o texto de lista vazia
-                    binding.textListaVazia
-                        .visibility = if (listaFiltrada.isEmpty()) View.VISIBLE else View.GONE
                 }
                 is UIstatus.Erro -> {
-                    // Usa a variável 'mensagem' que definimos no :core
                     Toast.makeText(requireContext(), status.erro, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    private fun irParaTelaEntrega(rota: Rota) {
+    private fun setupClickListeners() {
+
+        binding.btnVoltar.setOnClickListener { findNavController().popBackStack() }
+
+        binding.btnArquivar.setOnClickListener {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            if (uid.isNotEmpty() && dataAtualSelecionada.isNotEmpty()) {
+                viewModel.arquivarDia(uid, dataAtualSelecionada)
+            }
+        }
+
+        binding.btnEnviarRelatorio.setOnClickListener {
+            val statusAtual = viewModel.rotas.value
+            if (statusAtual is UIstatus.Sucesso) {
+                val listaParaRelatorio = statusAtual.dados?.filter { it.status != "PENDENTE" } ?: emptyList()
+                if (listaParaRelatorio.isNotEmpty()) {
+                    binding.btnEnviarRelatorio.isEnabled = false
+                    binding.progressBar.visibility = View.VISIBLE
+                    viewModel.gerarRelatorio(requireContext(), listaParaRelatorio)
+                }
+            }
+        }
+
+        //binding.btnVoltar.setOnClickListener { findNavController().popBackStack() }
+    }
+
+    private fun irParaTelaEntrega(rota: Rota, ehAUltima: Boolean) {
         // Usando Bundle para passar a rota selecionada para o DetalhesEntregaFragment
         val bundle = Bundle().apply {
             putParcelable("rota", rota)
+            putBoolean("sou_a_ultima", ehAUltima)
         }
         findNavController().navigate(
             R.id.action_rotasMotoristaFragment_to_detalhesEntregaFragment,
             bundle
         )
+    }
+
+
+
+    private fun mostrarDialogoRelatorioFinal(listaParaRelatorio: List<Rota>) {
+        // Primeiro Diálogo: Oferece o envio imediato
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Todas as entregas concluídas!")
+            .setMessage("Deseja enviar o relatório de comprovantes agora para o WhatsApp?")
+            .setPositiveButton("Sim, enviar") { _, _ ->
+                // Dispara a lógica de PDF que você já tem
+                binding.progressBar.visibility = View.VISIBLE
+                viewModel.gerarRelatorio(requireContext(), listaParaRelatorio)
+            }
+            .setNegativeButton("Agora não") { _, _ ->
+                // Segundo Diálogo: Informa onde encontrar depois
+                mostrarAvisoHistorico()
+            }
+            .setCancelable(false) // Obriga o motorista a escolher uma opção
+            .show()
+    }
+
+    private fun mostrarAvisoHistorico() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Relatório Disponível")
+            .setMessage("Sem problemas! Caso queira enviar o relatório mais tarde, você pode acessá-lo no seu Histórico.")
+            .setPositiveButton("Entendido") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
 

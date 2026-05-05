@@ -23,17 +23,18 @@ class AgendaViewModel @Inject constructor(
     private val _statusAgenda = MutableLiveData<UIstatus<List<AgendaDia>>>()
     val statusAgenda: LiveData<UIstatus<List<AgendaDia>>> = _statusAgenda
 
-
     fun carregarAgenda(idMotorista: String) {
-
         _statusAgenda.value = UIstatus.Carregando
 
         viewModelScope.launch {
+            // Buscamos os dados atualizados do UseCase
             val resultado = rotaUseCase.listarRotasMotorista(idMotorista)
 
             if (resultado is UIstatus.Sucesso) {
-
-                val rotasPendentes = resultado.dados.filter { it.status == "PENDENTE" }
+                // Filtro mais robusto ignorando Case Sensitivity
+                val rotasPendentes = resultado.dados.filter {
+                    it.status?.trim()?.uppercase() == "PENDENTE"
+                }
 
                 val agendaAgrupada = agruparRotasPorData(rotasPendentes)
                 _statusAgenda.value = UIstatus.Sucesso(agendaAgrupada)
@@ -44,37 +45,37 @@ class AgendaViewModel @Inject constructor(
     }
 
     private fun agruparRotasPorData(rotas: List<Rota>): List<AgendaDia> {
-        // IMPORTANTE: O SimpleDateFormat da Agenda também deve ser UTC
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }
 
         val hojeTimestamp = System.currentTimeMillis()
-        // Para comparar "Hoje" e "Amanhã" corretamente com UTC
         val hojeStr = sdf.format(Date(hojeTimestamp))
         val amanhaStr = sdf.format(Date(hojeTimestamp + 86400000))
 
-        return rotas.groupBy { rota ->
-            // Prioriza a data formatada que já vem do banco, se não existir, formata o Long
-            if (!rota.dataPrevistaFormatada.isNullOrEmpty()) {
-                rota.dataPrevistaFormatada
-            } else {
-                val dataLong = rota.dataPrevista ?: rota.dataCriacao
-                sdf.format(Date(dataLong))
-            }
-        }.map { (dataString, listaDeRotas) ->
-            val rotulo = when (dataString) {
-                hojeStr -> "Hoje"
-                amanhaStr -> "Amanhã"
-                else -> dataString
-            }
+        // 1. Ordenamos as rotas brutas por data antes de agrupar
+        return rotas.sortedBy { it.dataPrevista ?: it.dataCriacao }
+            .groupBy { rota ->
+                if (!rota.dataPrevistaFormatada.isNullOrEmpty()) {
+                    rota.dataPrevistaFormatada
+                } else {
+                    val dataLong = rota.dataPrevista ?: rota.dataCriacao
+                    sdf.format(Date(dataLong))
+                }
+            }.map { (dataString, listaDeRotas) ->
+                val rotulo = when (dataString) {
+                    hojeStr -> "Hoje"
+                    amanhaStr -> "Amanhã"
+                    else -> dataString
+                }
 
-            AgendaDia(
-                data = dataString,
-                rotulo = rotulo,
-                quantidadeRotas = listaDeRotas.size,
-                idMotorista = listaDeRotas.firstOrNull()?.idMotorista ?: ""
-            )
-        }.sortedBy { it.data } // Dica: para ordenar datas corretamente, o ideal seria usar yyyyMMdd, mas vamos focar em aparecer primeiro.
+                AgendaDia(
+                    data = dataString,
+                    rotulo = rotulo,
+                    quantidadeRotas = listaDeRotas.size,
+                    idMotorista = listaDeRotas.firstOrNull()?.idMotorista ?: ""
+                )
+            }
+        // A lista final já virá ordenada cronologicamente
     }
 }

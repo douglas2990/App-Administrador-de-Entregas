@@ -49,6 +49,7 @@ class AgendaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         configurarRecyclerView()
         observarDados()
 
@@ -66,6 +67,15 @@ class AgendaFragment : Fragment() {
         }
 
         acesso_menu_agenda()
+
+        binding.swipeRefreshAgenda.setOnRefreshListener {
+            val uidAtual = firebaseAuth.currentUser?.uid
+            if (uidAtual != null) {
+                viewModel.carregarAgenda(idMotorista = uidAtual)
+            } else {
+                binding.swipeRefreshAgenda.isRefreshing = false
+            }
+        }
     }
 
     private fun configurarRecyclerView() {
@@ -92,11 +102,14 @@ class AgendaFragment : Fragment() {
         viewModel.statusAgenda.observe(viewLifecycleOwner) { status ->
             when (status) {
                 is UIstatus.Carregando -> {
-                    binding.progressBar.visibility = View.VISIBLE
+                    if (!binding.swipeRefreshAgenda.isRefreshing) {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
                     binding.textListaVazia.visibility = View.GONE
                 }
                 is UIstatus.Sucesso -> {
                     binding.progressBar.visibility = View.GONE
+                    binding.swipeRefreshAgenda.isRefreshing = false
                     if (status.dados.isEmpty()) {
                         binding.textListaVazia.visibility = View.VISIBLE
                         agendaAdapter.adicionarLista(emptyList()) // Limpa se estiver vazio
@@ -107,6 +120,7 @@ class AgendaFragment : Fragment() {
                 }
                 is UIstatus.Erro -> {
                     binding.progressBar.visibility = View.GONE
+                    binding.swipeRefreshAgenda.isRefreshing = false
                     Toast.makeText(context, "Erro: ${status.erro}", Toast.LENGTH_LONG).show()
                 }
             }
