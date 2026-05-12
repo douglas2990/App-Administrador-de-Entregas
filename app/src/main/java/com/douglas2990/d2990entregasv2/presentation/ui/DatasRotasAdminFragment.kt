@@ -1,5 +1,6 @@
 package com.douglas2990.d2990entregasv2.presentation.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -49,25 +50,38 @@ class DatasRotasAdminFragment : Fragment() {
 
         motorista?.let {
             binding.textTituloDatas.text = "Agenda de ${it.nome}"
-            viewModel.listarDatasComRotasAdmin(it.id)
+            // ATENÇÃO: Mudamos a chamada para a nova função com Status (Semáforo)
+            viewModel.listarDatasComStatusAdmin(it.id)
         }
     }
 
     private fun setupRecyclerView() {
-        dataAdapter = DataAgendaAdapter { dataLong ->
-            // Ao clicar na data, vai para a tela de rotas passando a data
-            val bundle = Bundle().apply {
-                putParcelable("motorista", motorista)
-                putLong("data_selecionada", dataLong)
+        dataAdapter = DataAgendaAdapter(
+            onDataClick = { dataLong ->
+                // Chamamos a função de navegação aqui
+                irParaRotas(dataLong)
+            },
+            onArquivarClick = { dataLong ->
+                exibirDialogConfirmacaoArquivar(dataLong)
             }
-            findNavController().navigate(R.id.action_datasRotasAdmin_to_rotasDoMotorista, bundle)
-        }
+        )
+
         binding.rvDatas.adapter = dataAdapter
         binding.rvDatas.layoutManager = LinearLayoutManager(requireContext())
     }
 
+    // FUNÇÃO DE NAVEGAÇÃO ORGANIZADA
+    private fun irParaRotas(dataLong: Long) {
+        val bundle = Bundle().apply {
+            putParcelable("motorista", motorista)
+            putLong("data_selecionada", dataLong)
+        }
+        findNavController().navigate(R.id.action_datasRotasAdmin_to_rotasDoMotorista, bundle)
+    }
+
     private fun setupObservers() {
-        viewModel.datasComRotas.observe(viewLifecycleOwner) { status ->
+        // IMPORTANTE: Agora observamos 'datasStatus' em vez de 'datasComRotas'
+        viewModel.datasStatus.observe(viewLifecycleOwner) { status ->
             when (status) {
                 is UIstatus.Carregando -> binding.progressDatas.visibility = View.VISIBLE
                 is UIstatus.Sucesso -> {
@@ -80,6 +94,19 @@ class DatasRotasAdminFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun exibirDialogConfirmacaoArquivar(data: Long) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Arquivar entregas")
+            .setMessage("Deseja mover as rotas deste dia para o histórico arquivado?")
+            .setPositiveButton("Sim, arquivar") { _, _ ->
+                motorista?.id?.let { idMotorista ->
+                    viewModel.arquivarDia(idMotorista, data)
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     override fun onDestroyView() {

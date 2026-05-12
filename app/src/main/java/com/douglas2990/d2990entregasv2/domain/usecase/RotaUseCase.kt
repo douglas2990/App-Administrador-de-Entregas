@@ -2,6 +2,7 @@ package com.douglas2990.d2990entregasv2.domain.usecase
 
 import android.net.Uri
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IRotaRepository
+import com.douglas2990.d2990entregasv2.model.ItemAgendaAdmin
 import com.douglas2990.d2990entregasv2.model.Rota
 import com.example.core.UIstatus
 import javax.inject.Inject
@@ -56,4 +57,12 @@ class RotaUseCase @Inject constructor(
 
     suspend fun listarDatasComRotasAdmin(idMotorista: String) =
         repository.listarDatasComRotasAdmin(idMotorista)
+
+    suspend fun listarDatasComStatusAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return repository.listarDatasComStatusAdmin(idMotorista)
+    }
+
+    suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean> {
+        return repository.arquivarRotaPorDia(idMotorista, data)
+    }
 }

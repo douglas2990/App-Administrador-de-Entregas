@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.douglas2990.d2990entregasv2.domain.usecase.RotaUseCase
+import com.douglas2990.d2990entregasv2.model.ItemAgendaAdmin
 import com.douglas2990.d2990entregasv2.model.Rota
 import com.example.core.UIstatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,11 @@ class RotaViewModel @Inject constructor(
 
     private val _statusExclusao = MutableLiveData<UIstatus<Boolean>>()
     val statusExclusao: LiveData<UIstatus<Boolean>> = _statusExclusao
+
+    private val _datasStatus = MutableLiveData<UIstatus<List<ItemAgendaAdmin>>>()
+    val datasStatus: LiveData<UIstatus<List<ItemAgendaAdmin>>> = _datasStatus
+
+
 
     fun salvarRota(rota: Rota) {
         _statusSalvar.value = UIstatus.Carregando
@@ -109,6 +115,22 @@ class RotaViewModel @Inject constructor(
         viewModelScope.launch {
             val resultado = rotaUseCase.listarPorDataEMotorista(idMotorista, data)
             _rotas.value = resultado
+        }
+    }
+
+    fun listarDatasComStatusAdmin(idMotorista: String) {
+        _datasStatus.value = UIstatus.Carregando
+        viewModelScope.launch {
+            _datasStatus.value = rotaUseCase.listarDatasComStatusAdmin(idMotorista)
+        }
+    }
+
+    fun arquivarDia(idMotorista: String, data: Long) {
+        viewModelScope.launch {
+            val result = rotaUseCase.arquivarRotaPorDia(idMotorista, data)
+            if (result is UIstatus.Sucesso) {
+                listarDatasComStatusAdmin(idMotorista) // Atualiza a lista na hora
+            }
         }
     }
 }

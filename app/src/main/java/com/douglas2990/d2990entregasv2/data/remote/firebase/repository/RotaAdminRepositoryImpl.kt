@@ -1,6 +1,7 @@
 package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
 
 import android.net.Uri
+import com.douglas2990.d2990entregasv2.model.ItemAgendaAdmin
 import com.douglas2990.d2990entregasv2.model.Rota
 import com.example.core.UIstatus
 import com.example.core.util.ConstantesFirebase
@@ -257,6 +258,52 @@ class RotaAdminRepositoryImpl @Inject constructor(
             UIstatus.Sucesso(datasUnicas)
         } catch (e: Exception) {
             UIstatus.Erro("Erro ao buscar datas: ${e.message}")
+        }
+    }
+
+
+    override suspend fun listarDatasComStatusAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("idGestor", idLogado)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+
+            val itens = rotas.filter { it.status != "ARQUIVADA" } // Não mostra o que já foi arquivado
+                .groupBy { it.dataPrevista }
+                .mapNotNull { (data, lista) ->
+                    if (data == null) null else ItemAgendaAdmin(
+                        data = data,
+                        temPendente = lista.any { it.status == "PENDENTE" },
+                        temProblema = lista.any { it.status == "PROBLEMA" }
+                    )
+                }.sortedByDescending { it.data }
+
+            UIstatus.Sucesso(itens)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar agenda: ${e.message}")
+        }
+    }
+
+    override suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean> {
+        return try {
+            val query = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevista", data)
+                .get().await()
+
+            val batch = firebaseFirestore.batch()
+            query.documents.forEach { doc ->
+                batch.update(doc.reference, "status", "ARQUIVADA")
+            }
+            batch.commit().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao arquivar: ${e.message}")
         }
     }
 }

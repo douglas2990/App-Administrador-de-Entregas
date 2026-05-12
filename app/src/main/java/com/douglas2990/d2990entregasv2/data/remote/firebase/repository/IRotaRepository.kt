@@ -1,6 +1,7 @@
 package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
 
 import android.net.Uri
+import com.douglas2990.d2990entregasv2.model.ItemAgendaAdmin
 import com.douglas2990.d2990entregasv2.model.Rota
 import com.example.core.UIstatus
 
@@ -50,4 +51,8 @@ interface IRotaRepository {
     suspend fun finalizarRotaComSucesso(idRota: String, imageUri: Uri): UIstatus<String>
 
     suspend fun reportarProblemaRota(idRota: String, motivo: String, imageUri: Uri?): UIstatus<String>
+
+    // No arquivo IROTAR~1.KT
+    suspend fun listarDatasComStatusAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>>
+    suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean>
 }
