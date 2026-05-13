@@ -32,7 +32,11 @@ class HistoricoViewModel @Inject constructor(
                 val rotasFinalizadas = resultado.dados.filter {
                     rota ->
                     val status = rota.status?.trim()?.uppercase()
-                    status == "CONCLUIDA" || status == "PROBLEMA"
+                    val foiFinalizada = (status == "CONCLUIDA" || status == "PROBLEMA")
+
+                    // A rota só aparece no histórico se foi finalizada E o motorista arquivou
+                    //foiFinalizada && rota.arquivadaMotorista == true
+                    foiFinalizada
                 }
                 val agrupado = agruparPorData(rotasFinalizadas)
                 _statusHistoricoAgenda.value = UIstatus.Sucesso(agrupado)

@@ -33,7 +33,9 @@ class AgendaViewModel @Inject constructor(
             if (resultado is UIstatus.Sucesso) {
                 // Filtro mais robusto ignorando Case Sensitivity
                 val rotasPendentes = resultado.dados.filter {
-                    it.status?.trim()?.uppercase() == "PENDENTE"
+                    val status = it.status?.trim()?.uppercase()
+                    // SÓ MOSTRA SE: Status for pendente/problema E o motorista NÃO arquivou
+                    (status == "PENDENTE" || status == "PROBLEMA") && it.arquivadaMotorista == false
                 }
 
                 val agendaAgrupada = agruparRotasPorData(rotasPendentes)

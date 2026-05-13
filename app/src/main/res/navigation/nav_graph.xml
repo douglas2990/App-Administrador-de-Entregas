@@ -138,6 +138,15 @@
             app:argType="com.douglas2990.d2990entregasv2.model.Motorista"
             app:nullable="true"
             android:defaultValue="@null" />
+
+        <argument
+            android:name="data_selecionada"
+            app:argType="long" />
+        <argument
+            android:name="is_arquivado"
+            app:argType="boolean"
+            android:defaultValue="false" />
+
     </fragment>
 
     <fragment
@@ -159,6 +168,32 @@
 
         <action
             android:id="@+id/action_datasRotasAdmin_to_rotasDoMotorista"
+            app:destination="@id/rotasDoMotoristaFragment" />
+        <action
+            android:id="@+id/action_datasRotasAdmin_to_datasArquivadas"
+            app:destination="@id/datasArquivadasFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/rotasArquivadasFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.RotasArquivadasFragment"
+        android:label="Histórico Arquivado">
+        <argument
+            android:name="idMotorista"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/datasArquivadasFragment"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.DatasArquivadasFragment"
+        android:label="Datas Arquivadas">
+        <argument
+            android:name="motorista"
+            app:argType="com.douglas2990.d2990entregasv2.model.Motorista" />
+
+        <action
+            android:id="@+id/action_datasArquivadas_to_rotasDoMotorista"
             app:destination="@id/rotasDoMotoristaFragment" />
     </fragment>
 

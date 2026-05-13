@@ -33,6 +33,11 @@ class RotasDoMotoristaFragment : Fragment() {
     
     private val alertaCarregamento by lazy { AlertaCarregamento(requireContext()) }
 
+
+
+
+    private var isArquivado: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -41,6 +46,8 @@ class RotasDoMotoristaFragment : Fragment() {
 
             // 2. O getLong continua o mesmo, ele não foi depreciado
             dataSelecionada = it.getLong("data_selecionada", -1L)
+
+            isArquivado = it.getBoolean("is_arquivado", false)
         }
     }
 
@@ -59,21 +66,26 @@ class RotasDoMotoristaFragment : Fragment() {
         setupObservers()
 
         motorista?.let { mot ->
-            // 3. Lógica de Título Dinâmica
-            binding.textTitulo.text = if (dataSelecionada != -1L) {
-                "Rotas de ${mot.nome}" // Opcional: Adicionar a data formatada no título aqui
+
+            binding.textTitulo.text = if (isArquivado) {
+                "Histórico: ${mot.nome}"
             } else {
                 "Rotas de ${mot.nome}"
             }
 
-            // 4. Decisão de qual filtro usar
-            if (dataSelecionada != -1L) {
-                // Se o Admin veio da tela de Agenda, filtramos por data
-                viewModel.listarPorDataEMotorista(mot.id, dataSelecionada)
-            } else {
-                // Se o Admin veio direto, listamos todas (comportamento antigo)
-                viewModel.listarRotasMotorista(mot.id)
+            when {
+                dataSelecionada != -1L && isArquivado -> {
+                    viewModel.listarRotasArquivadasPorData(mot.id, dataSelecionada)
+                }
+                dataSelecionada != -1L -> {
+                    viewModel.listarPorDataEMotorista(mot.id, dataSelecionada)
+                }
+                else -> {
+                    viewModel.listarRotasMotorista(mot.id)
+                }
             }
+
+
         } ?: run {
             Toast.makeText(context, "Motorista não encontrado", Toast.LENGTH_SHORT).show()
         }
@@ -87,7 +99,11 @@ class RotasDoMotoristaFragment : Fragment() {
                 }
             },
             onItemLongClick = { rota ->
-                exibirDialogoConfirmacao(rota)
+                if (!isArquivado) {
+                    exibirDialogoConfirmacao(rota)
+                } else {
+                    Toast.makeText(context, "Não é possível excluir do histórico", Toast.LENGTH_SHORT).show()
+                }
             }
         )
 

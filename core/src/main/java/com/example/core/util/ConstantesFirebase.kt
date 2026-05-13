@@ -23,4 +23,16 @@ object ConstantesFirebase {
     const val FIRESTORE_SOLICITACOES = "solicitacoes"
     const val FIRESTORE_AUTORIZADOS = "autorizados"
     const val FIRESTORE_SOLICITACOES_ACESSO = "solicitacoes_acesso"
+
+
+    const val CAMPO_ID_MOTORISTA = "idMotorista"
+    const val CAMPO_ID_GESTOR = "idGestor"
+    const val CAMPO_DATA_PREVISTA = "dataPrevista"
+    const val CAMPO_DATA_FORMATADA = "dataPrevistaFormatada"
+    const val CAMPO_STATUS = "status"
+    const val CAMPO_ARQUIVADA_ADMIN = "arquivadaAdmin"
+    const val CAMPO_ARQUIVADA_MOTORISTA = "arquivadaMotorista"
+
+
+    const val STATUS_ARQUIVADO_PELO_MOTORISTA = "MOTORISTA_FINALIZOU"
 }

@@ -54,5 +54,31 @@ interface IRotaRepository {
 
     // No arquivo IROTAR~1.KT
     suspend fun listarDatasComStatusAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>>
+
+    // Em IRotaRepository.kt
+    suspend fun listarRotasArquivadas(idMotorista: String): UIstatus<List<Rota>>
     suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean>
+
+    suspend fun listarDatasArquivadas(idMotorista: String): UIstatus<List<ItemAgendaAdmin>>
+
+
+    /**
+     * Lista apenas as datas que possuem rotas ATIVAS (arquivada == false)
+     */
+    suspend fun listarAgendaAtivaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>>
+
+    /**
+     * Lista apenas as datas que possuem rotas no HISTÓRICO (arquivada == true)
+     */
+    suspend fun listarAgendaArquivadaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>>
+
+    /**
+     * Busca as rotas de um dia específico que já foram arquivadas
+     */
+    suspend fun listarRotasArquivadasPorData(idMotorista: String, data: Long): UIstatus<List<Rota>>
+
+    /**
+     * Executa o processo de mudar o campo 'arquivada' para true em todas as rotas do dia
+     */
+    suspend fun executarArquivamentoDaData(idMotorista: String, data: Long): UIstatus<Boolean>
 }

@@ -38,7 +38,23 @@ class RotaViewModel @Inject constructor(
     private val _datasStatus = MutableLiveData<UIstatus<List<ItemAgendaAdmin>>>()
     val datasStatus: LiveData<UIstatus<List<ItemAgendaAdmin>>> = _datasStatus
 
+    private val _rotasArquivadas = MutableLiveData<UIstatus<List<Rota>>>()
+    val rotasArquivadas: LiveData<UIstatus<List<Rota>>> = _rotasArquivadas
 
+
+    private val _datasArquivadas = MutableLiveData<UIstatus<List<ItemAgendaAdmin>>>()
+    val datasArquivadas: LiveData<UIstatus<List<ItemAgendaAdmin>>> = _datasArquivadas
+
+    private val _agendaAtiva = MutableLiveData<UIstatus<List<ItemAgendaAdmin>>>()
+    val agendaAtiva: LiveData<UIstatus<List<ItemAgendaAdmin>>> = _agendaAtiva
+
+    // Lista de Datas Arquivadas (Histórico)
+    private val _agendaArquivada = MutableLiveData<UIstatus<List<ItemAgendaAdmin>>>()
+    val agendaArquivada: LiveData<UIstatus<List<ItemAgendaAdmin>>> = _agendaArquivada
+
+    // Status do processo de arquivamento (para mostrar o loading ou fechar o alerta)
+    private val _statusArquivamento = MutableLiveData<UIstatus<Boolean>>()
+    val statusArquivamento: LiveData<UIstatus<Boolean>> = _statusArquivamento
 
     fun salvarRota(rota: Rota) {
         _statusSalvar.value = UIstatus.Carregando
@@ -125,11 +141,49 @@ class RotaViewModel @Inject constructor(
         }
     }
 
-    fun arquivarDia(idMotorista: String, data: Long) {
+
+
+    fun listarDatasArquivadas(idMotorista: String) {
+        _datasArquivadas.value = UIstatus.Carregando
         viewModelScope.launch {
-            val result = rotaUseCase.arquivarRotaPorDia(idMotorista, data)
-            if (result is UIstatus.Sucesso) {
-                listarDatasComStatusAdmin(idMotorista) // Atualiza a lista na hora
+            _datasArquivadas.value = rotaUseCase.listarDatasArquivadas(idMotorista)
+        }
+    }
+
+    // 1. Carrega apenas as datas que não foram arquivadas
+    fun listarAgendaAtiva(idMotorista: String) {
+        _agendaAtiva.value = UIstatus.Carregando
+        viewModelScope.launch {
+            _agendaAtiva.value = rotaUseCase.listarAgendaAtiva(idMotorista)
+        }
+    }
+
+    // 2. Carrega o histórico (datas arquivadas)
+    fun listarAgendaArquivada(idMotorista: String) {
+        _agendaArquivada.value = UIstatus.Carregando
+        viewModelScope.launch {
+            _agendaArquivada.value = rotaUseCase.listarAgendaArquivada(idMotorista)
+        }
+    }
+
+    // 3. Busca as rotas de um dia arquivado (usamos o mesmo LiveData 'rotas' que você já tem)
+    fun listarRotasArquivadasPorData(idMotorista: String, data: Long) {
+        _rotas.value = UIstatus.Carregando // Reaproveitando seu LiveData de lista de rotas
+        viewModelScope.launch {
+            _rotas.value = rotaUseCase.listarRotasArquivadasPorData(idMotorista, data)
+        }
+    }
+
+    // 4. Executa a ação de arquivar o dia completo
+    fun arquivarDia(idMotorista: String, data: Long) {
+        _statusArquivamento.value = UIstatus.Carregando
+        viewModelScope.launch {
+            val resultado = rotaUseCase.executarArquivamento(idMotorista, data)
+            _statusArquivamento.value = resultado
+
+            // Se deu certo, atualizamos a lista ativa para a data sumir da tela na hora
+            if (resultado is UIstatus.Sucesso) {
+                listarAgendaAtiva(idMotorista)
             }
         }
     }

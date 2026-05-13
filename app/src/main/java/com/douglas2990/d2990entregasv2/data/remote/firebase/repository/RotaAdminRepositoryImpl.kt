@@ -56,7 +56,9 @@ class RotaAdminRepositoryImpl @Inject constructor(
                 dataCriacao = dataCriacaoFinal,
                 dataPrevista = dataLimpaUTC,
                 dataPrevistaFormatada = dataFormatada, // Campo crucial para o motorista
-                status = if (rota.id.isEmpty()) "PENDENTE" else rota.status
+                status = if (rota.id.isEmpty()) "PENDENTE" else rota.status,
+                arquivadaAdmin = rota.arquivadaAdmin,
+                arquivadaMotorista = rota.arquivadaMotorista,
             )
 
             refRota.set(rotaFinal).await()
@@ -269,6 +271,7 @@ class RotaAdminRepositoryImpl @Inject constructor(
             val querySnapshot = colecaoRotas
                 .whereEqualTo("idMotorista", idMotorista)
                 .whereEqualTo("idGestor", idLogado)
+                //.whereEqualTo("arquivada", false)
                 .get().await()
 
             val rotas = querySnapshot.toObjects(Rota::class.java)
@@ -289,6 +292,9 @@ class RotaAdminRepositoryImpl @Inject constructor(
         }
     }
 
+
+
+
     override suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean> {
         return try {
             val query = colecaoRotas
@@ -298,7 +304,8 @@ class RotaAdminRepositoryImpl @Inject constructor(
 
             val batch = firebaseFirestore.batch()
             query.documents.forEach { doc ->
-                batch.update(doc.reference, "status", "ARQUIVADA")
+                //batch.update(doc.reference, "status", "ARQUIVADA")
+                batch.update(doc.reference,  "arquivada", true)
             }
             batch.commit().await()
             UIstatus.Sucesso(true)
@@ -306,4 +313,117 @@ class RotaAdminRepositoryImpl @Inject constructor(
             UIstatus.Erro("Erro ao arquivar: ${e.message}")
         }
     }
+
+    override suspend fun listarDatasArquivadas(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val snapshot = firebaseFirestore.collection("rotas")
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("arquivada", true) // Filtra apenas as que você arquivou
+                .get()
+                .await()
+
+            val todasAsRotasArquivadas = snapshot.toObjects(Rota::class.java)
+
+            // Agrupamos por data para criar os itens da agenda
+            val itensAgenda = todasAsRotasArquivadas
+                .groupBy { it.dataCriacao } // Agrupa rotas do mesmo dia
+                .map { (data, rotasDoDia) ->
+                    ItemAgendaAdmin(
+                        data = data,
+                        temPendente = rotasDoDia.any { it.status == "PENDENTE" },
+                        temProblema = rotasDoDia.any { it.status == "PROBLEMA" }
+                    )
+                }
+                .sortedByDescending { it.data } // Mais recentes primeiro
+
+            UIstatus.Sucesso(itensAgenda)
+        } catch (e: Exception) {
+            UIstatus.Erro(e.message ?: "Erro ao buscar histórico de datas")
+        }
+    }
+
+    override suspend fun listarRotasArquivadas(idMotorista: String): UIstatus<List<Rota>> {
+        TODO("Not yet implemented")
+    }
+
+    private fun agruparParaAgenda(rotas: List<Rota>): List<ItemAgendaAdmin> {
+        return rotas.groupBy { it.dataPrevista }
+            .mapNotNull { (data, lista) ->
+                if (data == null) null else ItemAgendaAdmin(
+                    data = data,
+                    temPendente = lista.any { it.status == "PENDENTE" },
+                    temProblema = lista.any { it.status == "PROBLEMA" }
+                )
+            }.sortedByDescending { it.data }
+    }
+
+    override suspend fun listarAgendaAtivaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_GESTOR, idLogado)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, false)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(agruparParaAgenda(rotas))
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar agenda ativa: ${e.message}")
+        }
+    }
+
+    override suspend fun listarAgendaArquivadaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_GESTOR, idLogado)
+                // Busca apenas o que o administrador arquivou
+                .whereEqualTo(ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, true)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(agruparParaAgenda(rotas))
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar histórico: ${e.message}")
+        }
+    }
+
+    override suspend fun listarRotasArquivadasPorData(idMotorista: String, data: Long): UIstatus<List<Rota>> {
+        return try {
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevista", data)
+                .whereEqualTo("arquivada", true)
+                .get().await()
+
+            val lista = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(lista)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar rotas arquivadas: ${e.message}")
+        }
+    }
+
+    override suspend fun executarArquivamentoDaData(idMotorista: String, data: Long): UIstatus<Boolean> {
+        return try {
+            val query = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_DATA_PREVISTA, data)
+                .get().await()
+
+            val batch = firebaseFirestore.batch()
+            query.documents.forEach { doc ->
+                batch.update(doc.reference, ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, true)
+            }
+            batch.commit().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao processar arquivamento: ${e.message}")
+        }
+    }
+
+
 }
