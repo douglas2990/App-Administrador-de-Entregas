@@ -96,9 +96,9 @@ class CadastroActivity : AppCompatActivity() {
                     val erroMsg = uiStatus.erro
                     if (erroMsg.contains("pendente", ignoreCase = true)) {
                         binding.layoutEspera.visibility = View.VISIBLE // Mostra a tela de espera
-                        binding.btnChamarNoZap.setOnClickListener {
+                        /*binding.btnChamarNoZap.setOnClickListener {
                             notificarDesenvolvedor(binding.editCadastroEmail.text.toString())
-                        }
+                        }*/
                     } else {
                         exibirMensagem(erroMsg)
                     }
@@ -195,6 +195,18 @@ class CadastroActivity : AppCompatActivity() {
 
     private fun inicializarEventosClique() {
         with(binding) {
+
+            btnChamarNoZap.setOnClickListener {
+                val email = editCadastroEmail.text.toString()
+                if (email.isNotEmpty()) {
+                    notificarDesenvolvedor(email)
+                } else {
+                    // Caso abra direto e o campo em texto esteja limpo, pega do SharedPreferences
+                    notificarDesenvolvedor(obterEmailSalvo())
+                }
+            }
+
+
             btnCadastrar.setOnClickListener { view ->
                 view.esconderTeclado()
 
