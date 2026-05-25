@@ -35,7 +35,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // COMANDO PARA DESLOGAR (Apenas para teste ou reset)
-        FirebaseAuth.getInstance().signOut()
+        //FirebaseAuth.getInstance().signOut()
 
         // Se o usuário já estiver logado, vai direto para a tela de Rotas
         if (viewModel.usuarioLogado()) {

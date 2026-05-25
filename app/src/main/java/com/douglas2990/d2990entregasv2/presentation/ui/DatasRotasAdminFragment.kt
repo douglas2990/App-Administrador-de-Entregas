@@ -55,6 +55,11 @@ class DatasRotasAdminFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
 
+
+        binding.btnVerArquivadas.setOnClickListener {
+            irParaHistorico()
+        }
+
         motorista?.let {
             binding.textTituloDatas.text = "Agenda de ${it.nome}"
             // ATENÇÃO: Mudamos a chamada para a nova função com Status (Semáforo)
