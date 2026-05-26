@@ -46,7 +46,6 @@ class CriarRotaProMotoristaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ALTERE ESTA LINHA:
         arguments?.let { args ->
             motoristaPreSelecionado = BundleCompat.getParcelable(
                 args,
@@ -61,7 +60,7 @@ class CriarRotaProMotoristaFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observa a lista de motoristas para preencher o Spinner
+        // Observa a lista de motoristas para preencher o AutoCompleteTextView (Dropdown)
         motoristasViewModel.motoristas.observe(viewLifecycleOwner) { status ->
             when (status) {
                 is UIstatus.Carregando -> {
@@ -70,16 +69,23 @@ class CriarRotaProMotoristaFragment : Fragment() {
                 is UIstatus.Sucesso -> {
                     binding.progressBar.visibility = View.GONE
                     listaMotoristas = status.dados ?: emptyList()
-                    val nomes = listaMotoristas.map { it.nome }
-                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, nomes)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    binding.spinnerMotoristas.adapter = adapter
 
-                    // Se houver um motorista pré-selecionado, define a posição no Spinner
+                    val nomes = listaMotoristas.map { it.nome }
+
+                    // Ajustado para usar o layout do dropdown adequado para AutoCompleteTextView
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        nomes
+                    )
+                    binding.spinnerMotoristas.setAdapter(adapter)
+
+                    // Se houver um motorista pré-selecionado, define o texto direto
                     motoristaPreSelecionado?.let { pre ->
                         val index = listaMotoristas.indexOfFirst { it.id == pre.id }
                         if (index != -1) {
-                            binding.spinnerMotoristas.setSelection(index)
+                            // setText define o valor visual. O "false" evita que ele filtre a lista ao abrir
+                            binding.spinnerMotoristas.setText(pre.nome, false)
                         }
                     }
                 }
@@ -122,8 +128,6 @@ class CriarRotaProMotoristaFragment : Fragment() {
             datePicker.addOnPositiveButtonClickListener { selection ->
                 dataPrevistaSelecionada = selection
 
-                // --- CORREÇÃO AQUI ---
-                // Usamos "UTC" para que o dia selecionado não mude por causa do fuso horário
                 val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
                     timeZone = java.util.TimeZone.getTimeZone("UTC")
                 }
@@ -142,15 +146,21 @@ class CriarRotaProMotoristaFragment : Fragment() {
             val empresa = binding.editEmpresaDestino.text.toString()
             val endereco = binding.editEndereco.text.toString()
 
-            // Pega o motorista selecionado no Spinner
-            val posicao = binding.spinnerMotoristas.selectedItemPosition
-            val motorista = if (posicao != -1 && listaMotoristas.isNotEmpty()) listaMotoristas[posicao] else null
+            // Captura o texto que está selecionado atualmente no dropdown
+            val nomeSelecionado = binding.spinnerMotoristas.text.toString()
+
+            // Procura o objeto Motorista correspondente ao nome que está escrito no campo
+            val motorista = listaMotoristas.find { it.nome == nomeSelecionado }
 
             // VALIDAÇÃO COMPLETA: Incluindo Data e Motorista
             if (os.isEmpty() || empresa.isEmpty() || endereco.isEmpty() || dataPrevistaSelecionada == null || motorista == null) {
 
                 if (dataPrevistaSelecionada == null) {
                     binding.inputLayoutDataPrevista.error = "A data prevista é obrigatória!"
+                }
+
+                if (motorista == null) {
+                    binding.inputLayoutSpinner.error = "Selecione um motorista válido!"
                 }
 
                 Toast.makeText(context, "Atenção: Preencha todos os campos e a data!", Toast.LENGTH_LONG).show()

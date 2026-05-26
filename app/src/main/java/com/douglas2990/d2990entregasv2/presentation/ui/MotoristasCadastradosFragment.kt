@@ -1,5 +1,7 @@
 package com.douglas2990.d2990entregasv2.presentation.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -51,7 +53,7 @@ class MotoristasCadastradosFragment : Fragment() {
         motoristaAdapter = MotoristaAdapter(
             onNovaRotaClick = { motorista ->
                 val bundle = Bundle().apply {
-                    putParcelable("detalhe_motorista", motorista)// Use um nome bem único
+                    putParcelable("detalhe_motorista", motorista) // Use um nome bem único
                 }
                 findNavController().navigate(
                     R.id.action_motoristascadastradosFragment_to_criarRotaProMotoristaFragment,
@@ -66,6 +68,10 @@ class MotoristasCadastradosFragment : Fragment() {
                     R.id.action_motoristascadastradosFragment_to_datasRotasAdminFragment,
                     bundle
                 )
+            },
+            onWhatsappClick = { motorista ->
+                // AJUSTE AQUI: Terceiro parâmetro implementado para abrir o WhatsApp
+                abrirWhatsappMotorista(motorista.telefone)
             }
         )
 
@@ -73,6 +79,27 @@ class MotoristasCadastradosFragment : Fragment() {
             adapter = motoristaAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
+        }
+    }
+
+    // FUNÇÃO PARA TRATAR O NÚMERO E DISPARAR A INTENT DO WHATSAPP
+    private fun abrirWhatsappMotorista(telefoneRaw: String) {
+        try {
+            // Remove parênteses, espaços e traços deixando apenas os números inteiros
+            val telefoneLimpo = telefoneRaw.replace(Regex("[^0-9]"), "")
+
+            // Garante o DDI do Brasil (55) caso o número venha limpo do formulário
+            val numeroFinal = if (telefoneLimpo.startsWith("55")) telefoneLimpo else "55$telefoneLimpo"
+
+            // Link oficial da API do WhatsApp para iniciar conversas diretas
+            val url = "https://api.whatsapp.com/send?phone=$numeroFinal"
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(url)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Não foi possível abrir o WhatsApp", Toast.LENGTH_SHORT).show()
         }
     }
 

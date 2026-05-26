@@ -10,7 +10,8 @@ import com.douglas2990.d2990entregasv2.model.Motorista
 
 class MotoristaAdapter(
     private val onNovaRotaClick: (Motorista) -> Unit,
-    private val onVerRotasClick: (Motorista) -> Unit
+    private val onVerRotasClick: (Motorista) -> Unit,
+    private val onWhatsappClick: (Motorista) -> Unit
 ) : ListAdapter<Motorista, MotoristaAdapter.MotoristaViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MotoristaViewHolder {
@@ -33,12 +34,18 @@ class MotoristaAdapter(
             binding.textEmpresaMotorista.text = "Empresa: ${motorista.nomeEmpresa}"
             binding.textTelefoneMotorista.text = motorista.telefone
 
+            // Clique nas ações dos botões
             binding.btnNovaRota.setOnClickListener {
                 onNovaRotaClick(motorista)
             }
 
             binding.btnVerRotas.setOnClickListener {
                 onVerRotasClick(motorista)
+            }
+
+            // Clique em cima do número do telefone/WhatsApp
+            binding.textTelefoneMotorista.setOnClickListener {
+                onWhatsappClick(motorista)
             }
         }
     }
