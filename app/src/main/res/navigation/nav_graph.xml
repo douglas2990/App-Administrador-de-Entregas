@@ -147,6 +147,10 @@
             app:argType="boolean"
             android:defaultValue="false" />
 
+        <action
+            android:id="@+id/action_rotasDoMotoristaFragment_to_fragmentEditarRota"
+            app:destination="@id/fragmentEditarRota" />
+
     </fragment>
 
     <fragment
@@ -195,6 +199,19 @@
         <action
             android:id="@+id/action_datasArquivadas_to_rotasDoMotorista"
             app:destination="@id/rotasDoMotoristaFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentEditarRota"
+        android:name="com.douglas2990.d2990entregasv2.presentation.ui.FragmentEditarRota"
+        android:label="Editar Rota"
+        tools:layout="@layout/fragment_editar_rota">
+
+        <argument
+            android:name="rotaParaEditar"
+            app:argType="com.douglas2990.d2990entregasv2.model.Rota"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
 </navigation>

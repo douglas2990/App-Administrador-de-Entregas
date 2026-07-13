@@ -3,11 +3,14 @@ package com.douglas2990.d2990entregasv2.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.ICadastroAcessoRepository
 import com.example.core.UIstatus
+import io.mockk.coEvery
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -61,5 +64,22 @@ class CadastroAcessoViewModelTest {
             "Preencha todos os campos. A senha deve ter 6+ caracteres.",
             (statusAtual as UIstatus.Erro).erro
         )
+    }
+
+    @Test
+    fun cadastrarNovoMotorista_quandoSucesso_deveMudarEstadoParaSucesso() = runTest {
+        // GIVEN
+        val email = "motorista@hotmail.com"
+        val senhaValida = "123456"
+        val nome = "Douglas Oliveira"
+        coEvery { repository.criarAcessoMotorista(email, senhaValida, nome) } returns UIstatus.Sucesso("Sucesso")
+
+        // WHEN
+        viewModel.cadastrarNovoMotorista(email, senhaValida, nome)
+
+        // THEN
+        val statusAtual = viewModel.status.value
+        assert(statusAtual is UIstatus.Sucesso)
+        assertEquals("Sucesso", (statusAtual as UIstatus.Sucesso).dados)
     }
 }

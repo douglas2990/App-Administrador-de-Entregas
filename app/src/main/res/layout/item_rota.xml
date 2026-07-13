@@ -52,13 +52,25 @@
                 android:id="@+id/chipStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:textColor="@android:color/white"
                 app:chipBackgroundColor="#FF9800"
                 app:layout_constraintBottom_toBottomOf="@+id/textOS"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnMenuContexto"
                 app:layout_constraintTop_toTopOf="@+id/textOS"
                 tools:text="PENDENTE" />
 
+            <ImageButton
+                android:id="@+id/btnMenuContexto"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Opções da Rota"
+                app:layout_constraintBottom_toBottomOf="@+id/textOS"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textOS"
+                app:srcCompat="@drawable/ic_more_vert"
+                tools:ignore="TouchTargetSizeCheck" />
             <TextView
                 android:id="@+id/textEmpresaDestino"
                 android:layout_width="0dp"

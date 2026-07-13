@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.douglas2990.d2990entregasv2.data.remote.firebase.repository.IEmpresaRepository
 import com.douglas2990.d2990entregasv2.domain.usecase.SalvarMotoristaUseCase
 import com.douglas2990.d2990entregasv2.model.Empresa
+import com.douglas2990.d2990entregasv2.model.Motorista
 import com.example.core.UIstatus
 import io.mockk.coEvery
 import io.mockk.every
@@ -74,5 +75,29 @@ class AutenticacaoMotoristaViewModelTest {
         val dadosRetornados = (statusAtual as UIstatus.Sucesso).dados
         assertEquals(2, dadosRetornados?.size)
         assertEquals("Entrega Rápida Diadema", dadosRetornados?.get(0)?.nome)
+    }
+
+    @Test
+    fun cadastrarMotorista_quandoSucesso_deveMudarEstadoParaSucesso() = runTest {
+        val motorista = Motorista(id = "1", nome = "Douglas")
+        coEvery { salvarMotoristaUseCase(motorista) } returns UIstatus.Sucesso("Cadastrado")
+
+        viewModel.cadastrarMotorista(motorista)
+
+        val status = viewModel.statusCadastro.value
+        assert(status is UIstatus.Sucesso)
+        assertEquals("Cadastrado", (status as UIstatus.Sucesso).dados)
+    }
+
+    @Test
+    fun cadastrarMotorista_quandoErro_deveMudarEstadoParaErro() = runTest {
+        val motorista = Motorista(id = "1", nome = "Douglas")
+        coEvery { salvarMotoristaUseCase(motorista) } returns UIstatus.Erro("Erro ao salvar")
+
+        viewModel.cadastrarMotorista(motorista)
+
+        val status = viewModel.statusCadastro.value
+        assert(status is UIstatus.Erro)
+        assertEquals("Erro ao salvar", (status as UIstatus.Erro).erro)
     }
 }
