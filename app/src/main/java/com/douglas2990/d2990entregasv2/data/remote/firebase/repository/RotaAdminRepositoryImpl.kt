@@ -1,0 +1,429 @@
+package com.douglas2990.d2990entregasv2.data.remote.firebase.repository
+
+import android.net.Uri
+import com.douglas2990.d2990entregasv2.model.ItemAgendaAdmin
+import com.douglas2990.d2990entregasv2.model.Rota
+import com.example.core.UIstatus
+import com.example.core.util.ConstantesFirebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
+
+class RotaAdminRepositoryImpl @Inject constructor(
+    private val firebaseAuth: FirebaseAuth,
+    private val firebaseFirestore: FirebaseFirestore,
+    private val firebaseStorage: FirebaseStorage,
+    //@ApplicationContext private val context: Context
+) : IRotaRepository {
+
+    private val colecaoRotas = firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
+
+    // --- MÉTODOS DE ESCRITA (ADMIN) ---
+
+    override suspend fun salvar(rota: Rota): UIstatus<String> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid
+                ?: return UIstatus.Erro("Usuário não autenticado")
+
+            val refRota = if (rota.id.isEmpty()) colecaoRotas.document() else colecaoRotas.document(rota.id)
+
+            // Lógica de datas e IDs
+            val idGestorFinal = if (rota.idGestor.isEmpty()) idLogado else rota.idGestor
+            val dataCriacaoFinal = if (rota.id.isEmpty()) System.currentTimeMillis() else rota.dataCriacao
+
+
+            /*val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC") // GARANTE O DIA CORRETO
+            }*/
+
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }
+
+            val dataFormatada = rota.dataPrevista?.let { sdf.format(Date(it)) } ?: ""
+
+            val dataLimpaUTC = if (dataFormatada.isNotEmpty()) sdf.parse(dataFormatada)?.time else rota.dataPrevista
+
+            val rotaFinal = rota.copy(
+                id = refRota.id,
+                idGestor = idGestorFinal,
+                dataCriacao = dataCriacaoFinal,
+                dataPrevista = dataLimpaUTC,
+                dataPrevistaFormatada = dataFormatada, // Campo crucial para o motorista
+                status = if (rota.id.isEmpty()) "PENDENTE" else rota.status,
+                arquivadaAdmin = rota.arquivadaAdmin,
+                arquivadaMotorista = rota.arquivadaMotorista,
+            )
+
+            refRota.set(rotaFinal).await()
+            UIstatus.Sucesso(refRota.id)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao salvar rota: ${e.message}")
+        }
+    }
+
+    override suspend fun remover(idRota: String): UIstatus<Boolean> {
+        return try {
+            colecaoRotas.document(idRota).delete().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao remover rota: ${e.message}")
+        }
+    }
+
+    // --- MÉTODOS DE LEITURA (FILTROS) ---
+
+    override suspend fun listarTodas(): UIstatus<List<Rota>> {
+        return try {
+            val uidAtual = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idGestor", uidAtual)
+                .orderBy("dataPrevista", Query.Direction.ASCENDING)
+                .get()
+                .await()
+
+            val lista = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(lista)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao listar rotas: ${e.message}")
+        }
+    }
+
+    override suspend fun listarPorMotorista(idMotorista: String): UIstatus<List<Rota>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            // O Admin visualiza as rotas que ELE criou para aquele motorista específico
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("idGestor", idLogado) // Filtro de segurança
+                .orderBy("dataPrevista", Query.Direction.DESCENDING)
+                .get()
+                .await()
+
+            val lista = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(lista)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar rotas do motorista: ${e.message}")
+        }
+    }
+
+    // --- MÉTODOS DO CALENDÁRIO (MOTORISTA) ---
+
+    override suspend fun listarDatasComRotas(idMotorista: String): UIstatus<List<Long>> {
+        return try {
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereIn("status", listOf("PENDENTE", "PROBLEMA"))
+                .get()
+                .await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            val datasUnicas = rotas.mapNotNull { it.dataPrevista }
+                .distinct()
+                .sorted()
+
+            UIstatus.Sucesso(datasUnicas)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao buscar datas: ${e.message}")
+        }
+    }
+
+    override suspend fun listarPorDataEMotorista(idMotorista: String, data: Long): UIstatus<List<Rota>> {
+        return try {
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevista", data)
+                .get()
+                .await()
+
+            val lista = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(lista)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao filtrar por data: ${e.message}")
+        }
+    }
+
+    // --- MÉTODOS DE STATUS E FOTOS ---
+
+    override suspend fun finalizarRotaComSucesso(idRota: String, imageUri: Uri): UIstatus<String> {
+        return try {
+            val urlFoto = fazerUploadFoto(idRota, imageUri)
+            colecaoRotas.document(idRota).update(
+                mapOf(
+                    "comprovanteUrl" to urlFoto,
+                    "status" to "CONCLUIDA",
+                    "observacao" to null
+                )
+            ).await()
+            UIstatus.Sucesso("Entrega finalizada!")
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao finalizar: ${e.message}")
+        }
+    }
+
+    override suspend fun reportarProblemaRota(idRota: String, motivo: String, imageUri: Uri?): UIstatus<String> {
+        return try {
+            val updates = mutableMapOf<String, Any?>(
+                "status" to "PROBLEMA",
+                "observacao" to motivo
+            )
+            imageUri?.let { updates["comprovanteUrl"] = fazerUploadFoto(idRota, it) }
+
+            colecaoRotas.document(idRota).update(updates).await()
+            UIstatus.Sucesso("Problema reportado!")
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao reportar: ${e.message}")
+        }
+    }
+
+    // Método privado auxiliar para upload
+    private suspend fun fazerUploadFoto(idRota: String, imageUri: Uri): String {
+        val storageRef = firebaseStorage.reference
+            .child(ConstantesFirebase.STORAGE_COMPROVANTES)
+            .child(idRota)
+            .child("comprovante_${System.currentTimeMillis()}.jpg")
+
+        storageRef.putFile(imageUri).await()
+        return storageRef.downloadUrl.await().toString()
+    }
+
+    // Métodos legados (mantidos para compatibilidade se necessário)
+    override suspend fun atualizarStatus(idRota: String, status: String, observacao: String?): UIstatus<Boolean> {
+        val res = reportarProblemaRota(idRota, observacao ?: "", null)
+        return if (res is UIstatus.Sucesso) UIstatus.Sucesso(true) else UIstatus.Erro("Erro")
+    }
+
+    override suspend fun enviarComprovante(idRota: String, imageUri: Uri): UIstatus<String> {
+        return finalizarRotaComSucesso(idRota, imageUri)
+    }
+
+    override fun listarPorMotoristaRealTime(
+        idMotorista: String,
+        onResult: (UIstatus<List<Rota>>) -> Unit
+    ) {
+        // O Admin pode precisar desta versão real-time para monitorar o Guilherme
+        colecaoRotas
+            .whereEqualTo("idMotorista", idMotorista)
+            .addSnapshotListener { snapshot, erro ->
+                if (erro != null) {
+                    onResult(UIstatus.Erro("Erro Firebase: ${erro.message}"))
+                    return@addSnapshotListener
+                }
+                val lista = snapshot?.toObjects(Rota::class.java) ?: emptyList()
+                onResult(UIstatus.Sucesso(lista))
+            }
+    }
+
+    override fun listarPorMotoristaEDataRealTime(
+        uid: String,
+        data: String,
+        callback: (UIstatus<List<Rota>>) -> Unit
+    ) {
+        firebaseFirestore.collection(ConstantesFirebase.FIRESTORE_ROTAS)
+            .whereEqualTo("idMotorista", uid)
+            .whereEqualTo("dataPrevistaFormatada", data)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    callback(UIstatus.Erro("Erro: ${error.message}"))
+                    return@addSnapshotListener
+                }
+                val lista = snapshot?.toObjects(Rota::class.java) ?: emptyList()
+                callback(UIstatus.Sucesso(lista))
+            }
+    }
+
+    // No RotaRepositoryImpl.kt
+
+    override suspend fun listarDatasComRotasAdmin(idMotorista: String): UIstatus<List<Long>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("idGestor", idLogado) // Filtro para o Admin ver só o que ele criou
+                .get()
+                .await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            val datasUnicas = rotas.mapNotNull { it.dataPrevista }
+                .distinct()
+                .sortedDescending()
+
+            UIstatus.Sucesso(datasUnicas)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao buscar datas: ${e.message}")
+        }
+    }
+
+
+    override suspend fun listarDatasComStatusAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("idGestor", idLogado)
+                //.whereEqualTo("arquivada", false)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+
+            val itens = rotas.filter { it.status != "ARQUIVADA" } // Não mostra o que já foi arquivado
+                .groupBy { it.dataPrevista }
+                .mapNotNull { (data, lista) ->
+                    if (data == null) null else ItemAgendaAdmin(
+                        data = data,
+                        temPendente = lista.any { it.status == "PENDENTE" },
+                        temProblema = lista.any { it.status == "PROBLEMA" }
+                    )
+                }.sortedByDescending { it.data }
+
+            UIstatus.Sucesso(itens)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar agenda: ${e.message}")
+        }
+    }
+
+
+
+
+    override suspend fun arquivarRotaPorDia(idMotorista: String, data: Long): UIstatus<Boolean> {
+        return try {
+            val query = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevista", data)
+                .get().await()
+
+            val batch = firebaseFirestore.batch()
+            query.documents.forEach { doc ->
+                //batch.update(doc.reference, "status", "ARQUIVADA")
+                batch.update(doc.reference,  "arquivada", true)
+            }
+            batch.commit().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao arquivar: ${e.message}")
+        }
+    }
+
+    override suspend fun listarDatasArquivadas(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val snapshot = firebaseFirestore.collection("rotas")
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("arquivada", true) // Filtra apenas as que você arquivou
+                .get()
+                .await()
+
+            val todasAsRotasArquivadas = snapshot.toObjects(Rota::class.java)
+
+            // Agrupamos por data para criar os itens da agenda
+            val itensAgenda = todasAsRotasArquivadas
+                .groupBy { it.dataCriacao } // Agrupa rotas do mesmo dia
+                .map { (data, rotasDoDia) ->
+                    ItemAgendaAdmin(
+                        data = data,
+                        temPendente = rotasDoDia.any { it.status == "PENDENTE" },
+                        temProblema = rotasDoDia.any { it.status == "PROBLEMA" }
+                    )
+                }
+                .sortedByDescending { it.data } // Mais recentes primeiro
+
+            UIstatus.Sucesso(itensAgenda)
+        } catch (e: Exception) {
+            UIstatus.Erro(e.message ?: "Erro ao buscar histórico de datas")
+        }
+    }
+
+    override suspend fun listarRotasArquivadas(idMotorista: String): UIstatus<List<Rota>> {
+        TODO("Not yet implemented")
+    }
+
+    private fun agruparParaAgenda(rotas: List<Rota>): List<ItemAgendaAdmin> {
+        return rotas.groupBy { it.dataPrevista }
+            .mapNotNull { (data, lista) ->
+                if (data == null) null else ItemAgendaAdmin(
+                    data = data,
+                    temPendente = lista.any { it.status == "PENDENTE" },
+                    temProblema = lista.any { it.status == "PROBLEMA" }
+                )
+            }.sortedByDescending { it.data }
+    }
+
+    override suspend fun listarAgendaAtivaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_GESTOR, idLogado)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, false)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(agruparParaAgenda(rotas))
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar agenda ativa: ${e.message}")
+        }
+    }
+
+    override suspend fun listarAgendaArquivadaAdmin(idMotorista: String): UIstatus<List<ItemAgendaAdmin>> {
+        return try {
+            val idLogado = firebaseAuth.currentUser?.uid ?: return UIstatus.Erro("Deslogado")
+
+            val querySnapshot = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_GESTOR, idLogado)
+                // Busca apenas o que o administrador arquivou
+                .whereEqualTo(ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, true)
+                .get().await()
+
+            val rotas = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(agruparParaAgenda(rotas))
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar histórico: ${e.message}")
+        }
+    }
+
+    override suspend fun listarRotasArquivadasPorData(idMotorista: String, data: Long): UIstatus<List<Rota>> {
+        return try {
+            val querySnapshot = colecaoRotas
+                .whereEqualTo("idMotorista", idMotorista)
+                .whereEqualTo("dataPrevista", data)
+                .whereEqualTo("arquivada", true)
+                .get().await()
+
+            val lista = querySnapshot.toObjects(Rota::class.java)
+            UIstatus.Sucesso(lista)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao carregar rotas arquivadas: ${e.message}")
+        }
+    }
+
+    override suspend fun executarArquivamentoDaData(idMotorista: String, data: Long): UIstatus<Boolean> {
+        return try {
+            val query = colecaoRotas
+                .whereEqualTo(ConstantesFirebase.CAMPO_ID_MOTORISTA, idMotorista)
+                .whereEqualTo(ConstantesFirebase.CAMPO_DATA_PREVISTA, data)
+                .get().await()
+
+            val batch = firebaseFirestore.batch()
+            query.documents.forEach { doc ->
+                batch.update(doc.reference, ConstantesFirebase.CAMPO_ARQUIVADA_ADMIN, true)
+            }
+            batch.commit().await()
+            UIstatus.Sucesso(true)
+        } catch (e: Exception) {
+            UIstatus.Erro("Erro ao processar arquivamento: ${e.message}")
+        }
+    }
+
+
+}
