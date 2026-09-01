@@ -75,4 +75,21 @@
             app:destination="@id/rotasMotoristaFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/listarObservacoesFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.ListarObservacoesFragment"
+        android:label="Observações Compartilhadas"
+        tools:layout="@layout/fragment_listar_observacoes">
+        <action
+            android:id="@+id/action_listarObservacoesFragment_to_cadastrarObservacaoFragment"
+            app:destination="@id/cadastrarObservacaoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cadastrarObservacaoFragment"
+        android:name="com.douglas2990.app_motorista.presentation.ui.CadastrarObservacaoFragment"
+        android:label="Nova Observação"
+        tools:layout="@layout/fragment_cadastrar_observacao">
+    </fragment>
+
 </navigation>

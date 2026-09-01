@@ -4,6 +4,8 @@ import com.douglas2990.app_motorista.data.repository.AutenticacaoMotoristaReposi
 import com.douglas2990.app_motorista.data.repository.IAutenticacaoMotoristaRepository
 import com.example.core.repository.RotaRepositoryImpl
 import com.example.core.repository.IRotaRepository
+import com.example.core.repository.IObservacoesRepository
+import com.example.core.repository.ObservacoesRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,10 @@ internal abstract class RepositoryModule {
     abstract fun bindAutenticacaoRepository(
         autenticacaoImpl: AutenticacaoMotoristaRepositoryImpl
     ): IAutenticacaoMotoristaRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindObservacoesRepository(
+        observacoesImpl: ObservacoesRepositoryImpl
+    ): IObservacoesRepository
 }
