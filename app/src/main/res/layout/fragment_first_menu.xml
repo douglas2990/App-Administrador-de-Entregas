@@ -36,6 +36,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_titulo_dashboard" />
 
+        <!-- Linha 1: Empresa e Novo Motorista -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_empresa"
             android:layout_width="0dp"
@@ -69,7 +70,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Cadastrar Empresa"
+                    android:text="Cadastrar Empresa Logística"
                     android:textColor="#212529"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -115,6 +116,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Linha 2: Ver Motoristas e Criar Nova Rota -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_lista_motoristas"
             android:layout_width="0dp"
@@ -188,6 +190,46 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Criar Nova Rota"
+                    android:textColor="#212529"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Linha 3: Cadastrar Cliente (Novo Campo) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_cadastrar_cliente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_lista_motoristas">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_archive"
+                    app:tint="#6610F2" />
+
+                <Button
+                    android:id="@+id/button_CadastrarClienteFragment"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Cadastrar Cliente"
                     android:textColor="#212529"
                     android:textSize="14sp"
                     android:textStyle="bold" />

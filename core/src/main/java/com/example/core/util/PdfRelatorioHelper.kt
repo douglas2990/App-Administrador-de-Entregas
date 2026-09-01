@@ -89,7 +89,57 @@ class PdfRelatorioHelper(private val context: Context) {
 
             paint.isFakeBoldText = false
             canvas.drawText("Endereço: ${rota.endereco}", 40f, y, paint)
-            y += 25f
+            y += 22f
+
+            // --- STATUS DA ENTREGA (visível para toda entrega, com destaque de cor) ---
+            val statusNormalizado = rota.status.trim().uppercase()
+            val corStatus = when (statusNormalizado) {
+                "CONCLUIDA" -> Color.rgb(46, 125, 50)   // verde
+                "PROBLEMA" -> Color.rgb(192, 57, 43)    // vermelho
+                else -> Color.rgb(230, 126, 34)         // laranja (pendente ou outro)
+            }
+            val rotuloStatus = when (statusNormalizado) {
+                "CONCLUIDA" -> "ENTREGUE"
+                "PROBLEMA" -> "PROBLEMA NA ENTREGA"
+                else -> statusNormalizado
+            }
+
+            paint.color = corStatus
+            paint.isFakeBoldText = true
+            paint.textSize = 12f
+            canvas.drawText("Status: $rotuloStatus", 40f, y, paint)
+            y += 20f
+
+            // --- MOTIVO DO PROBLEMA (só aparece quando o status é PROBLEMA) ---
+            if (statusNormalizado == "PROBLEMA" && !rota.observacao.isNullOrBlank()) {
+                paint.color = Color.rgb(192, 57, 43)
+                paint.isFakeBoldText = false
+                paint.textSize = 11f
+
+                val motivoTexto = "Motivo: ${rota.observacao}"
+                // Quebra simples em múltiplas linhas caso o motivo seja longo, evitando corte no PDF
+                val larguraMaxima = 515f
+                var linhaAtual = ""
+                val palavras = motivoTexto.split(" ")
+                for (palavra in palavras) {
+                    val teste = if (linhaAtual.isEmpty()) palavra else "$linhaAtual $palavra"
+                    if (paint.measureText(teste) > larguraMaxima) {
+                        canvas.drawText(linhaAtual, 40f, y, paint)
+                        y += 16f
+                        linhaAtual = palavra
+                        if (y > 750f) pularPagina()
+                    } else {
+                        linhaAtual = teste
+                    }
+                }
+                if (linhaAtual.isNotEmpty()) {
+                    canvas.drawText(linhaAtual, 40f, y, paint)
+                    y += 16f
+                }
+                y += 6f
+            }
+
+            y += 3f
 
             // Tratamento da Imagem (Canhoto)
             if (!rota.comprovanteUrl.isNullOrEmpty()) {
@@ -109,8 +159,12 @@ class PdfRelatorioHelper(private val context: Context) {
                     y += 20f
                 }
             } else {
-                paint.color = Color.RED
-                canvas.drawText("[ENTREGA SEM FOTO]", 40f, y, paint)
+                paint.color = if (statusNormalizado == "PROBLEMA") Color.GRAY else Color.RED
+                val mensagemSemFoto = if (statusNormalizado == "PROBLEMA")
+                    "[Sem foto anexada ao problema]"
+                else
+                    "[ENTREGA SEM FOTO]"
+                canvas.drawText(mensagemSemFoto, 40f, y, paint)
                 y += 20f
             }
 
